@@ -42,15 +42,15 @@ repos:
         name: Sort imports with isort
         args: [--profile=black, --line-length=88]
 
-  # Python static type checking
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.13.0
+  # Python static type checking (simplified to avoid dependency issues)
+  - repo: local
     hooks:
-      - id: mypy
+      - id: mypy-check
         name: Static type checking with MyPy
-        additional_dependencies: [types-all]
-        args: [--ignore-missing-imports, --no-strict-optional]
-        exclude: ^(tests/|docs/)
+        entry: mypy
+        args: [--ignore-missing-imports, --no-strict-optional, src/]
+        language: system
+        pass_filenames: false
 
   # Python security checks
   - repo: https://github.com/PyCQA/bandit
@@ -134,11 +134,11 @@ minimum_pre_commit_version: "3.0.0"
 ci:
   autofix_commit_msg: |
     [pre-commit.ci] auto fixes from pre-commit hooks
-    
+
     for more information, see https://pre-commit.ci
   autofix_prs: true
   autoupdate_branch: 'main'
   autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
   autoupdate_schedule: weekly
   skip: [pytest-check, safety-check]  # Skip slow hooks in CI
-  submodules: false 
+  submodules: false
