@@ -25,6 +25,14 @@ repos:
       - id: check-docstring-first
         name: Check docstring is first
 
+  # Python syntax modernization
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.20.0
+    hooks:
+      - id: pyupgrade
+        name: Upgrade Python syntax
+        args: [--py39-plus]
+
   # Python code formatting
   - repo: https://github.com/psf/black
     rev: 24.10.0

@@ -12,15 +12,15 @@ This list contains **parent tasks only**. After reviewing, reply "Go" and we wil
 
 ## Tasks — Phase 2 Parent Tasks
 
-- [ ] **2.1 Branch & Environment Setup**
+- [x] **2.1 Branch & Environment Setup**
   - Create `feat/python311-upgrade` branch; prepare tox environments for py39, py311.
-  - [ ] 2.1.1 Create `feat/python311-upgrade` branch from current `feature/phase-ii`
-  - [ ] 2.1.2 Update `pyproject.toml` python_requires to ">=3.9"
-  - [ ] 2.1.3 Add Python 3.11 to tox.ini test environments (alongside existing py39)
-  - [ ] 2.1.4 Update GitHub Actions CI matrix to test [3.9, 3.11]
-  - [ ] 2.1.5 Update Dockerfile base image to python:3.11-slim
-  - [ ] 2.1.6 Update docker-compose.yml Python service images to 3.11
-  - [ ] 2.1.7 Verify tox environments can be created successfully
+  - [x] 2.1.1 Create `feat/python311-upgrade` branch from current `feature/phase-ii`
+  - [x] 2.1.2 Update `pyproject.toml` python_requires to ">=3.9"
+  - [x] 2.1.3 Add Python 3.11 to tox.ini test environments (alongside existing py39)
+  - [x] 2.1.4 Update GitHub Actions CI matrix to test [3.9, 3.11]
+  - [x] 2.1.5 Update Dockerfile base image to python:3.11-slim
+  - [x] 2.1.6 Update docker-compose.yml Python service images to 3.11
+  - [x] 2.1.7 Verify tox environments can be created successfully
 
 - [ ] **2.2 Automated Syntax Migration**
   - Run `lib2to3` (legacy sweep) and `pyupgrade --py39-plus`; commit machine changes.

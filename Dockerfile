@@ -1,6 +1,6 @@
 # Multi-stage Dockerfile for EduHub
-# Python 3.13 base image with slim variant for smaller size
-FROM python:3.13-slim as base
+# Python 3.11 base image with slim variant for smaller size
+FROM python:3.11-slim as base
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1 \

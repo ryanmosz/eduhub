@@ -21,7 +21,7 @@ app = FastAPI(
 
 
 @app.get("/")
-async def root() -> Dict[str, str]:
+async def root() -> dict[str, str]:
     """Root endpoint with basic async hello world."""
     await asyncio.sleep(0.001)  # Demonstrate async behavior
     return {
@@ -32,7 +32,7 @@ async def root() -> Dict[str, str]:
 
 
 @app.get("/health")
-async def health_check() -> Dict[str, Any]:
+async def health_check() -> dict[str, Any]:
     """Health check endpoint for container readiness."""
     return {
         "status": "healthy",
@@ -44,7 +44,7 @@ async def health_check() -> Dict[str, Any]:
 
 
 @app.get("/async-demo")
-async def async_demo() -> Dict[str, Any]:
+async def async_demo() -> dict[str, Any]:
     """Demonstrate async functionality with concurrent operations."""
 
     async def fetch_data(delay: float, data: str) -> str:
@@ -73,7 +73,7 @@ async def async_demo() -> Dict[str, Any]:
 
 
 @app.get("/external-api-test")
-async def external_api_test() -> Dict[str, Any]:
+async def external_api_test() -> dict[str, Any]:
     """Test async HTTP client functionality."""
     try:
         async with httpx.AsyncClient() as client:
@@ -94,7 +94,7 @@ async def external_api_test() -> Dict[str, Any]:
 
 
 @app.get("/environment-info")
-async def environment_info() -> Dict[str, Any]:
+async def environment_info() -> dict[str, Any]:
     """Comprehensive environment information for debugging."""
     return {
         "python": {
@@ -120,7 +120,7 @@ async def environment_info() -> Dict[str, Any]:
 
 # Simple sync endpoint for comparison
 @app.get("/sync-hello")
-def sync_hello() -> Dict[str, str]:
+def sync_hello() -> dict[str, str]:
     """Synchronous hello endpoint for comparison."""
     return {
         "message": "Hello from sync endpoint",

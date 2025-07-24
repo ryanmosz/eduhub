@@ -42,7 +42,7 @@ class PloneContent(BaseModel):
     modified: Optional[str] = Field(default=None, description="Modification timestamp")
     state: Optional[str] = Field(default=None, description="Workflow state")
     text: Optional[str] = Field(default=None, description="Content body text")
-    metadata: Dict[str, Any] = Field(
+    metadata: dict[str, Any] = Field(
         default_factory=dict, description="Additional metadata"
     )
 
@@ -54,7 +54,7 @@ class PloneAPIError(Exception):
         self,
         message: str,
         status_code: Optional[int] = None,
-        response_data: Optional[Dict] = None,
+        response_data: Optional[dict] = None,
     ):
         super().__init__(message)
         self.status_code = status_code
@@ -162,8 +162,8 @@ class PloneClient:
         self,
         method: str,
         endpoint: str,
-        params: Optional[Dict] = None,
-        json_data: Optional[Dict] = None,
+        params: Optional[dict] = None,
+        json_data: Optional[dict] = None,
         **kwargs,
     ) -> httpx.Response:
         """Make authenticated request to Plone API."""
@@ -210,7 +210,7 @@ class PloneClient:
                 response_data=response_data,
             )
 
-    async def get_content(self, path: str = "") -> Dict[str, Any]:
+    async def get_content(self, path: str = "") -> dict[str, Any]:
         """Get content from Plone by path."""
         endpoint = f"/{path.lstrip('/')}" if path else ""
         response = await self._request("GET", endpoint)
@@ -219,12 +219,12 @@ class PloneClient:
     async def search_content(
         self,
         query: Optional[str] = None,
-        portal_type: Optional[Union[str, List[str]]] = None,
+        portal_type: Optional[Union[str, list[str]]] = None,
         path: Optional[str] = None,
         limit: int = 25,
         start: int = 0,
         **kwargs,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Search for content in Plone."""
         params = {
             "b_size": limit,
@@ -249,7 +249,7 @@ class PloneClient:
 
     async def create_content(
         self, parent_path: str, portal_type: str, title: str, **kwargs
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create new content in Plone."""
         endpoint = f"/{parent_path.lstrip('/')}"
 
@@ -262,7 +262,7 @@ class PloneClient:
         response = await self._request("POST", endpoint, json_data=content_data)
         return await response.json()
 
-    async def update_content(self, path: str, **kwargs) -> Dict[str, Any]:
+    async def update_content(self, path: str, **kwargs) -> dict[str, Any]:
         """Update existing content in Plone."""
         endpoint = f"/{path.lstrip('/')}"
         response = await self._request("PATCH", endpoint, json_data=kwargs)
@@ -274,13 +274,13 @@ class PloneClient:
         response = await self._request("DELETE", endpoint)
         return response.status_code == 204
 
-    async def get_site_info(self) -> Dict[str, Any]:
+    async def get_site_info(self) -> dict[str, Any]:
         """Get basic information about the Plone site."""
         response = await self._request("GET", "/")
         return await response.json()
 
 
-def transform_plone_content(plone_data: Dict[str, Any]) -> PloneContent:
+def transform_plone_content(plone_data: dict[str, Any]) -> PloneContent:
     """Transform raw Plone API response into standardized PloneContent model."""
     return PloneContent(
         uid=plone_data.get("UID", ""),
