@@ -1,0 +1,101 @@
+Description: Task execution workflow for completing parent tasks efficiently
+Globs: **/tasks/**/*.md, **/tasks-*.md
+
+# Task Execution Workflow
+
+## 🎯 CRITICAL: Testing Boundaries (Top Priority)
+
+**The most important aspect of this workflow is identifying testing boundaries correctly.**
+
+### Testing Boundary Philosophy
+- **Do as much as possible** that makes sense within a logical unit
+- **Sometimes 1 step** needs testing (e.g., database connection)
+- **Sometimes 10 steps** can be done before testing (e.g., file creation batch)
+- **Think ahead**: What constitutes a complete, testable unit of work?
+
+### How to Identify Testing Boundaries
+- **Can the work be verified together?** → Continue working
+- **Does the next step depend on this working?** → Test now
+- **Would debugging be harder if more steps fail?** → Test now
+- **Is this a complete functional unit?** → Natural stopping point
+
+### Examples of Testing Boundaries
+- ✅ **Continue**: Create 5 config files + Dockerfile + docker-compose (test entire stack)
+- ✅ **Continue**: Set up database + models + migrations (test complete data layer)
+- ⛔ **Stop**: Database connection established → Test before building on it
+- ⛔ **Stop**: API endpoints created → Test before adding complex features
+
+## Core Principle
+Execute one **parent task** at a time, completing as many subtasks as possible **up to natural testing boundaries** within that parent task in a single execution cycle.
+
+## Execution Strategy
+
+### Grouping Logic (Always Considering Testing Boundaries)
+- **Complete entire parent task** when all subtasks can be tested together as a unit
+- **Stop at natural testing boundaries** - the most critical decision point
+- **Minimize manual user intervention** - use programmatic approaches via terminal/CLI tools
+- **Batch related subtasks** that create a complete, testable functional unit
+
+### Automation Priority
+1. Use GitHub CLI, terminal commands, and file operations wherever possible
+2. AI handles the technical implementation details
+3. User involvement only for decisions, approvals, or when manual intervention is truly required
+4. Leverage available tools (terminal, file editing, etc.) to minimize user setup work
+
+### Task Completion Protocol
+1. Mark subtasks as `[x]` as they're completed within the parent task execution
+2. Mark parent task as `[x]` when ALL subtasks underneath are complete
+3. Update "Relevant Files" section with newly created/modified files
+4. Stop and ask for approval to proceed to next parent task
+
+### Testing Boundaries (Expanded)
+**This is the key skill that determines workflow success:**
+
+#### Decision Framework
+1. **Look ahead**: What would you need to test if everything up to step X worked?
+2. **Risk assessment**: If step X fails, how much debugging context would you lose?
+3. **Logical completeness**: Does this group of steps create a complete, testable feature?
+4. **Dependency chain**: Does the next major step require this group to be working?
+
+#### Anti-Patterns (Avoid These)
+- ❌ Testing after every single file creation
+- ❌ Continuing when the next step builds on unverified functionality
+- ❌ Fragmenting work that should be verified as a complete unit
+- ❌ Not thinking ahead about what constitutes a meaningful test
+
+#### Success Patterns
+- ✅ Complete all setup that enables a meaningful end-to-end test
+- ✅ Finish building a complete subsystem before moving to the next
+- ✅ Stop when you've created something substantial that can be verified independently
+- ✅ Group related work that would be debugged together anyway
+
+## Integration with Task List Management
+
+This workflow works in conjunction with the `process-task-list.mdc` rule (located in `.cursor/rules/`) to create a complete task execution system:
+
+### Two-Part Workflow System
+1. **Task Execution Workflow** (this file) - Defines HOW to execute parent tasks efficiently
+2. **Process Task List** (`process-task-list.mdc`) - Defines task list maintenance and completion protocols
+
+### How They Work Together
+- **Before starting**: Use `process-task-list` protocols to identify which subtask is next
+- **During execution**: Follow this file's strategy to complete entire parent tasks in one cycle
+- **After completion**: Use `process-task-list` protocols to mark tasks `[x]` and update file sections
+- **Between parent tasks**: Stop and wait for user approval per `process-task-list` requirements
+
+### Unified Approach
+```
+process-task-list.mdc → Identifies what to work on
+         ↓
+task-execution-workflow.mdc → Executes efficiently  
+         ↓
+process-task-list.mdc → Updates progress & waits for approval
+```
+
+This creates Ryan's preferred workflow: **maximum efficiency within parent tasks** while maintaining **proper oversight between major work units**.
+
+## Implementation Notes
+- This workflow maximizes efficiency while maintaining quality gates
+- Reduces context switching between tasks
+- Allows for comprehensive testing of complete functionality units
+- Balances automation with proper oversight

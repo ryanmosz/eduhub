@@ -1,0 +1,166 @@
+Description: Terminal command visibility and progress feedback guidelines
+Globs: **/*.md, **/*.py, **/*.yml, **/*.yaml
+
+# Terminal Command Visibility & Progress Feedback
+
+## Critical Problem
+When terminal commands run silently or hang, it's impossible to distinguish between:
+- ❌ **Hanging/stuck command** (error requiring intervention)
+- ✅ **Working command** (needs patience)
+
+This kills workflow efficiency and requires human intervention to debug.
+
+## Core Principles
+
+### 1. Always Prefer Verbose Output
+- Use verbose flags whenever available (`-v`, `--verbose`, `--debug`)
+- Show progress indicators and status updates
+- Provide real-time feedback during execution
+
+### 2. Avoid Silent Long-Running Commands
+- Never run commands that execute silently for >10 seconds
+- Add progress indicators or status checks
+- Break long operations into visible steps
+
+### 3. Use Live Output Options
+- Prefer tools that show live progress
+- Use streaming output when available
+- Show intermediate results during processing
+
+## Command-Specific Guidelines
+
+### Testing Commands
+```bash
+# ❌ BAD: Silent execution, no progress visibility
+pytest tests/
+
+# ✅ GOOD: Verbose with live output and progress
+pytest tests/ -v -s --tb=short --durations=10
+```
+
+### Build/Install Commands
+```bash
+# ❌ BAD: Silent pip install
+pip install -r requirements.txt
+
+# ✅ GOOD: Verbose with progress
+pip install -r requirements.txt -v --progress-bar on
+```
+
+### Docker Commands
+```bash
+# ❌ BAD: Silent build
+docker build -t myapp .
+
+# ✅ GOOD: With progress and no cache for clarity
+docker build -t myapp . --progress=plain --no-cache
+```
+
+### Long-Running Processes
+```bash
+# ❌ BAD: Background process with no feedback
+uvicorn app:main &
+
+# ✅ GOOD: Foreground with timeout and status check
+timeout 10s uvicorn app:main --host 127.0.0.1 --port 8000 || echo "Server start timeout"
+```
+
+### File Operations
+```bash
+# ❌ BAD: Silent copy/download
+wget https://example.com/large-file.zip
+
+# ✅ GOOD: With progress bar
+wget https://example.com/large-file.zip --progress=bar:force
+```
+
+## Implementation Strategies
+
+### 1. Add Status Checks
+```bash
+# Check if command succeeded with immediate feedback
+command_here && echo "✅ Success" || echo "❌ Failed"
+```
+
+### 2. Use Timeouts for Potentially Hanging Commands
+```bash
+# Prevent infinite hangs
+timeout 30s command_here || echo "Command timed out after 30s"
+```
+
+### 3. Show Intermediate Progress
+```bash
+# For multi-step processes, show each step
+echo "Step 1: Installing dependencies..." && pip install -r requirements.txt -v
+echo "Step 2: Running tests..." && pytest -v -s
+echo "Step 3: Building..." && docker build -t app . --progress=plain
+```
+
+### 4. Live Monitoring for Services
+```bash
+# Instead of backgrounding immediately, show it's working first
+echo "Starting server..." && uvicorn app:main --host 127.0.0.1 --port 8000 &
+sleep 2 && curl -s http://127.0.0.1:8000/health && echo "✅ Server responding"
+```
+
+## Anti-Patterns to Avoid
+
+### ❌ Silent Commands
+- `pip install package` (no progress)
+- `docker build .` (no build output) 
+- `pytest tests/` (minimal output)
+- `npm install` (can hang silently)
+
+### ❌ Background Without Status
+- `command &` (immediate backgrounding)
+- Long-running commands without progress indicators
+- Commands that might hang with no timeout
+
+### ❌ Unclear Failure States
+- Commands that fail silently
+- No indication of what went wrong
+- No recovery suggestions
+
+## Success Patterns
+
+### ✅ Verbose and Informative
+- All commands show what they're doing
+- Progress indicators for long operations
+- Clear success/failure indicators
+- Helpful error messages with next steps
+
+### ✅ Predictable Timeouts
+- Set reasonable timeouts for network operations
+- Provide feedback when timeouts occur
+- Suggest troubleshooting steps
+
+### ✅ Incremental Feedback
+- Break complex operations into visible steps
+- Show progress through multi-stage processes
+- Confirm each stage before proceeding
+
+## Examples for Common Tools
+
+### pytest (Testing)
+```bash
+# Full visibility testing command
+pytest tests/ -v -s --tb=short --durations=10 --color=yes
+```
+
+### Docker (Building)
+```bash
+# Visible Docker build
+docker build -t myapp:dev . --progress=plain --no-cache
+```
+
+### Package Installation
+```bash
+# Visible pip install  
+pip install -r requirements.txt -v --progress-bar on --no-cache-dir
+```
+
+This ensures the human developer always knows if something is working or stuck.
+description:
+globs:
+alwaysApply: false
+---

@@ -1,0 +1,7 @@
+Description: Miscellaneous workflow insights and development best practices
+Globs: docker-compose.yml, Dockerfile, **/pyproject.toml
+
+# Workflow Miscellaneous
+
+### P/p means procede
+ - If the only thing in the chat window is 'p', assume that means proceed. 
