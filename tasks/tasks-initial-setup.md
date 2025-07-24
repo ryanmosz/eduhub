@@ -3,6 +3,9 @@
 - `README.md` – ✅ Comprehensive project documentation with status badges, setup instructions, and architecture overview.
 - `CONTRIBUTING.md` – ✅ Development workflow guidelines with code standards and contribution process.
 - `CHANGELOG.md` – ✅ v0.1.0 release documentation following Keep a Changelog format.
+- `docs/architecture.md` – ✅ Technical architecture documentation with decisions and system design.
+- `docs/api-structure.md` – ✅ API documentation structure and standards for future development.
+- `docs/tech-stack.md` – ✅ Comprehensive technology stack with modern/legacy integration mapping.
 - `docker-compose.yml` – ✅ Spins up Plone, PostgreSQL, Redis and supporting services for local development.
 - `.env.example` – ✅ Template of environment variables required by the stack.
 - `requirements.txt` – ✅ Core Python dependencies for production.
@@ -26,8 +29,6 @@
 - `.github/QUALITY_GATES.md` – ✅ Quality gates configuration with core/optional gates and standards.
 - `.github/CI_TEST.md` – ✅ CI pipeline test marker file for validation.
 - `.github/DEPLOY_INSTRUCTIONS.md` – ✅ Complete deployment guide for GitHub setup and CI validation.
-- `docs/architecture.md` – ✅ Technical architecture documentation with decisions and system design.
-- `docs/api-structure.md` – ✅ API documentation structure and standards for future development.
 - `.pre-commit-config.yaml` – ✅ Automated quality checks configuration for git hooks.
 - `Dockerfile` – ✅ Multi-stage container build for development and production.
 - `.dockerignore` – ✅ Exclude unnecessary files from Docker build context.
@@ -59,6 +60,7 @@
 - API documentation structure templates future endpoint development.
 - Pre-commit hooks automate quality checks with 15+ validation tools.
 - Release v0.1.0 tagged with comprehensive baseline documentation.
+- Tech stack documentation maps modern/legacy integration boundaries and component interactions.
 
 ## Tasks
 
