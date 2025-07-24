@@ -1,6 +1,6 @@
 ## Relevant Files
 
-- `README.md` – Quick-start instructions for cloning the repo, creating a virtual-env and running the app locally.
+- `README.md` – ✅ Comprehensive project documentation with status badges, setup instructions, and architecture overview.
 - `docker-compose.yml` – ✅ Spins up Plone, PostgreSQL, Redis and supporting services for local development.
 - `.env.example` – ✅ Template of environment variables required by the stack.
 - `requirements.txt` – ✅ Core Python dependencies for production.
@@ -22,6 +22,8 @@
 - `.github/workflows/ci.yml` – ✅ GitHub Actions CI workflow with Python matrix, linting, coverage, Docker build, and quality gates.
 - `.github/SECRETS.md` – ✅ Documentation for required GitHub Actions secrets (Docker Hub, deployment).
 - `.github/QUALITY_GATES.md` – ✅ Quality gates configuration with core/optional gates and standards.
+- `.github/CI_TEST.md` – ✅ CI pipeline test marker file for validation.
+- `.github/DEPLOY_INSTRUCTIONS.md` – ✅ Complete deployment guide for GitHub setup and CI validation.
 - `Dockerfile` – ✅ Multi-stage container build for development and production.
 - `.dockerignore` – ✅ Exclude unnecessary files from Docker build context.
 - `.gitignore` – ✅ Standard Python gitignore plus project-specific exclusions.
@@ -44,6 +46,9 @@
 - FastAPI endpoints (/content/, /plone/info) expose Plone data via modern JSON API.
 - CI pipeline includes linting (black, isort, mypy), testing (Python 3.9/3.11), coverage (60%+), security scanning, Docker build/test, and quality gates.
 - Quality gates enforce core requirements (lint, test, integration, build) and optional checks (security, Docker) with proper failure handling.
+- Git repository initialized with comprehensive commit history and CI test validation.
+- README includes 8 status badges, architecture diagrams, and complete setup instructions.
+- Deployment documentation provides GitHub setup checklist and troubleshooting guide.
 
 ## Tasks
 
@@ -78,15 +83,15 @@
   - [x] 2.5.5 Implement basic Plone content access via FastAPI endpoints
   - [x] 2.5.6 Add integration tests for Plone-FastAPI communication
 
-- [ ] 3.0 Wire Up Continuous Integration (CI)
+- [x] 3.0 Wire Up Continuous Integration (CI)
   - [x] 3.1 Create .github/workflows/ci.yml with Python matrix (3.9, 3.11)
   - [x] 3.2 Add GitHub Actions jobs for linting (black, isort, mypy)
   - [x] 3.3 Add pytest job with coverage reporting
   - [x] 3.4 Add Docker build and push job for container registry
   - [x] 3.5 Configure GitHub Actions secrets for deployment
   - [x] 3.6 Add quality gates (minimum test coverage, linting pass)
-  - [ ] 3.7 Test CI pipeline with dummy commit
-  - [ ] 3.8 Add status badges to README for build and coverage
+  - [x] 3.7 Test CI pipeline with dummy commit
+  - [x] 3.8 Add status badges to README for build and coverage
 
 - [ ] 4.0 Commit Baseline Code & Documentation
   - [ ] 4.1 Create comprehensive README.md with setup instructions
