@@ -128,7 +128,7 @@ But they show their age:
 
 ---
 
-## 3  The Six Features (graded items)
+## 3  The Six Features
 
 ### Option A – Coding Camp Administrators (Web-First)
 
