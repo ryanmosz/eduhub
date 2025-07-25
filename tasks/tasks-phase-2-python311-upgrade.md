@@ -77,4 +77,4 @@ This list contains **parent tasks only**. After reviewing, reply "Go" and we wil
   - [x] 2.7.4 Update CI badges to reflect Python 3.11 support
   - [x] 2.7.5 Validate Plone buildout compatibility with Python 3.11
   - [x] 2.7.6 Create PR with comprehensive migration summary and test results
-  - [ ] 2.7.7 Merge to `main` after code review and all checks pass
+  - [x] 2.7.7 Merge to `main` after code review and all checks pass
