@@ -1,0 +1,67 @@
+Description: Process for expanding existing parent tasks with detailed subtasks
+Globs: **/tasks/**/*.md
+
+# Task Subtask Expansion Process
+
+## Overview
+
+When given a task file with existing parent tasks, the goal is to add detailed subtasks underneath each parent task while preserving the original parent task structure exactly as written.
+
+## Process Steps
+
+1. **Identify the Target File**: User will specify the exact task file that contains parent tasks needing subtask expansion.
+
+2. **Preserve Parent Tasks**: Keep all parent task titles and descriptions exactly as they are written. Do NOT modify, rewrite, or restructure the parent tasks.
+
+3. **Add Subtasks**: Under each parent task, add numbered subtasks using the format:
+   - Parent task: `2.1 Branch & Environment Setup`
+   - Subtasks: `2.1.1`, `2.1.2`, `2.1.3`, etc.
+
+4. **Subtask Numbering**: Follow the existing parent task numbering scheme and add decimal subtasks:
+   - If parent is `2.1`, subtasks are `2.1.1`, `2.1.2`, `2.1.3`...
+   - If parent is `3.4`, subtasks are `3.4.1`, `3.4.2`, `3.4.3`...
+
+5. **Subtask Detail Level**: Each subtask should be:
+   - Actionable and specific
+   - Completable in a reasonable timeframe  
+   - Clear enough for a junior developer to understand
+   - Focused on a single logical step
+
+6. **Edit Existing File**: Modify the existing file that contains the parent tasks. Do NOT create a new file unless explicitly instructed.
+
+## What NOT to Do
+
+- ❌ Do NOT create new files instead of editing the existing one
+- ❌ Do NOT modify parent task titles or descriptions
+- ❌ Do NOT reorganize or restructure the parent tasks
+- ❌ Do NOT change the numbering scheme of parent tasks
+- ❌ Do NOT assume - ask for clarification if the target file is unclear
+
+## Expected Outcome
+
+The result should be the same file with:
+- All original parent tasks preserved exactly as written
+- Detailed subtasks added under each parent
+- Clear progression from parent completion → phase completion
+- Ready for execution following the task-execution-workflow.mdc
+
+## Example Structure
+
+```markdown
+- [ ] **2.1 Branch & Environment Setup**
+  - Original parent task description remains unchanged
+  - [ ] 2.1.1 Specific actionable subtask
+  - [ ] 2.1.2 Another specific actionable subtask
+  - [ ] 2.1.3 Final subtask to complete 2.1
+
+- [ ] **2.2 Next Parent Task**
+  - Original parent task description remains unchanged  
+  - [ ] 2.2.1 First subtask for this parent
+  - [ ] 2.2.2 Second subtask for this parent
+```
+
+This process ensures task lists are detailed enough for execution while maintaining the user's original planning structure.
+description:
+globs:
+alwaysApply: false
+---

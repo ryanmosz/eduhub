@@ -132,7 +132,7 @@ async def get_plone_info():
         raise HTTPException(status_code=500, detail="Failed to connect to Plone")
 
 
-@app.get("/content/", response_model=List[PloneContent])
+@app.get("/content/", response_model=list[PloneContent])
 async def list_content(
     query: Optional[str] = Query(None, description="Search query text"),
     content_type: Optional[str] = Query(None, description="Plone content type filter"),
