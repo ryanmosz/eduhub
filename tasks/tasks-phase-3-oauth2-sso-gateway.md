@@ -57,7 +57,7 @@ Legacy Integration Depth: **Full user/role mapping** - Required for Plone securi
   - [ ] 3.2.5 Create basic User model in `src/eduhub/auth/models.py`
   - [ ] 3.2.6 Add HTTPBearer security scheme for FastAPI automatic docs
   - [ ] 3.2.7 **TEST**: Verify FastAPI starts successfully with `uvicorn src.eduhub.main:app --reload`
-  - [ ] 3.2.8 **TEST**: Check Swagger UI at http://localhost:8000/docs shows new auth module structure
+  - [ ] 3.2.8 **TEST**: Check Swagger UI at <http://localhost:8000/docs> shows new auth module structure
   - [ ] 3.2.9 **TEST**: Confirm all auth dependencies install correctly with `pip install -r requirements.txt`
 
 - [ ] **3.3 Auth0 OAuth2 Flow Implementation**
