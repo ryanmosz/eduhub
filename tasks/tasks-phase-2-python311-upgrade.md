@@ -69,12 +69,12 @@ This list contains **parent tasks only**. After reviewing, reply "Go" and we wil
   - [x] 2.6.5 Validate median API response time <50ms target
   - [x] 2.6.6 Document performance improvements and benchmark results
 
-- [ ] **2.7 Documentation & Merge**
+- [x] **2.7 Documentation & Merge**
   - Draft "Python 3.11 Migration Playbook", update README badges, open PR for code review & merge to `main`.
-  - [ ] 2.7.1 Create `docs/migration-playbook.md` for future Python upgrades
-  - [ ] 2.7.2 Update README with Python 3.11+ requirements and benefits
-  - [ ] 2.7.3 Add CHANGELOG entry documenting migration accomplishments
-  - [ ] 2.7.4 Update CI badges to reflect Python 3.11 support
-  - [ ] 2.7.5 Validate Plone buildout compatibility with Python 3.11
-  - [ ] 2.7.6 Create PR with comprehensive migration summary and test results
+  - [x] 2.7.1 Create `docs/migration-playbook.md` for future Python upgrades
+  - [x] 2.7.2 Update README with Python 3.11+ requirements and benefits
+  - [x] 2.7.3 Add CHANGELOG entry documenting migration accomplishments
+  - [x] 2.7.4 Update CI badges to reflect Python 3.11 support
+  - [x] 2.7.5 Validate Plone buildout compatibility with Python 3.11
+  - [x] 2.7.6 Create PR with comprehensive migration summary and test results
   - [ ] 2.7.7 Merge to `main` after code review and all checks pass

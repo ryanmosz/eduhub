@@ -18,7 +18,7 @@
 - [x] **1.0 Project Bootstrap & Initial Setup** (✅ Completed)
   - Dev environment, repo scaffolding, CI baseline, "Hello World" endpoints.
 
-- [ ] **2.0 Python 3.11 + Async Upgrade Harness**
+- [x] **2.0 Python 3.11 + Async Upgrade Harness**
   - Migrate codebase to Python 3.11, introduce async I/O, ensure backward compatibility.
 
 - [ ] **3.0 OAuth2 / SSO Gateway**

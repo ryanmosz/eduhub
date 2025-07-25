@@ -74,6 +74,61 @@ Use **Supabase** _optionally_ for:
 
 Skip if Postgres is already bundled in your container platform or if time is tight.
 
+* **Not Recommended** – Technical or timeline constraints make this option risky for the weekend delivery.
+
+### 3.5 Why the "Enterprise Plone" Advice Still Matters
+
+You shared a summary of how large companies deploy Plone (dedicated
+servers, Kubernetes, managed hosting, etc.).  Although our project is *much*
+smaller in scope and time-boxed to a weekend sprint, the same principles
+influence our choices:
+
+* **Security & Updates** – Even a hobby deployment must let us patch Plone
+  quickly (managed add-ons or Docker rebuilds).
+* **Stateful ZODB** – Plone’s object database lives *inside* the container
+  filesystem unless we mount persistent volumes or use an external storage
+  backend.  Any host we choose must support persistent volumes/snapshots.
+* **Reverse Proxy & Caching** – Plone benefits from a fronting proxy (e.g.
+  Nginx or Traefik).  Platforms like Render and Fly.io provide this out of
+  the box.
+* **CI/CD & Rollback** – The advice about GitHub Actions, Docker, and blue-green
+  deployments maps directly onto our existing pipeline and Sunday deadline.
+* **Vertical vs Horizontal Scaling** – We won’t cluster Plone this weekend,
+  but knowing it *can* scale vertically (bigger container) or horizontally
+  (multiple instances behind a load-balancer) means our chosen host should
+  not block future growth.
+
+### 3.6 Minimum-Viable Deployment Stack for the Weekend Sprint
+
+| Layer | Platform | Rationale |
+|-------|----------|-----------|
+| **React SPA** | **Vercel** (static hosting) | Free tier, instant previews, zero server maintenance. |
+| **FastAPI + Plone** | **Render** *(Docker service with persistent disk)* | One-click deploy from Dockerfile, built-in TLS, free preview envs, supports 512 MB+ RAM needed by Plone, easy secrets UI. |
+| **Database** | **Render Postgres add-on** (initially) | Zero extra accounts, 1-click provisioning; can migrate to Supabase later if we need its auth/realtime features. |
+| **Redis (optional cache)** | Skip for MVP | Plone performs acceptably without Redis for a demo; add later if benchmarks demand it. |
+
+**Why not Kubernetes / AWS ECS?**
+Too much YAML, cluster setup, and IAM wiring for a 4-day sprint.
+
+**Why not Supabase for *everything*?**
+Supabase is excellent for Postgres + Auth, but it cannot run the
+stateful Plone process. We can still point our FastAPI code at a
+Supabase Postgres later without changing the container host.
+
+**Deployment Flow Recap**
+
+1. GitHub push → GitHub Actions builds & tests.
+2. On `main` branch success:
+   * `docker build` and push to `ghcr.io`.
+   * Call Render Deploy Hook → Render pulls the new image, spins up
+     replacement container, performs health-check, and promotes it live.
+3. Vercel auto-builds the SPA from `/frontend` (or top-level) and deploys
+   to the CDN.
+4. Rollback = click "Redeploy previous" on Render *or* Vercel.
+
+With this stack, we meet the Sunday 20:00 deadline **and** keep a clean
+growth path for future scaling.
+
 ---
 
 ## 4. Recommended Hybrid Deployment
@@ -134,3 +189,45 @@ Skip if Postgres is already bundled in your container platform or if time is tig
 ---
 
 _Questions or concerns? Open an issue or ping **#eduhub-devops** on Slack._
+
+## 9. Final Deployment Decision & Timeline
+
+### Locked-In Stack
+
+| Layer | Platform | Status |
+|-------|----------|--------|
+| **Frontend (React Admin SPA)** | **Vercel** – static hosting | ✅ Locked |
+| **Backend (FastAPI + Plone)** | **Render** – Docker service with persistent disk | ✅ Locked |
+| **Database** | Render Postgres add-on | ✅ Locked |
+| **Cache / Realtime** | None for MVP (may add Redis & WebSocket hub in Phase 7) | ⏳ Later |
+
+This combination minimises ops overhead while meeting the Sunday 20:00 deadline:
+* Vercel handles the SPA as a pure static site with global CDN.
+* Render runs the long-lived FastAPI + Plone container and the Postgres add-on.
+
+### Deployment Order & Alignment with Project Phases
+
+| Project Phase (see `tasks/tasks-overall-project-plan.md`) | When We Deploy | What Gets Deployed | Target Platform |
+|-----------------------------------------------------------|----------------|--------------------|-----------------|
+| **Phase 2 – Python 3.11 + Async Upgrade Harness** | After phase completion (tests green) | First backend image (FastAPI + Plone) | **Render** |
+| **Phase 3 – OAuth2 / SSO Gateway** | Immediately after gateway endpoints pass CI | Updated backend image | **Render** |
+| **Phase 4 – Headless JSON API** | After REST & GraphQL endpoints stabilise | Backend image | **Render** |
+| **Phase 5 – React Admin SPA** | End of Day 2 in GUI schedule | Initial SPA build (static) | **Vercel** |
+| **Phase 6 – Dockerised CI/CD Pipeline** | During phase | GitHub → Render & Vercel hooks wired for automatic deploys | Both |
+| **Phase 7 – Realtime Alert Broadcasting** | After WebSocket hub passes load-tests | Backend image (adds WebSocket + Slack) | **Render** |
+| **Phase 8 – QA & Final Demo (Sunday ≤ 20:00)** | Final cut-off | Last successful backend image + SPA build | Render & Vercel |
+
+### CI/CD Flow Snapshot
+
+1. **Backend**
+   * `main` branch → GitHub Actions → build & push Docker image → trigger **Render Deploy Hook**.
+   * Render runs health-checks; if green, it promotes the new container.
+
+2. **Frontend**
+   * `main` branch in `/frontend` (or dedicated repo) → Vercel auto-builds and caches assets → deploys to global CDN.
+
+3. **Rollback**
+   * Render: "Promote previous" button or CLI.
+   * Vercel: redeploy prior build.
+
+With this locked-in plan, every phase has a clear deployment target and the entire stack can be live—and rollback-ready—before the Sunday deadline.
