@@ -49,6 +49,102 @@
 
 ## 🧪 Testing Methodology Strategy
 
+### **Phase III Testing Implementation (Template for Future Phases)**
+
+Phase III OAuth2/SSO Gateway established our standardized testing approach with explicit **TEST** subtasks integrated into each parent task. This methodology should be applied to all future phases.
+
+### **Testing Subtask Integration Pattern**
+
+**Implementation Structure**:
+
+```
+- [ ] **X.Y Parent Task Name**
+  - Brief description of what the parent task accomplishes
+  - [ ] X.Y.1 Implementation subtask 1
+  - [ ] X.Y.2 Implementation subtask 2
+  - [ ] X.Y.3 Implementation subtask 3
+  - [ ] X.Y.4 **TEST**: Specific test with clear success criteria
+  - [ ] X.Y.5 **TEST**: Another test specifying what and how to verify
+  - [ ] X.Y.6 **TEST**: Additional test for edge cases or integration
+```
+
+**Testing Subtask Requirements**:
+
+- ✅ **Marked with TEST**: Clear identification as testing step
+- ✅ **Specific success criteria**: What exactly should work/happen
+- ✅ **Testing method specified**: Swagger UI, browser, command-line, integration script
+- ✅ **Real data verification**: Actual data flows through system (not just mocks)
+- ✅ **User workflow focused**: Tests simulate actual user interactions
+
+### **Testing Tools & Approaches**
+
+**Primary: FastAPI Swagger UI Interactive Testing**
+
+- **What**: Auto-generated interactive API documentation at `/docs`
+- **When**: After implementing each parent task's endpoints
+- **How**: Use "Try it out" buttons to test endpoints with real data
+- **Benefit**: Visual, immediate feedback; no test script development time
+
+**Secondary: Browser Workflow Verification**
+
+- **What**: Complete user flows via actual browser interactions
+- **When**: For authentication flows, redirects, session management
+- **How**: Manual browser testing following real user paths
+- **Benefit**: Validates entire user experience end-to-end
+
+**Integration: Minimal Automation Script**
+
+- **What**: Single script verifying complete workflow automation
+- **When**: After completing all parent tasks in a phase
+- **How**: Python script hitting all endpoints in sequence
+- **Benefit**: Quick regression testing and CI integration
+
+### **"Build → Prove → Next" Enforcement**
+
+**Phase Completion Criteria**:
+
+1. **All implementation subtasks complete** (feature code written)
+2. **All TEST subtasks pass** (verification successful)
+3. **Integration script runs successfully** (end-to-end workflow confirmed)
+4. **Real data flows demonstrated** (not just unit test mocks)
+
+**No progression to next phase until current phase testing is 100% complete.**
+
+### **Future Phase Expansion Guidelines**
+
+**For Phase 4 (CSV Schedule Importer) and beyond**:
+
+**Step 1**: Create parent tasks with implementation subtasks
+**Step 2**: Add 2-4 **TEST** subtasks per parent task using this pattern:
+
+- **TEST**: Verify core functionality via Swagger UI
+- **TEST**: Test real data processing with sample files/inputs
+- **TEST**: Verify integration with existing Plone/auth systems
+- **TEST**: Confirm error handling and edge cases
+
+**Step 3**: Add integration script subtask to final parent task
+**Step 4**: Document testing instructions in phase-specific docs
+
+### **Testing Timeline Expectations**
+
+- **Implementation subtasks**: 15-30 minutes each
+- **TEST subtasks**: 2-5 minutes each (Swagger UI testing)
+- **Integration script creation**: 15 minutes
+- **Integration script execution**: 30 seconds
+- **Total testing overhead**: ~10-15% of implementation time
+
+### **Quality Gates**
+
+- ✅ **All endpoints appear in Swagger UI** with proper documentation
+- ✅ **Real user workflows complete successfully** via browser
+- ✅ **Data transforms correctly** between modern and legacy systems
+- ✅ **Error conditions handled gracefully** with clear user feedback
+- ✅ **Integration script passes** without manual intervention
+
+---
+
+## 🧪 Original Testing Strategy (Pre-Phase III)
+
 ### **Revised Approach: Swagger-Primary + Minimal Integration**
 
 **Decision**: Abandon complex command-line testing scripts in favor of FastAPI auto-generated Swagger interface.
@@ -207,9 +303,17 @@ Each feature must be fully functional before proceeding to next feature.
 
 1. **Begin OAuth2/SSO implementation** (Friday night)
 2. **Follow API-first development** methodology
-3. **Test each feature in Swagger** before proceeding
-4. **Maintain integration script** for end-to-end verification
-5. **Assess progress Saturday evening** for UI decision
+3. **Complete all TEST subtasks** before proceeding to next parent task
+4. **Use Swagger UI for interactive testing** as primary verification method
+5. **Create integration script** for end-to-end verification
+6. **Assess progress Saturday evening** for UI decision
+
+### **Future Phase Development Process**
+
+1. **Expand parent tasks** using Phase III testing methodology template
+2. **Add explicit TEST subtasks** (2-4 per parent task) with clear success criteria
+3. **Follow "Build → Prove → Next"** - no progression until testing complete
+4. **Document testing approach** in phase-specific documentation
 
 ### **Team Strengths Leveraged**
 
@@ -222,5 +326,7 @@ Each feature must be fully functional before proceeding to next feature.
 ---
 
 **This addendum supersedes any conflicting guidance in the original project plan and establishes the finalized strategy for weekend MVP development.**
+
+**Testing Methodology**: Phase III established the standardized approach with explicit **TEST** subtasks that should be applied to all future phases (4, 5, 6, etc.) during task expansion.
 
 **Next Action**: Begin Phase III (OAuth2/SSO Gateway) implementation following established subtask breakdown in `tasks-phase-3-oauth2-sso-gateway.md`.

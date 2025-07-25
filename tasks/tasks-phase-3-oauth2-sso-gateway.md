@@ -20,25 +20,33 @@
 - `docker-compose.yml` - Updated with OAuth environment variables
 - `.env.example` - OAuth configuration templates
 - `docs/authentication.md` - OAuth setup and configuration guide
+- `scripts/quick_integration_test.py` - Minimal end-to-end testing script for complete workflow verification
 
 ### Notes
 
-This list contains **parent tasks only**. After reviewing, reply "Go" and we will expand each into detailed sub-tasks.
+This list contains **parent tasks with explicit testing subtasks**. Each parent task includes 2-4 **TEST** subtasks that specify exactly what and how to test.
+
+**Testing Approach**: Every parent task has specific testing subtasks marked with **TEST** that use Swagger UI, browser verification, and integration scripts.
 
 OAuth Provider Decision: **Auth0** - Chosen for fast MVP implementation and educational institution compatibility.
 
 Legacy Integration Depth: **Full user/role mapping** - Required for Plone security model and granular access control.
 
+**Testing Timeline**: Each parent task includes 2-4 explicit testing subtasks using Swagger UI + browser verification. Integration script provides automated end-to-end confirmation.
+
 ## Tasks — Phase 3 Detailed Subtasks
 
 - [ ] **3.1 Auth0 Quick Setup & Configuration**
   - Set up Auth0 tenant and configure minimal application settings for FastAPI integration.
+
   - [ ] 3.1.1 Create Auth0 free tenant account and obtain domain URL
   - [ ] 3.1.2 Create Single Page Application in Auth0 dashboard for dev environment
   - [ ] 3.1.3 Configure callback URLs for local development (<http://localhost:8000>)
   - [ ] 3.1.4 Create test users in Auth0 for development (<dev@example.com>, <admin@example.com>)
   - [ ] 3.1.5 Note down Auth0 domain, client ID, and client secret for environment configuration
   - [ ] 3.1.6 Enable email/password database connection and disable social logins for MVP
+  - [ ] 3.1.7 **TEST**: Verify Auth0 Universal Login works by manually logging in test user via Auth0 dashboard
+  - [ ] 3.1.8 **TEST**: Confirm Auth0 application settings show correct callback URLs and connection status
 
 - [ ] **3.2 FastAPI Authentication Infrastructure**
   - Add minimal auth module to existing FastAPI app without disrupting current architecture.
@@ -48,6 +56,9 @@ Legacy Integration Depth: **Full user/role mapping** - Required for Plone securi
   - [ ] 3.2.4 Add Auth0 environment variables to .env.example and docker-compose.yml
   - [ ] 3.2.5 Create basic User model in `src/eduhub/auth/models.py`
   - [ ] 3.2.6 Add HTTPBearer security scheme for FastAPI automatic docs
+  - [ ] 3.2.7 **TEST**: Verify FastAPI starts successfully with `uvicorn src.eduhub.main:app --reload`
+  - [ ] 3.2.8 **TEST**: Check Swagger UI at http://localhost:8000/docs shows new auth module structure
+  - [ ] 3.2.9 **TEST**: Confirm all auth dependencies install correctly with `pip install -r requirements.txt`
 
 - [ ] **3.3 Auth0 OAuth2 Flow Implementation**
   - Implement Auth0 authorization code flow with minimal FastAPI endpoints.
@@ -57,6 +68,10 @@ Legacy Integration Depth: **Full user/role mapping** - Required for Plone securi
   - [ ] 3.3.4 Create `/auth/logout` endpoint for Auth0 logout with return URL
   - [ ] 3.3.5 Add JWT token validation function using Auth0's public keys (JWKS)
   - [ ] 3.3.6 Create `/auth/user` endpoint to return current authenticated user info
+  - [ ] 3.3.7 **TEST**: Use Swagger UI to access `/auth/login` and verify redirect to Auth0 Universal Login
+  - [ ] 3.3.8 **TEST**: Complete login flow manually and verify `/auth/callback` processes authorization code
+  - [ ] 3.3.9 **TEST**: Verify JWT token generation by calling `/auth/user` endpoint via Swagger UI
+  - [ ] 3.3.10 **TEST**: Test `/auth/logout` endpoint redirects properly and clears session
 
 - [ ] **3.4 Existing PloneClient Integration**
   - Integrate Auth0 user data with existing Plone user system using current PloneClient.
@@ -66,6 +81,10 @@ Legacy Integration Depth: **Full user/role mapping** - Required for Plone securi
   - [ ] 3.4.4 Add fallback user creation in Plone for new Auth0 users
   - [ ] 3.4.5 Create combined user context (Auth0 claims + Plone roles)
   - [ ] 3.4.6 Test integration with existing Plone test instance
+  - [ ] 3.4.7 **TEST**: Login with Auth0 test user and verify Plone user lookup works via Swagger UI
+  - [ ] 3.4.8 **TEST**: Check user role mapping by calling `/auth/user` and confirming Plone roles appear
+  - [ ] 3.4.9 **TEST**: Verify new Auth0 user gets created in Plone automatically on first login
+  - [ ] 3.4.10 **TEST**: Confirm combined user context (Auth0 claims + Plone roles) via `/auth/user` endpoint
 
 - [ ] **3.5 Security & Session Management**
   - Implement secure token handling and session management using existing patterns.
@@ -75,12 +94,19 @@ Legacy Integration Depth: **Full user/role mapping** - Required for Plone securi
   - [ ] 3.5.4 Create session cleanup and logout token invalidation
   - [ ] 3.5.5 Add CORS configuration for Auth0 callback handling
   - [ ] 3.5.6 Implement basic audit logging for authentication events
+  - [ ] 3.5.7 **TEST**: Test invalid JWT token handling via Swagger UI (expect 401 errors)
+  - [ ] 3.5.8 **TEST**: Verify token refresh works by testing with expired token via Swagger UI
+  - [ ] 3.5.9 **TEST**: Test rate limiting by making multiple rapid requests to auth endpoints
+  - [ ] 3.5.10 **TEST**: Verify CORS configuration allows Auth0 callback from browser
+  - [ ] 3.5.11 **TEST**: Check audit logs show authentication events (login, logout, failures)
 
 - [ ] **3.6 Testing & Documentation**
-  - Add comprehensive tests using existing pytest framework and update documentation.
-  - [ ] 3.6.1 Create unit tests for JWT validation functions in `tests/test_auth/`
-  - [ ] 3.6.2 Add integration tests for Auth0 OAuth flow with mocked responses
-  - [ ] 3.6.3 Test Plone user mapping with existing test infrastructure
-  - [ ] 3.6.4 Add authentication middleware tests using existing FastAPI test client
-  - [ ] 3.6.5 Update existing API documentation with authentication requirements
-  - [ ] 3.6.6 Create Auth0 setup guide in `docs/authentication.md` for deployment
+  - Implement comprehensive verification using Swagger UI and create integration testing script.
+  - [ ] 3.6.1 **TEST**: Verify all auth endpoints appear in Swagger UI with clear descriptions and examples
+  - [ ] 3.6.2 **TEST**: Use Swagger "Authorize" button to test protected endpoints with real JWT tokens
+  - [ ] 3.6.3 **TEST**: Complete full OAuth flow via browser (login → callback → user info → logout)
+  - [ ] 3.6.4 Create integration script `scripts/quick_integration_test.py` for automated end-to-end verification
+  - [ ] 3.6.5 **TEST**: Run integration script and verify all OAuth → Plone workflows complete successfully
+  - [ ] 3.6.6 **TEST**: Verify Swagger UI shows proper authentication examples and error responses
+  - [ ] 3.6.7 Create Auth0 setup guide in `docs/authentication.md` with step-by-step testing instructions
+  - [ ] 3.6.8 **TEST**: Follow setup guide from scratch to ensure it works for new developers
