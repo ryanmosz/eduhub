@@ -1,193 +1,223 @@
 # Agent Handoff - EduHub Project Status
 
-## Current Status: Phase I Complete, Ready for Git Commit
+## Current Status: Phase III OAuth2/SSO Gateway - Ready for Implementation
 
-**Project**: EduHub Modern Education Platform
-**Phase**: Bootstrap & Initial Setup (Phase I) - ✅ **COMPLETE**
-**Issue**: Terminal commands hanging, need to restart app
-**Next Goal**: Git commit and move to Phase II feature branch
+**Project**: EduHub Modern Education Platform  
+**Phase**: OAuth2/SSO Gateway (Phase III) - **🎯 READY TO IMPLEMENT**  
+**Branch**: `feature/phase-iii-oauth2-sso`  
+**Next Goal**: Begin subtask 3.1.1 - Create Auth0 tenant account  
+**Timeline**: Weekend MVP (Sunday 8 PM deadline)
 
 ## What We've Accomplished
 
-### **Phase I Bootstrap Complete (41/41 tasks done)**
+### **✅ Phase I: Bootstrap & Initial Setup** - COMPLETE
+- FastAPI + Python 3.13, Docker stack, Plone integration working
+- CI/CD pipeline, 63% test coverage, documentation complete
+- Tech stack documented, development environment operational
 
-- ✅ **Development Environment**: FastAPI + Python 3.13, Docker stack, quality tools
-- ✅ **Plone Integration**: 340+ packages, HTTP bridge working, content accessible
-- ✅ **CI/CD Pipeline**: 7-job GitHub Actions with quality gates
-- ✅ **Testing**: 63% coverage, 24 integration tests, security scanning
-- ✅ **Documentation**: Architecture docs, API standards, deployment guides
-- ✅ **Tech Stack Documentation**: `docs/tech-stack.md` - modern/legacy integration mapping
-- ✅ **Non-Technical Summary**: `docs/non-technical/bootstrap-and-initial-setup-report.md` - concise technical report for managers
+### **✅ Phase II: Python 3.11 Upgrade** - COMPLETE  
+- All 23 subtasks completed, benchmarks show performance improvements
+- Modern async patterns implemented, quality gates operational
 
-### **All Core Files Created**
+### **🎯 Phase III: OAuth2/SSO Gateway Planning** - COMPLETE
+- **Comprehensive strategic planning session completed**
+- **56 detailed subtasks created (36 implementation + 20 testing)**
+- **All critical decisions made, implementation roadmap finalized**
 
-- `pyproject.toml`, `docker-compose.yml`, `Dockerfile`, requirements files
-- `src/eduhub/main.py`, `src/eduhub/plone_integration.py`
-- `tests/test_hello.py`, `tests/test_plone_integration.py`
-- `.github/workflows/ci.yml` with comprehensive quality gates
-- Complete documentation suite in `docs/`
+## Strategic Decisions Made
 
-## Current Git Status
+### **🔐 OAuth Provider: Auth0**
+- **Decision**: Auth0 for MVP timeline balance (enterprise relevant + fast setup)
+- **Alternative Analysis**: Rejected Google (complex setup), GitHub (wrong audience), Mock Auth (not realistic)
+- **Integration Strategy**: Email/password auth, JWT tokens, Plone user bridge
+- **Timeline**: 3-day implementation window with proven integration patterns
 
+### **🧪 Testing Methodology: "Build → Prove → Next"**
+- **20 explicit TEST subtasks** integrated across all 6 parent tasks
+- **Testing Tools**: Swagger UI (primary) + Browser verification + Integration script
+- **Success Criteria**: Real data verification, not just mocks
+- **Quality Gates**: Each parent task must pass TEST before proceeding
+
+### **🎨 GUI Strategy: Progressive Enhancement**
+- **MVP Approach**: API-first (Swagger UI) for immediate functionality
+- **Enhancement Path**: Simple HTML templates → React Admin SPA
+- **Decision Point**: Saturday evening based on time/progress
+- **User Experience**: Interactive Swagger for testing, future React for production
+
+### **📋 Feature Implementation Order (6 Required + 2 Bonus)**
+1. **Phase III: OAuth2/SSO Gateway** (Auth0) - **CURRENT**
+2. **Phase IV: CSV Schedule Importer** (easy win, high user value)
+3. **Phase V: Rich-Media Embeds (oEmbed)** (moderate complexity)
+4. **Phase VI: Open Data API Endpoints** (leverages existing infrastructure)
+5. **Phase VII: Role-Based Workflow Templates** (complex but valuable)
+6. **Phase VIII: Real-Time Alert Broadcasting** (technical showcase)
+7. **BONUS: React Admin SPA** (if time permits)
+8. **BONUS: Dockerised CI/CD Pipeline** (infrastructure polish)
+
+## Phase III Implementation Plan
+
+### **📂 Key Files Created**
 ```
-On branch main
-Changes not staged for commit:
- modified:   tasks/tasks-initial-setup.md
-
-Untracked files:
- .github/DEPLOY_INSTRUCTIONS.md
- .pre-commit-config.yaml
- CHANGELOG.md
- CONTRIBUTING.md
- Dockerfile
- README.md
- docker-compose.yml
- docs/
- pyproject.toml
- requirements-dev.txt
- requirements.txt
- src/
- tests/
- tox.ini
- upstream/
+tasks/tasks-phase-3-oauth2-sso-gateway.md       # 56 detailed subtasks
+tasks/tasks-overall-project-plan-addendum.md    # Strategic decisions & methodology
+docs/feature-analysis-alternatives.md           # 18+ feature alternatives analyzed
+docs/future-gui-plans.md                       # GUI wireframes & strategy
 ```
 
-## Immediate Issue
+### **🎯 Immediate Next Steps (Start Here)**
 
-**Problem**: Terminal tool not starting, Git commands were hanging for 5+ minutes
-**User Feedback**: Commands too complex, not following `@terminal-command-visibility.mdc` rule
-**User Preference**: Simple, fast Git commands with visible progress output
+**SUBTASK 3.1.1**: Create Auth0 free tenant account and obtain domain URL
+- **Action**: Sign up at auth0.com
+- **Deliverable**: Auth0 domain (e.g., `your-project.us.auth0.com`)
+- **Time Estimate**: 10 minutes
+- **Success Criteria**: Can access Auth0 dashboard, domain URL obtained
 
-## What I Was Attempting
+**SUBTASK 3.1.2**: Create Application in Auth0 for FastAPI backend
+- **Action**: Applications → Create Application → Regular Web Application
+- **Configuration**: Note Client ID, Client Secret, Domain
+- **Deliverable**: Application credentials for backend
+- **Time Estimate**: 5 minutes
 
-**Goal**: Complete the initial Git commit and start Phase II
+**SUBTASK 3.1.3**: Configure Auth0 application URLs for local development
+- **Configuration**:
+  - Allowed Callback URLs: `http://localhost:8000/auth/callback`
+  - Allowed Logout URLs: `http://localhost:8000/`
+  - Allowed Web Origins: `http://localhost:8000`
+- **Deliverable**: Local development URLs configured
+- **Time Estimate**: 5 minutes
 
-1. **Initial commit**: Add all new files with message "Initial EduHub bootstrap - Phase I complete"
-2. **Create feature branch**: `git checkout -b feature/phase-ii-core-features`
-3. **Move to Phase II**: Begin core features development
+### **🔧 Development Environment Status**
+- **Docker Stack**: ✅ Operational (`docker-compose up`)
+- **FastAPI Server**: ✅ Running on `http://localhost:8000`
+- **Plone Integration**: ✅ HTTP bridge functional
+- **Testing Framework**: ✅ pytest + 63% coverage
+- **Git Branch**: ✅ Clean working tree on `feature/phase-iii-oauth2-sso`
 
-## Critical User Preferences (MUST FOLLOW)
+### **📋 Phase III Task Structure (56 Subtasks)**
+```
+3.1 Auth0 Account & Application Setup (7 subtasks + 1 TEST)
+3.2 Backend OAuth2 Dependencies & Configuration (9 subtasks + 1 TEST)  
+3.3 FastAPI OAuth2 Integration (8 subtasks + 1 TEST)
+3.4 Frontend Authentication Flow (7 subtasks + 1 TEST)
+3.5 Plone User Integration & Role Mapping (8 subtasks + 1 TEST)
+3.6 Documentation & Production Configuration (6 subtasks + 1 TEST)
+```
 
-### **Memory ID 4283002**: Terminal Command Visibility
+## Git Status & Branch Information
 
-- Run commands directly with minimal echo statements
-- Brief description of what you're doing
-- Commands complete in reasonable time
-- Provide clear, direct feedback with visible progress
-- Avoid hanging commands that appear crashed
+```bash
+# Current branch: feature/phase-iii-oauth2-sso
+# Status: Clean working tree (all planning committed)
+# Last commits:
+#   091701c - Clean up Phase III task file formatting  
+#   8a2318c - Final testing methodology integration complete
+```
 
-### **Git Command Style Requested**
+### **Branch History**
+- **Planning Phase**: Comprehensive strategic planning session
+- **Documentation**: 4 major planning documents created
+- **Testing Integration**: 20 explicit TEST subtasks added
+- **Strategic Alignment**: Feature ordering optimized for 6-feature pass requirement
 
-- "This is what I'm doing" → Run the git command directly
-- Show command output immediately
-- No complex workflows or lengthy commit message generation
-- Simple, fast commands only
+## Critical User Preferences & Context
 
-## Next Steps for New Agent
+### **🕒 Timeline Pressure: Weekend MVP**
+- **Deadline**: Sunday 8 PM (approximately 48 hours)
+- **Strategy**: 6 features minimum to pass, OAuth counts as Feature #2
+- **Risk Management**: Feature alternatives analyzed, scope reduction strategies documented
+- **Success Definition**: Functional proof-of-concept, not enterprise production
 
-### **Immediate Actions**
+### **🧪 Testing Philosophy**
+- **User Request**: "Sanity checks" and "stub executables" to prove functionality
+- **Implementation**: Explicit TEST subtasks with Swagger UI validation
+- **Methodology**: Real data verification, browser testing, integration scripts
+- **Quality Gates**: Must pass TEST before proceeding to next parent task
 
-1. **Check Git status**: `git status` to confirm current state
-2. **Simple initial commit**:
+### **💡 Technical Preferences**
+- **Memory ID 4323608**: Auth0 for authentication (email/password or passwordless)
+- **Architecture**: FastAPI backend, Plone integration via HTTP REST API
+- **Development**: Docker-based, but CI/CD pipeline deprioritized for MVP
+- **GUI**: API-first approach, React experience available if time permits
 
+## Documentation & Strategic Context
+
+### **📊 Feature Analysis Completed**
+- **18+ alternatives** analyzed with complexity/value scoring
+- **Risk mitigation**: CSV Schedule Importer identified as fastest fallback
+- **Dependencies mapped**: OAuth enables enhanced functionality in later features
+- **User stories**: Educational Program Operation Managers as primary persona
+
+### **🎨 GUI Strategy Finalized**
+- **MVP**: Swagger UI for immediate functionality testing
+- **Enhancement**: Simple HTML templates for user-friendly interfaces  
+- **Future**: React Admin SPA leveraging user's React experience
+- **Wireframes**: ASCII diagrams created for both minimal and full interfaces
+
+### **🔄 Testing Methodology Template**
+- **Pattern**: Build → Prove → Next enforcement
+- **Tools**: Swagger UI (primary), Browser verification, Integration script
+- **Documentation**: Template created for Phase IV, V, VI expansion
+- **Quality Assurance**: Real data requirements, no mock-only validation
+
+## Next Agent Instructions
+
+### **🚀 Start Implementation Immediately**
+
+1. **Verify Environment**:
    ```bash
-   git add .
-   git commit -m "Initial EduHub bootstrap - Phase I complete"
+   git status  # Confirm clean working tree
+   docker-compose up -d  # Start development stack
    ```
 
-3. **Create Phase II branch**: `git checkout -b feature/phase-ii-core-features`
+2. **Begin Subtask 3.1.1**: Create Auth0 tenant
+   - Navigate to auth0.com 
+   - Create free account
+   - Note the domain URL (e.g., `dev-abc123.us.auth0.com`)
 
-### **Phase II Planning**
+3. **Follow Task Sequence**: 
+   - Complete subtasks 3.1.1 through 3.1.7
+   - Execute **TEST 3.1.8** before proceeding to parent task 3.2
+   - Use Swagger UI at `http://localhost:8000/docs` for testing
 
-- Review `docs/plone_django_web_platform_5day_plan.md` for Phase II requirements
-- Focus on core features: user auth, content management, search
-- All infrastructure is ready - can focus purely on feature development
+4. **Document Progress**:
+   - Mark completed subtasks in `tasks/tasks-phase-3-oauth2-sso-gateway.md`
+   - Commit incremental progress with clear messages
+   - Update this handoff file if major decisions arise
 
-## Project Context
+### **🔗 Critical Files for Implementation**
+- `tasks/tasks-phase-3-oauth2-sso-gateway.md` - **Primary task list**
+- `tasks/tasks-overall-project-plan-addendum.md` - Strategic context
+- `docs/tech-stack.md` - Architecture integration patterns
+- `src/eduhub/main.py` - FastAPI application entry point
+- `src/eduhub/plone_integration.py` - Legacy system bridge
 
-### **Architecture**: Modern Shell + Legacy Core
+### **⚠️ Important Implementation Notes**
+- **Auth0 Free Tier**: Sufficient for MVP (7,000 active users, unlimited logins)
+- **Local Development**: Configure `localhost:8000` URLs first, production later
+- **Plone Integration**: User mapping bridge required (subtasks 3.5.x)
+- **Testing Validation**: Each TEST subtask must pass before proceeding
+- **Time Management**: If falling behind, refer to feature alternatives in addendum
 
-- **FastAPI** (new) ↔ **HTTP API** ↔ **Plone CMS** (legacy)
-- Bridge architecture enables gradual modernization
-- All existing content preserved and accessible
+## Success Criteria for Phase III
 
-### **Key Technologies**
+### **Functional Requirements**
+- ✅ Users can log in via Auth0 OAuth2 flow
+- ✅ JWT tokens generated and validated by FastAPI
+- ✅ Plone user accounts mapped to Auth0 identities  
+- ✅ Role-based access control functional
+- ✅ Login/logout workflow complete
+- ✅ **All 6 TEST subtasks pass verification**
 
-- **Backend**: FastAPI, Python 3.13, PostgreSQL, Redis
-- **Legacy**: Plone CMS via buildout in `upstream/`
-- **DevOps**: Docker, GitHub Actions, comprehensive quality gates
-- **Testing**: pytest, 63% coverage, integration tests
-
-### **Development Environment Ready**
-
-- `docker-compose up` starts full stack
-- `pytest` runs all tests (24 passing)
-- CI pipeline configured and tested
-- Documentation complete
-
-## Files Created This Session
-
-### **Documentation**
-
-- `docs/tech-stack.md` - Technology stack with modern/legacy boundaries
-- `docs/non-technical/bootstrap-and-initial-setup-report.md` - Manager summary
-- `agent-handoff.md` (this file)
-
-### **Updated**
-
-- `tasks/tasks-initial-setup.md` - All 41 tasks marked complete
-
-## Important Notes
-
-### **Testing Boundaries Achieved**
-
-- ✅ All Phase I tasks complete
-- ✅ Full development environment working
-- ✅ Plone integration functional
-- ✅ CI/CD pipeline operational
-- ✅ Documentation comprehensive
-
-### **Quality Metrics**
-
-- **Test Coverage**: 63% (exceeds 60% requirement)
-- **Code Quality**: All linting passes (black, isort, mypy)
-- **Security**: Zero critical vulnerabilities
-- **Integration**: 24 tests covering FastAPI ↔ Plone communication
-
-### **Ready for Production**
-
-- Docker images build successfully
-- CI pipeline validates all changes
-- Quality gates enforce standards
-- Documentation supports team onboarding
-
-## Cursor Rules to Follow
-
-### **CRITICAL**: `@terminal-command-visibility.mdc`
-
-- Simple, fast commands with visible output
-- No hanging or complex Git workflows
-- Direct feedback to user
-
-### **Task Management**: `@process-task-list.mdc`
-
-- Phase I complete - all tasks marked done
-- Ready to create Phase II task list
-
-### **Development Workflow**: `@RMM-workflow/task-execution-workflow.mdc`
-
-- Focus on testing boundaries
-- Complete units of work before moving forward
-
-## Next Agent: Start Here
-
-1. **Verify Git status**: `git status`
-2. **Simple commit**: `git add . && git commit -m "Initial EduHub bootstrap - Phase I complete"`
-3. **Phase II branch**: `git checkout -b feature/phase-ii-core-features`
-4. **Begin Phase II**: Review 5-day plan and create task list for core features
-
-**Key Success Factor**: Keep Git commands simple and fast. User needs to see progress, not hanging commands.
+### **Technical Requirements**
+- ✅ Auth0 integration configured for local + production
+- ✅ FastAPI OAuth2 middleware operational
+- ✅ Swagger UI shows protected endpoints
+- ✅ Browser workflow demonstrates user experience
+- ✅ Integration script validates end-to-end flow
+- ✅ Code committed with clear documentation
 
 ---
 
-**Handoff Complete** - Phase I infrastructure established, ready for Phase II features development.
+**🎯 Phase III Implementation Ready - Begin with subtask 3.1.1 (Auth0 tenant creation)**
+
+**Strategic Planning Complete** - All decisions made, comprehensive roadmap established, weekend MVP timeline achievable with focused execution.
