@@ -13,7 +13,7 @@ from urllib.parse import quote_plus, urlencode
 
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
-from fastapi.responses import RedirectResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 
 from .dependencies import get_current_user, validate_jwt_token
 from .models import AuthResponse, User
@@ -258,11 +258,17 @@ async def logout(request: Request):
     logout_url = f"https://{AUTH0_DOMAIN}/v2/logout?" + urlencode(logout_params)
 
     # Create response with session cleanup
-    response = AuthResponse(
-        message="Logout successful - session cleared",
-        redirect_url=logout_url,
-        user=None,  # Clear user info
+    response = JSONResponse(
+        content={
+            "message": "Logout successful - session cleared",
+            "redirect_url": logout_url,
+            "user": None,  # Clear user info
+        }
     )
+
+    # Clear authentication cookies
+    response.delete_cookie("access_token", path="/")
+    response.delete_cookie("id_token", path="/")
 
     # Log logout event for audit trail
     log_auth_event(

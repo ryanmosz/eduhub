@@ -403,13 +403,47 @@ async def schedule_test_console(request: Request):
                 });
 
                 if (response.ok) {
+                    const result = await response.json();
                     logConsole('✅ Logout successful');
-                    setTimeout(() => checkAuthStatus(), 1000);
+                    
+                    // Clear any remaining cookies on client side
+                    document.cookie = 'access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+                    document.cookie = 'id_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+                    
+                    // Update UI immediately
+                    document.getElementById('authStatus').className = 'auth-status not-authenticated';
+                    document.getElementById('authStatusText').textContent = '❌ Not authenticated';
+                    document.getElementById('userInfo').textContent = '';
+                    document.getElementById('previewBtn').disabled = true;
+                    document.getElementById('importBtn').disabled = true;
+                    
+                    logConsole('🔄 Session cleared locally');
+                    
+                    // Redirect to Auth0 logout (clears Auth0 session)
+                    if (result.redirect_url) {
+                        logConsole('🌐 Redirecting to complete logout...');
+                        setTimeout(() => {
+                            window.location.href = result.redirect_url;
+                        }, 1000);
+                    }
                 } else {
                     logConsole('❌ Logout failed');
                 }
             } catch (error) {
                 logConsole('❌ Logout error: ' + error.message);
+                
+                // Force clear cookies even if request failed
+                document.cookie = 'access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+                document.cookie = 'id_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+                
+                // Update UI
+                document.getElementById('authStatus').className = 'auth-status not-authenticated';
+                document.getElementById('authStatusText').textContent = '❌ Not authenticated';
+                document.getElementById('userInfo').textContent = '';
+                document.getElementById('previewBtn').disabled = true;
+                document.getElementById('importBtn').disabled = true;
+                
+                logConsole('🔄 Session cleared locally (fallback)');
             }
         }
 
