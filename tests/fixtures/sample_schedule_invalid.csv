@@ -5,4 +5,4 @@ Math Workshop,invalid-date,14:30,Prof. Johnson,Room B,60,Invalid date format
 Science Lab,2025-02-02,25:00,Dr. Williams,Lab 1,120,Invalid time format
 History Seminar,2025-02-02,16:00,,Room C,75,Missing instructor
 Art Class,2025-02-03,11:00,Ms. Davis,,90,Missing room
-Physics Lecture,2025-02-03,13:00,Dr. Anderson,Auditorium,999,Duration too long 
+Physics Lecture,2025-02-03,13:00,Dr. Anderson,Auditorium,999,Duration too long

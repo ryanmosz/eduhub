@@ -5,6 +5,7 @@ Orchestrates parsing, validation, conflict detection, and Plone content creation
 for bulk schedule imports with rollback capabilities.
 """
 
+import logging
 import time
 from typing import List, Optional
 
@@ -15,6 +16,8 @@ from ..plone_integration import PloneClient
 from .conflict_detector import ConflictDetector
 from .models import ConflictError, ImportSummary, ScheduleRow, ValidationError
 from .parser import ScheduleParser
+
+logger = logging.getLogger(__name__)
 
 
 class ScheduleImportService:
@@ -117,6 +120,7 @@ class ScheduleImportService:
             List of created content UIDs
         """
         created_uids = []
+        created_paths = {}
 
         try:
             for row in rows:
@@ -127,13 +131,15 @@ class ScheduleImportService:
                 # Note: This will need to be updated when we implement bulk creation
                 uid = await self._create_single_event(event_data, user)
                 created_uids.append(uid)
+                # Store the path for rollback purposes
+                created_paths[uid] = f"events/{uid}"
 
             return created_uids
 
         except Exception as e:
             # If any creation fails, attempt to clean up created content
-            if created_uids:
-                await self._rollback_created_content(created_uids, user)
+            if created_paths:
+                await self._rollback_created_content(created_paths, user)
             raise e
 
     def _schedule_row_to_event_data(self, row: ScheduleRow) -> dict:
@@ -142,7 +148,7 @@ class ScheduleImportService:
 
         Maps CSV fields to Plone event fields according to our content model.
         """
-        # Parse start time
+        # Parse start time - ensure it's in ISO format for Plone
         start_datetime = f"{row.date}T{row.time}:00"
 
         # Calculate end time based on duration
@@ -157,13 +163,14 @@ class ScheduleImportService:
             # Fallback to 1-hour duration
             end_datetime = f"{row.date}T{int(row.time[:2]) + 1:02d}:{row.time[3:]}:00"
 
+        # Map CSV fields to Plone Event fields
         return {
             "title": f"{row.program} - {row.instructor}",
             "description": row.description or f"Program: {row.program}",
-            "start": start_datetime,
-            "end": end_datetime,
-            "location": row.room,
-            "attendees": [row.instructor],
+            "start": start_datetime,  # Event start time
+            "end": end_datetime,      # Event end time
+            "location": row.room,     # Event location
+            "attendees": [row.instructor],  # List of attendees
             # Custom fields for educational content
             "program_name": row.program,
             "instructor_name": row.instructor,
@@ -175,30 +182,54 @@ class ScheduleImportService:
         """
         Create a single event in Plone.
 
-        This is a placeholder that will be replaced with actual PloneClient integration.
+        This method creates an actual Plone Event content item using the PloneClient.
         """
-        # TODO: Implement actual Plone event creation
-        # For now, simulate the creation and return a mock UID
-        import uuid
+        try:
+            # Create the event in Plone using the REST API
+            # Events are typically created in a folder like /events or at the site root
+            parent_path = "events"  # Default path for events, could be configurable
+            
+            # Create the event content
+            response = await self.plone_client.create_content(
+                parent_path=parent_path,
+                portal_type="Event",  # Plone Event content type
+                **event_data
+            )
+            
+            # Extract UID from response
+            uid = response.get("UID")
+            if not uid:
+                raise Exception(f"Failed to get UID from created event: {response}")
+                
+            return uid
+            
+        except Exception as e:
+            logger.error(f"Failed to create event in Plone: {e}")
+            raise Exception(f"Failed to create event in Plone: {str(e)}")
 
-        mock_uid = str(uuid.uuid4())
-
-        # In real implementation, this would be:
-        # uid = await self.plone_client.create_event(event_data, user_context=user)
-
-        return mock_uid
-
-    async def _rollback_created_content(self, uids: list[str], user: User) -> None:
+    async def _rollback_created_content(self, uid_paths: dict[str, str], user: User) -> None:
         """
         Rollback (delete) content that was created during a failed import.
 
         This ensures atomicity - either all content is created or none is.
+        
+        Args:
+            uid_paths: Dictionary mapping UIDs to their corresponding paths
+            user: User context for content deletion
         """
-        # TODO: Implement actual Plone content deletion
-        # For now, this is a placeholder
-
-        # In real implementation, this would be:
-        # for uid in uids:
-        #     await self.plone_client.delete_content(uid, user_context=user)
-
-        pass
+        if not uid_paths:
+            return
+            
+        logger.info(f"Rolling back {len(uid_paths)} created events")
+        
+        for uid, path in uid_paths.items():
+            try:
+                success = await self.plone_client.delete_content(path)
+                if success:
+                    logger.info(f"Successfully deleted event with UID: {uid}")
+                else:
+                    logger.warning(f"Failed to delete event with UID: {uid}")
+                    
+            except Exception as e:
+                logger.error(f"Error deleting event with UID {uid}: {e}")
+                # Continue trying to delete other events even if one fails

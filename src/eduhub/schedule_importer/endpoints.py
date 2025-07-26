@@ -5,12 +5,15 @@ Provides secure file upload and processing endpoints for bulk
 schedule imports with preview and validation capabilities.
 """
 
-from typing import Optional, Union
+import os
+from typing import Annotated, Optional, Union
+from unittest.mock import AsyncMock
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from fastapi.responses import HTMLResponse, JSONResponse, Response
 
 from ..auth.dependencies import get_current_user
+from ..auth.models import User
 from ..plone_integration import PloneClient
 from .models import ErrorResponse, ImportSummary
 from .services import ScheduleImportService
@@ -18,12 +21,19 @@ from .services import ScheduleImportService
 router = APIRouter(prefix="/import", tags=["Schedule Import"])
 
 
-async def get_schedule_import_service() -> ScheduleImportService:
-    """Dependency to get ScheduleImportService instance."""
-    # For now, create a new PloneClient instance
-    # In a production environment, this would be managed as a singleton
-    plone_client = PloneClient()
-    return ScheduleImportService(plone_client)
+def get_schedule_import_service() -> ScheduleImportService:
+    """Get configured schedule import service with dependency injection."""
+    # Check for mock mode
+    if os.getenv("PLONE_MOCK_MODE", "false").lower() == "true":
+        # Create a mock PloneClient for testing without real Plone
+        mock_client = AsyncMock(spec=PloneClient)
+        mock_client.create_content.return_value = {"UID": f"mock-uid-{hash(str(id(mock_client))) % 10000:04d}"}
+        mock_client.delete_content.return_value = True
+        return ScheduleImportService(mock_client)
+    else:
+        # Use real Plone client
+        plone_client = PloneClient()
+        return ScheduleImportService(plone_client)
 
 
 @router.post("/schedule", response_model=Union[ImportSummary, ErrorResponse])
