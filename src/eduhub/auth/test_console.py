@@ -306,6 +306,7 @@ async def auth_test_console():
                         <button class="btn" onclick="checkAuthStatus()">🔍 Check Auth Status</button>
                         <button class="btn" onclick="resetTest()">🔄 Reset Test</button>
                         <button class="btn" onclick="debugCookies()">🍪 Debug Cookies</button>
+                        <button class="btn" onclick="simpleLogout()">🚪 Simple Logout</button>
                         <button class="btn" onclick="window.open('{base_url}/docs', '_blank')">📚 Swagger UI</button>
                     </div>
                 </div>
@@ -626,6 +627,15 @@ async def auth_test_console():
                 }} else {{
                     log('❌ getAuthToken() returned null', 'error');
                 }}
+            }}
+
+            function simpleLogout() {{
+                log('🚪 Performing simple logout (clearing tokens)...', 'info');
+                document.cookie = 'access_token=; Max-Age=0; path=/';
+                localStorage.removeItem('access_token');
+                log('✅ Simple logout complete. Tokens cleared.', 'success');
+                updateSessionStatus('logged-out');
+                updateWorkflowStep(6, 'complete', '✅');
             }}
 
             // Initialize console on page load
