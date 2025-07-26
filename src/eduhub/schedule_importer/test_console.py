@@ -124,26 +124,23 @@ async def schedule_test_console(request: Request):
             font-size: 14px;
             height: 300px;
             overflow-y: auto;
-            margin-top: 20px;
             position: relative;
         }
         .console-header {
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
         }
         .copy-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
             background: #333;
             color: #fff;
             border: 1px solid #555;
-            padding: 5px 10px;
+            padding: 8px 12px;
             border-radius: 4px;
             cursor: pointer;
             font-size: 12px;
+            font-weight: bold;
         }
         .copy-btn:hover { background: #555; }
 

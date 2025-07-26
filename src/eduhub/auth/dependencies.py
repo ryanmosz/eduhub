@@ -11,7 +11,7 @@ from functools import lru_cache
 from typing import Optional
 
 import httpx
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwk, jwt
 
@@ -177,13 +177,15 @@ def validate_jwt_token(token: str) -> dict:
 
 
 async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
+    request: Request,
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(HTTPBearer(auto_error=False)),
 ) -> User:
     """
     FastAPI dependency to get current authenticated user from JWT token with Plone integration.
 
     Args:
-        credentials: HTTP Bearer token from request
+        request: FastAPI request object (to access cookies)
+        credentials: HTTP Bearer token from request (optional)
 
     Returns:
         User: Combined user information from Auth0 JWT + Plone user data
@@ -191,14 +193,23 @@ async def get_current_user(
     Raises:
         HTTPException: If token is missing or invalid
     """
-    if not credentials:
+    # Try to get token from Authorization header first, then from cookies
+    token = None
+    
+    if credentials:
+        token = credentials.credentials
+    else:
+        # Try to get token from cookies
+        token = request.cookies.get("access_token") or request.cookies.get("id_token")
+    
+    if not token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Authorization header required",
+            detail="Authorization token required (header or cookie)",
         )
 
     # Validate token and extract user info
-    token_payload = validate_jwt_token(credentials.credentials)
+    token_payload = validate_jwt_token(token)
 
     # Sync with Plone and get combined user context
     combined_user = await sync_auth0_user_to_plone(token_payload)
