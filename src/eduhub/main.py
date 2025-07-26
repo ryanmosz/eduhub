@@ -20,7 +20,6 @@ from .auth.dependencies import HTTPException
 from .auth.oauth import router as auth_router
 from .auth.test_console import router as test_router
 from .schedule_importer.endpoints import router as schedule_router
-from .schedule_importer.test_console import router as schedule_test_router
 
 
 @asynccontextmanager
@@ -63,7 +62,6 @@ app.add_middleware(
 app.include_router(auth_router, tags=["Authentication"])
 app.include_router(test_router, tags=["Testing"])
 app.include_router(schedule_router, tags=["Schedule Import"])
-app.include_router(schedule_test_router, tags=["Schedule Import Testing"])
 
 
 @app.get("/")

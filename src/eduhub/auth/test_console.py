@@ -242,6 +242,21 @@ async def auth_test_console():
             .step-active {{ color: #ffff00; }}
             .step-complete {{ color: #00ff00; }}
             .step-error {{ color: #ff6666; }}
+
+            .copy-credential:hover { background: #6c757d; }
+            
+            .file-upload {
+                margin: 15px 0;
+                padding: 15px;
+                border: 2px dashed #ccc;
+                border-radius: 8px;
+                text-align: center;
+                background: white;
+                cursor: pointer;
+            }
+            .file-upload.dragover { border-color: #2196F3; background: #f0f8ff; }
+            
+            #systemStatus.operational { border-color: #4CAF50; background: #f8fff8; }
         </style>
     </head>
     <body>
@@ -318,6 +333,27 @@ async def auth_test_console():
                         <button class="btn btn-small" onclick="copyConsoleOutput()">📋 Copy Output</button>
                         <button class="btn btn-small" onclick="saveConsoleLog()">💾 Save Log</button>
                     </div>
+                </div>
+            </div>
+
+            <div class="test-section">
+                <h3>📁 CSV Schedule Importer Testing</h3>
+                <div class="file-upload" id="fileUpload">
+                    <input type="file" id="fileInput" accept=".csv, .xlsx, .xls" style="display: none;">
+                    <p>Drag & drop your CSV/Excel file here, or click to select</p>
+                    <p id="fileInfo">No file selected</p>
+                </div>
+                <div class="test-buttons">
+                    <button class="btn btn-warning" id="previewBtn" onclick="testPreview()" disabled>👀 Test Preview</button>
+                    <button class="btn btn-success" id="importBtn" onclick="testImport()" disabled>⚡ Test Import</button>
+                    <button class="btn btn-info" onclick="testValidation()">🧪 Test Validation</button>
+                    <button class="btn btn-secondary" onclick="downloadTemplate()">📋 Download Template</button>
+                    <button class="btn btn-secondary" onclick="checkSystemStatus()">⚙️ System Status</button>
+                </div>
+                <div id="systemStatus" style="margin-top: 15px; padding: 10px; background: #f8fcff; border: 2px solid #2196F3; border-radius: 8px;">
+                    <h4>System Status</h4>
+                    <p id="systemStatusText">Checking...</p>
+                    <p id="systemCapabilities"></p>
                 </div>
             </div>
         </div>
@@ -545,38 +581,43 @@ async def auth_test_console():
                 }});
             }}
 
-            function checkAuthStatus() {{
-                log('🔍 Checking authentication status...', 'info');
-
-                const token = getAuthToken();
-                if (!token) {{
-                    log('❌ No authentication token found', 'info');
-                    updateSessionStatus('logged-out');
-                    return;
+            async function checkAuthStatus() {{
+                logConsole('🔍 Checking authentication status...');
+                try {
+                    const response = await fetch('/auth/user', {
+                        credentials: 'include'
+                    });
+                    
+                    if (response.ok) {
+                        const userData = await response.json();
+                        authToken = getAuthToken();
+                        document.getElementById('authStatus').className = 'auth-status authenticated';
+                        document.getElementById('authStatusText').textContent = '✅ Authenticated';
+                        document.getElementById('userInfo').innerHTML = '👤 ' + userData.email + '<br>🆔 ' + userData.sub;
+                        
+                        logConsole('✅ Authenticated as: ' + userData.email);
+                        logConsole('🆔 User ID: ' + userData.sub);
+                        
+                        // Enable CSV importer buttons if file is selected
+                        if (selectedFile && document.getElementById('previewBtn')) {
+                            document.getElementById('previewBtn').disabled = false;
+                            document.getElementById('importBtn').disabled = false;
+                        }
+                    } else {
+                        document.getElementById('authStatus').className = 'auth-status not-authenticated';
+                        document.getElementById('authStatusText').textContent = '❌ Not authenticated';
+                        document.getElementById('userInfo').innerHTML = '';
+                        authToken = null;
+                        
+                        // Disable CSV importer buttons
+                        if (document.getElementById('previewBtn')) {
+                            document.getElementById('previewBtn').disabled = true;
+                            document.getElementById('importBtn').disabled = true;
+                        }
+                    }
+                }} catch (error) {{
+                    logConsole('❌ Error checking auth status: ' + error.message);
                 }}
-
-                fetch('{base_url}/auth/user', {{
-                    headers: {{
-                        'Authorization': 'Bearer ' + token
-                    }}
-                }})
-                .then(async response => {{
-                    if (response.ok) {{
-                        const user = await response.json();
-                        log('✅ Currently authenticated as: ' + user.email, 'success');
-                        updateSessionStatus('logged-in');
-                    }} else {{
-                        log('❌ Authentication token invalid or expired', 'info');
-                        updateSessionStatus('logged-out');
-                        // Clear invalid token
-                        document.cookie = 'access_token=; Max-Age=0; path=/';
-                        localStorage.removeItem('access_token');
-                    }}
-                }})
-                .catch(error => {{
-                    log('❓ Auth status unknown: ' + error.message, 'warning');
-                    updateSessionStatus('unknown');
-                }});
             }}
 
             function resetTest() {{
@@ -638,65 +679,207 @@ async def auth_test_console():
                 updateWorkflowStep(6, 'complete', '✅');
             }}
 
-            // Initialize console on page load
-            window.addEventListener('DOMContentLoaded', function() {{
-                loadPersistedLogs();
+            function openSwagger() {
+                logConsole('📖 Opening Swagger documentation...');
+                window.open('/docs', '_blank');
+            }
+            
+            async function checkSystemStatus() {
+                logConsole('⚙️ Checking CSV importer system status...');
+                try {
+                    const response = await fetch('/import/schedule/status');
+                    if (response.ok) {
+                        const status = await response.json();
+                        document.getElementById('systemStatusText').textContent = '✅ ' + status.status;
+                        document.getElementById('systemCapabilities').innerHTML = '📁 Formats: ' + status.supported_formats.join(', ') + '<br>📏 Max size: ' + status.max_file_size_mb + 'MB';
+                        logConsole('✅ CSV importer system operational');
+                        logConsole('📁 Supported formats: ' + status.supported_formats.join(', '));
+                    } else {
+                        logConsole('❌ CSV importer system status check failed');
+                    }
+                } catch (error) {
+                    logConsole('❌ System status error: ' + error.message);
+                }
+            }
+            
+            function setupFileUpload() {
+                const fileUpload = document.getElementById('fileUpload');
+                const fileInput = document.getElementById('fileInput');
+                
+                if (!fileUpload || !fileInput) return; // Elements not on this page
+                
+                fileUpload.onclick = () => fileInput.click();
+                
+                fileUpload.ondragover = (e) => {
+                    e.preventDefault();
+                    fileUpload.classList.add('dragover');
+                };
+                
+                fileUpload.ondragleave = () => {
+                    fileUpload.classList.remove('dragover');
+                };
+                
+                fileUpload.ondrop = (e) => {
+                    e.preventDefault();
+                    fileUpload.classList.remove('dragover');
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        handleFileSelect(files[0]);
+                    }
+                };
+                
+                fileInput.onchange = (e) => {
+                    if (e.target.files.length > 0) {
+                        handleFileSelect(e.target.files[0]);
+                    }
+                };
+            }
+            
+            function handleFileSelect(file) {
+                selectedFile = file;
+                logConsole('📁 File selected: ' + file.name + ' (' + (file.size / 1024).toFixed(2) + ' KB)');
+                
+                document.getElementById('fileInfo').innerHTML = '<strong>Selected file:</strong> ' + file.name + '<br><strong>Size:</strong> ' + (file.size / 1024).toFixed(2) + ' KB<br><strong>Type:</strong> ' + (file.type || 'Unknown');
+                
+                // Enable buttons if authenticated
+                const authStatus = document.getElementById('authStatus');
+                if (authStatus && authStatus.classList.contains('authenticated')) {
+                    document.getElementById('previewBtn').disabled = false;
+                    document.getElementById('importBtn').disabled = false;
+                }
+            }
 
-                // Check if we just returned from a callback
-                const urlParams = new URLSearchParams(window.location.search);
-                const loginInitiated = localStorage.getItem('login_initiated');
+            async function downloadTemplate() {
+                logConsole('📋 Downloading CSV template...');
+                try {
+                    const response = await fetch('/import/schedule/template');
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'schedule_template.csv';
+                    document.body.appendChild(a);
+                    a.click();
+                    logConsole('✅ Template downloaded successfully');
+                } catch (error) {
+                    logConsole('❌ Template download failed: ' + error.message);
+                }
+            }
 
-                if (urlParams.has('code')) {{
-                    log('🎉 OAuth2 callback detected!', 'success');
-                    log('✅ Authorization code received: ' + urlParams.get('code').substring(0, 20) + '...', 'success');
-                    updateWorkflowStep(2, 'complete', '✅');
-                    updateWorkflowStep(3, 'complete', '✅');
-                    updateWorkflowStep(4, 'complete', '✅');
-                    updateWorkflowStep(5, 'complete', '✅');
+            async function testPreview() {
+                if (!selectedFile) {
+                    logConsole('❌ No file selected');
+                    return;
+                }
+                
+                logConsole('👀 Testing preview mode with: ' + selectedFile.name);
+                await uploadFile(true);
+            }
 
-                    // Debug: Log all cookies
-                    log('🍪 Available cookies: ' + document.cookie, 'debug');
+            async function testImport() {
+                if (!selectedFile) {
+                    logConsole('❌ No file selected');
+                    return;
+                }
+                
+                logConsole('⚡ Testing import mode with: ' + selectedFile.name);
+                await uploadFile(false);
+            }
 
-                    // Check if we have a valid token now
-                    const token = getAuthToken();
-                    if (token) {{
-                        log('🔐 Authentication token received and stored', 'success');
-                        log('🔑 Token preview: ' + token.substring(0, 30) + '...', 'debug');
-                        updateSessionStatus('logged-in');
-                    }} else {{
-                        log('⚠️ No authentication token found after callback', 'warning');
-                        log('🔍 Cookie value for access_token: ' + getCookie('access_token'), 'debug');
-                        updateSessionStatus('unknown');
-                    }}
+            async function uploadFile(previewOnly) {
+                const formData = new FormData();
+                formData.append('file', selectedFile);
+                formData.append('preview_only', previewOnly.toString());
+                
+                try {
+                    logConsole('📤 Uploading ' + selectedFile.name + '...');
+                    const response = await fetch('/import/schedule', {
+                        method: 'POST',
+                        body: formData,
+                        credentials: 'include'
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (response.ok) {
+                        logConsole('✅ Upload successful!');
+                        logConsole('📊 Processing results:');
+                        logConsole('   Total rows: ' + result.total_rows);
+                        logConsole('   Valid rows: ' + result.valid_rows);
+                        logConsole('   Errors: ' + (result.validation_errors?.length || 0));
+                        logConsole('   Conflicts: ' + (result.conflicts?.length || 0));
+                        logConsole('   Success: ' + result.success);
+                        logConsole('   Processing time: ' + result.processing_time_ms + 'ms');
+                        
+                        if (result.validation_errors && result.validation_errors.length > 0) {
+                            logConsole('🔍 Validation errors:');
+                            result.validation_errors.forEach(error => {
+                                logConsole('   Row ' + error.row_number + ': ' + error.message);
+                            });
+                        }
+                    } else {
+                        logConsole('❌ Upload failed: ' + (result.message || result.detail || 'Unknown error'));
+                    }
+                } catch (error) {
+                    logConsole('❌ Upload error: ' + error.message);
+                }
+            }
 
-                    localStorage.removeItem('login_initiated');
-                    log('🎊 Login flow completed successfully!', 'success');
-                    log('👉 Try "👤 Check User Info" or "🚪 Test Logout"', 'info');
-                }} else if (urlParams.has('error')) {{
-                    log('❌ OAuth2 error detected!', 'error');
-                    log('❌ Error: ' + urlParams.get('error'), 'error');
-                    log('📝 Description: ' + (urlParams.get('error_description') || 'No description'), 'error');
-                    updateWorkflowStep(3, 'error', '❌');
-                    updateSessionStatus('logged-out');
-                }} else if (!loginInitiated) {{
-                    // Fresh start
-                    log('🎓 EduHub OAuth2 Test Console Initialized', 'success');
-                    log('🔧 Auth0 Domain: dev-1fx6yhxxi543ipno.us.auth0.com', 'info');
-                    log('🆔 Client ID: s05QngyZXEI3XNdirmJu0CscW1hNgaRD', 'info');
-                    log('🌐 Base URL: {base_url}', 'info');
-                    log('', 'info');
-                    log('📋 Instructions:', 'warning');
-                    log('1. Click "🚀 Start Login Flow" to begin', 'info');
-                    log('2. Use test credentials when prompted', 'info');
-                    log('3. Watch the workflow steps above', 'info');
-                    log('4. Test user info and logout when ready', 'info');
-                    log('', 'info');
-                    updateWorkflowStep(1, 'complete', '✅');
-                }}
+            async function testValidation() {
+                logConsole('🧪 Testing validation with invalid data...');
+                
+                // Create a test file with invalid data
+                const invalidCsv = 'program,date,time,instructor,room,duration,description\\nTest Program,invalid-date,25:00,Dr. Test,Room A,999,Test description';
+                
+                const blob = new Blob([invalidCsv], { type: 'text/csv' });
+                const file = new File([blob], 'test_invalid.csv', { type: 'text/csv' });
+                
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('preview_only', 'true');
+                
+                try {
+                    const response = await fetch('/import/schedule', {
+                        method: 'POST',
+                        body: formData,
+                        credentials: 'include'
+                    });
+                    
+                    const result = await response.json();
+                    
+                    logConsole('✅ Validation test completed');
+                    if (result.validation_errors) {
+                        logConsole('🔍 Validation results:');
+                        result.validation_errors.forEach(error => {
+                            logConsole('   Row ' + error.row_number + ': ' + error.message);
+                        });
+                    }
+                } catch (error) {
+                    logConsole('❌ Validation test error: ' + error.message);
+                }
+            }
 
-                // Check current auth status
-                setTimeout(checkAuthStatus, 1000);
-            }});
+            // Initialize on page load
+            document.addEventListener('DOMContentLoaded', function() {
+                logConsole('🎓 EduHub OAuth2 Test Console Initialized');
+                logConsole('🔧 Auth0 Domain: ' + auth0_domain);
+                logConsole('🆔 Client ID: ' + auth0_client_id);
+                logConsole('🌐 Base URL: ' + base_url);
+                logConsole('');
+                logConsole('📋 Instructions:');
+                logConsole('1. Click "🚀 Start Login Flow" to begin');
+                logConsole('2. Use test credentials when prompted');
+                logConsole('3. Watch the workflow steps above');
+                logConsole('4. Test user info and logout when ready');
+                logConsole('5. Test CSV Schedule Importer functionality');
+                logConsole('');
+
+                checkAuthStatus();
+                setupFileUpload();
+                checkSystemStatus();
+            });
+
+            let selectedFile = null;
         </script>
     </body>
     </html>
