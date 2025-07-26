@@ -33,6 +33,14 @@ class User(BaseModel):
     permissions: list[str] = Field(default_factory=list, description="User permissions")
     plone_user_id: Optional[str] = Field(None, description="Associated Plone user ID")
 
+    # Plone integration fields
+    plone_groups: list[str] = Field(
+        default_factory=list, description="Plone user groups"
+    )
+    auth0_data: Optional[dict[str, Any]] = Field(
+        None, description="Additional Auth0 metadata"
+    )
+
     class Config:
         """Pydantic configuration"""
 
@@ -48,9 +56,16 @@ class User(BaseModel):
                 "iss": "https://dev-1fx6yhxxi543ipno.us.auth0.com/",
                 "exp": 1640995200,
                 "iat": 1640908800,
-                "roles": ["user"],
-                "permissions": ["read:profile"],
-                "plone_user_id": "dev-user",
+                "roles": ["Member", "Faculty"],
+                "permissions": ["view", "create", "edit"],
+                "plone_user_id": "dev_68842107",
+                "plone_groups": ["Faculty", "Content-Contributors"],
+                "auth0_data": {
+                    "aud": "s05QngyZXEI3XNdirmJu0CscW1hNgaRD",
+                    "iss": "https://dev-1fx6yhxxi543ipno.us.auth0.com/",
+                    "iat": 1640908800,
+                    "exp": 1640995200,
+                },
             }
         }
 

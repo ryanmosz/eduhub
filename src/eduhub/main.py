@@ -10,6 +10,7 @@ from contextlib import asynccontextmanager
 from typing import Any, Dict, List, Optional
 
 from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 
 # Import the hello world module for basic endpoints
@@ -72,6 +73,35 @@ app = FastAPI(
             }
         }
     },
+)
+
+# Configure CORS for Auth0 and development
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+        "https://dev-1fx6yhxxi543ipno.us.auth0.com",  # Allow Auth0 domain
+        "http://localhost:3000",  # Common frontend dev port
+        "http://localhost:3001",  # Alternative frontend port
+    ],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=[
+        "Authorization",
+        "Content-Type",
+        "Accept",
+        "Origin",
+        "User-Agent",
+        "DNT",
+        "Cache-Control",
+        "X-Mx-ReqToken",
+        "Keep-Alive",
+        "X-Requested-With",
+        "If-Modified-Since",
+        "X-CSRF-Token",
+    ],
+    expose_headers=["Retry-After"],  # For rate limiting
 )
 
 # Include the hello world endpoints

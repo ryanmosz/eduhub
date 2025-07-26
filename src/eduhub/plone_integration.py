@@ -279,6 +279,145 @@ class PloneClient:
         response = await self._request("GET", "/")
         return await response.json()
 
+    # User Management Methods for Auth0 Integration
+
+    async def get_user_by_email(self, email: str) -> Optional[dict[str, Any]]:
+        """
+        Lookup a Plone user by email address.
+
+        Args:
+            email: User's email address
+
+        Returns:
+            User data dict if found, None if not found
+        """
+        try:
+            # Search for user by email in Plone users endpoint
+            response = await self._request("GET", "/@users", params={"query": email})
+            users_data = await response.json()
+
+            # Look for exact email match in the results
+            for user in users_data.get("items", []):
+                if user.get("email", "").lower() == email.lower():
+                    return user
+
+            return None
+
+        except PloneAPIError as e:
+            logger.warning(f"Error looking up user by email {email}: {e}")
+            return None
+
+    async def get_user_by_username(self, username: str) -> Optional[dict[str, Any]]:
+        """
+        Lookup a Plone user by username.
+
+        Args:
+            username: User's username/login
+
+        Returns:
+            User data dict if found, None if not found
+        """
+        try:
+            response = await self._request("GET", f"/@users/{username}")
+            return await response.json()
+
+        except PloneAPIError as e:
+            if e.status_code == 404:
+                return None
+            logger.warning(f"Error looking up user by username {username}: {e}")
+            return None
+
+    async def get_user_roles(self, user_id: str) -> list[str]:
+        """
+        Get roles for a specific user.
+
+        Args:
+            user_id: User's ID or username
+
+        Returns:
+            List of role names
+        """
+        try:
+            user_data = await self.get_user_by_username(user_id)
+            if user_data:
+                return user_data.get("roles", [])
+            return []
+
+        except PloneAPIError as e:
+            logger.warning(f"Error getting roles for user {user_id}: {e}")
+            return []
+
+    async def get_user_groups(self, user_id: str) -> list[str]:
+        """
+        Get groups for a specific user.
+
+        Args:
+            user_id: User's ID or username
+
+        Returns:
+            List of group names
+        """
+        try:
+            user_data = await self.get_user_by_username(user_id)
+            if user_data:
+                return user_data.get("groups", [])
+            return []
+
+        except PloneAPIError as e:
+            logger.warning(f"Error getting groups for user {user_id}: {e}")
+            return []
+
+    async def create_user(
+        self,
+        username: str,
+        email: str,
+        password: Optional[str] = None,
+        fullname: Optional[str] = None,
+        **kwargs,
+    ) -> dict[str, Any]:
+        """
+        Create a new user in Plone.
+
+        Args:
+            username: Unique username for the user
+            email: User's email address
+            password: User's password (optional for external auth)
+            fullname: User's full name
+            **kwargs: Additional user properties
+
+        Returns:
+            Created user data
+        """
+        user_data = {
+            "username": username,
+            "email": email,
+        }
+
+        if password:
+            user_data["password"] = password
+        if fullname:
+            user_data["fullname"] = fullname
+
+        # Add any additional properties
+        user_data.update(kwargs)
+
+        response = await self._request("POST", "/@users", json_data=user_data)
+        return await response.json()
+
+    async def update_user(self, user_id: str, **kwargs) -> dict[str, Any]:
+        """
+        Update an existing user in Plone.
+
+        Args:
+            user_id: User's ID or username
+            **kwargs: User properties to update
+
+        Returns:
+            Updated user data
+        """
+        response = await self._request("PATCH", f"/@users/{user_id}", json_data=kwargs)
+        return await response.json()
+
 
 def transform_plone_content(plone_data: dict[str, Any]) -> PloneContent:
     """Transform raw Plone API response into standardized PloneContent model."""

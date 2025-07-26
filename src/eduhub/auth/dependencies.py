@@ -2,7 +2,7 @@
 FastAPI Authentication Dependencies
 
 Provides dependency injection functions for JWT validation and user authentication.
-Uses Auth0 JWKS for token validation.
+Uses Auth0 JWKS for token validation and integrates with Plone user system.
 """
 
 import json
@@ -14,6 +14,9 @@ import httpx
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwk, jwt
+
+from .models import User
+from .plone_bridge import sync_auth0_user_to_plone
 
 # Security scheme for FastAPI automatic documentation
 security = HTTPBearer()
@@ -43,7 +46,7 @@ def get_auth0_public_key():
 
 def validate_jwt_token(token: str) -> dict:
     """
-    Validate JWT token using Auth0 public keys.
+    Validate JWT token using Auth0 public keys with enhanced security.
 
     Args:
         token: JWT token string
@@ -52,23 +55,46 @@ def validate_jwt_token(token: str) -> dict:
         dict: Decoded token payload
 
     Raises:
-        HTTPException: If token is invalid
+        HTTPException: If token is invalid with specific error details
     """
+    if not token or not token.strip():
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token is required",
+        )
+
     try:
         # Get Auth0 public keys
         jwks = get_auth0_public_key()
 
         # Decode token header to get key ID
-        unverified_header = jwt.get_unverified_header(token)
+        try:
+            unverified_header = jwt.get_unverified_header(token)
+        except JWTError:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token format",
+            )
 
         token_kid = unverified_header.get("kid")
+        if not token_kid:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token missing key identifier",
+            )
 
         # Find the correct key
         rsa_key = {}
-        available_kids = []
         for key in jwks["keys"]:
-            available_kids.append(key.get("kid"))
             if key["kid"] == token_kid:
+                # Validate required key components
+                required_fields = ["kty", "kid", "use", "n", "e"]
+                if not all(field in key for field in required_fields):
+                    raise HTTPException(
+                        status_code=status.HTTP_401_UNAUTHORIZED,
+                        detail="Invalid key format in JWKS",
+                    )
+
                 rsa_key = {
                     "kty": key["kty"],
                     "kid": key["kid"],
@@ -81,46 +107,129 @@ def validate_jwt_token(token: str) -> dict:
         if not rsa_key:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail=f"Unable to find key with kid '{token_kid}'. Available kids: {available_kids}",
+                detail="Token key not found in JWKS",
             )
 
-        # Validate and decode token
+        # Validate and decode token with strict security options
         payload = jwt.decode(
             token,
             rsa_key,
             algorithms=AUTH0_ALGORITHMS,
             issuer=f"https://{AUTH0_DOMAIN}/",
-            options={"verify_aud": False},  # Skip audience verification for MVP
+            options={
+                "verify_aud": False,  # Skip audience verification for MVP
+                "verify_exp": True,  # Verify token expiration
+                "verify_iat": True,  # Verify issued at time
+                "verify_nbf": True,  # Verify not before time
+                "verify_signature": True,  # Verify token signature
+                "require_exp": True,  # Require expiration claim
+                "require_iat": True,  # Require issued at claim
+            },
         )
+
+        # Additional payload validation
+        if not payload.get("sub"):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token missing subject claim",
+            )
+
+        # Check if token is not too old (additional security)
+        import time
+
+        current_time = int(time.time())
+        token_age = current_time - payload.get("iat", 0)
+        MAX_TOKEN_AGE = 24 * 60 * 60  # 24 hours
+
+        if token_age > MAX_TOKEN_AGE:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token is too old, please re-authenticate",
+            )
 
         return payload
 
+    except HTTPException:
+        # Re-raise our custom HTTP exceptions
+        raise
     except JWTError as e:
+        error_msg = str(e).lower()
+        if "expired" in error_msg:
+            detail = "Token has expired, please re-authenticate"
+        elif "signature" in error_msg:
+            detail = "Token signature verification failed"
+        elif "invalid" in error_msg:
+            detail = "Token format is invalid"
+        else:
+            detail = f"Token validation failed: {str(e)}"
+
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Token validation failed: {str(e)}",
+            detail=detail,
         )
     except Exception as e:
+        # Log unexpected errors but don't expose internal details
+        print(f"Unexpected JWT validation error: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Authentication error: {str(e)}",
+            detail="Authentication failed",
         )
 
 
-def get_current_user(
+async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
-) -> dict:
+) -> User:
     """
-    FastAPI dependency to get current authenticated user from JWT token.
+    FastAPI dependency to get current authenticated user from JWT token with Plone integration.
 
     Args:
         credentials: HTTP Bearer token from request
 
     Returns:
-        dict: User information from validated JWT token
+        User: Combined user information from Auth0 JWT + Plone user data
 
     Raises:
         HTTPException: If token is missing or invalid
+    """
+    if not credentials:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authorization header required",
+        )
+
+    # Validate token and extract user info
+    token_payload = validate_jwt_token(credentials.credentials)
+
+    # Sync with Plone and get combined user context
+    combined_user = await sync_auth0_user_to_plone(token_payload)
+
+    if not combined_user:
+        # If Plone integration fails, fall back to Auth0-only user
+        # This ensures authentication still works even if Plone is down
+        combined_user = User(
+            sub=token_payload.get("sub", ""),
+            email=token_payload.get("email", ""),
+            email_verified=token_payload.get("email_verified", False),
+            name=token_payload.get("name", ""),
+            picture=token_payload.get("picture"),
+            nickname=token_payload.get("nickname", ""),
+            aud=token_payload.get("aud", ""),
+            iss=token_payload.get("iss", ""),
+            exp=token_payload.get("exp", 0),
+            iat=token_payload.get("iat", 0),
+            roles=["Member"],  # Default role if Plone integration fails
+            permissions=["view"],  # Default permission
+        )
+
+    return combined_user
+
+
+def get_current_user_dict(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+) -> dict:
+    """
+    Legacy function that returns user as dict for backward compatibility.
+    Use get_current_user() for new code that supports Plone integration.
     """
     if not credentials:
         raise HTTPException(
@@ -142,12 +251,16 @@ def get_current_user(
         "iss": token_payload.get("iss"),  # Issuer (Auth0 domain)
         "exp": token_payload.get("exp"),  # Expiration
         "iat": token_payload.get("iat"),  # Issued at
+        "nickname": token_payload.get("nickname"),
+        "roles": [],  # Empty for backward compatibility
+        "permissions": [],  # Empty for backward compatibility
+        "plone_user_id": None,  # Not available in legacy mode
     }
 
     return user_info
 
 
-def get_admin_user(current_user: dict = Depends(get_current_user)) -> dict:
+async def get_admin_user(current_user: User = Depends(get_current_user)) -> User:
     """
     FastAPI dependency to ensure current user has admin privileges.
 
@@ -155,15 +268,25 @@ def get_admin_user(current_user: dict = Depends(get_current_user)) -> dict:
         current_user: Current authenticated user from get_current_user
 
     Returns:
-        dict: Admin user information
+        User: Admin user information
 
     Raises:
         HTTPException: If user is not an admin
     """
-    # For MVP, check if email contains 'admin' or matches our test admin
-    email = current_user.get("email", "").lower()
+    # Check if user has admin roles or email-based admin access
+    email = current_user.email.lower()
+    user_roles = [role.lower() for role in current_user.roles]
 
-    if "admin" in email or email == "admin@example.com":
+    # Check for admin roles or email patterns
+    is_admin = (
+        "manager" in user_roles
+        or "admin" in user_roles
+        or "administrator" in user_roles
+        or "admin" in email
+        or email == "admin@example.com"
+    )
+
+    if is_admin:
         return current_user
 
     raise HTTPException(
@@ -172,9 +295,9 @@ def get_admin_user(current_user: dict = Depends(get_current_user)) -> dict:
 
 
 # Optional: dependency for when authentication is optional
-def get_current_user_optional(
+async def get_current_user_optional(
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
-) -> Optional[dict]:
+) -> Optional[User]:
     """
     FastAPI dependency for optional authentication.
     Returns None if no token provided, validates if token is present.
@@ -182,4 +305,4 @@ def get_current_user_optional(
     if not credentials:
         return None
 
-    return get_current_user(credentials)
+    return await get_current_user(credentials)

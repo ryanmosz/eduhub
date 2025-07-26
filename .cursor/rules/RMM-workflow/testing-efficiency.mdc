@@ -1,0 +1,150 @@
+Description: Testing efficiency rule - AUTOMATE BEFORE ASKING for manual tests
+Globs: **/*.py, **/*.md, **/test*.py, **/tasks*.md
+
+# Testing Efficiency & Automation Rule
+
+## CRITICAL PRINCIPLE: **Automate Before Asking**
+
+**MANDATORY**: Before requesting ANY manual testing from the user, MUST re-evaluate if the test can be automated programmatically. Manual testing is a major efficiency blocker and should only be used as a last resort.
+
+## Testing Hierarchy (STRICT ORDER)
+
+### 1. **Programmatic Unit Tests** ⭐ (ALWAYS PREFER)
+```python
+# Example: Direct function testing
+python test_integration.py
+from src.module.function import test_function
+result = test_function(test_data)
+assert result == expected
+```
+
+### 2. **API Testing with curl/httpx** ⭐ (ALWAYS PREFER)
+```bash
+# Test server health
+curl http://localhost:8000/
+
+# Test endpoints programmatically
+curl -H "Authorization: Bearer $JWT" http://localhost:8000/auth/user
+```
+
+### 3. **Integration Test Scripts** ⭐ (ALWAYS PREFER)
+- Write async Python scripts for complex flows
+- Mock external services when testing integration
+- Test error handling and edge cases programmatically
+
+### 4. **Manual Testing** ❌ (LAST RESORT ONLY)
+- **MUST JUSTIFY**: Explain why automation isn't possible
+- **PROCESS**:
+  1. Re-evaluate first - can this be automated?
+  2. If user says "reevaluate" → find automated alternative
+  3. Only proceed if automation truly impossible
+
+## Decision Tree - FOLLOW THIS EXACTLY
+
+```
+Testing request → Is it manual? → NO → Proceed with automated test
+                                ↓ YES
+Can this be tested with curl/HTTP? → YES → Use curl/httpx instead
+                                   ↓ NO
+Can logic be unit tested? → YES → Write Python test script
+                          ↓ NO
+Can external services be mocked? → YES → Write integration test with mocks
+                                 ↓ NO
+Is this one-time verification? → YES → Consider browser automation
+                              ↓ NO
+                              → MUST automate or reconsider approach
+```
+
+## IMPLEMENTATION RULES
+
+### DO ✅ (Required Actions):
+- Write test scripts for any complex logic
+- Use curl/httpx for API endpoint testing
+- Mock external services (Auth0, Plone, etc.) when testing
+- Test graceful fallbacks programmatically
+- Create reusable test utilities
+- Test error handling with scripts
+
+### DON'T ❌ (Forbidden Actions):
+- Ask for manual testing without re-evaluation
+- Require browser interaction for API tests
+- Test one-off scenarios manually when scriptable
+- Skip automated testing because "it works"
+- Assume manual testing is faster
+
+## Available Testing Tools
+
+### Command Line Testing:
+```bash
+# Server operations
+pkill -f uvicorn
+source .venv/bin/activate.fish && uvicorn src.eduhub.main:app --reload --host 127.0.0.1 --port 8000
+
+# Health checks
+curl http://localhost:8000/
+curl -I http://localhost:8000/docs
+
+# API testing
+curl -X POST -H "Content-Type: application/json" -d '{"key":"value"}' http://localhost:8000/endpoint
+```
+
+### Python Testing:
+```python
+# Direct function testing
+from src.module import function
+result = function(test_input)
+
+# Async testing
+import asyncio
+result = asyncio.run(async_function())
+
+# HTTP client testing
+import httpx
+response = httpx.get("http://localhost:8000/endpoint")
+assert response.status_code == 200
+```
+
+## Examples of Correct Application
+
+### ✅ GOOD: Auth Integration Testing
+```python
+# Create test script: test_auth_integration.py
+def test_role_extraction():
+    from src.eduhub.auth.plone_bridge import extract_roles_from_auth0
+    result = extract_roles_from_auth0({"email": "admin@example.com"})
+    assert "Manager" in result
+
+# Run: python test_auth_integration.py
+```
+
+### ❌ BAD: Manual Testing Request
+"Go to the browser, login, click buttons, check if user info shows roles"
+
+### ✅ GOOD: API Endpoint Testing
+```bash
+# Test endpoint availability
+curl http://localhost:8000/auth/user
+# Expected: 403 (no token) or 200 (with token)
+```
+
+### ❌ BAD: Manual API Testing
+"Open Swagger UI, click the endpoint, enter data, check response"
+
+## Efficiency Benefits
+
+- **Automated tests**: Seconds to run, repeatable, catch regressions
+- **Manual tests**: Minutes per test, error-prone, need re-testing after changes
+- **ROI**: 1 hour automation = 10+ hours manual testing saved
+- **Velocity**: Continuous development without bottlenecks
+
+## Enforcement
+
+When user says "reevaluate":
+1. **IMMEDIATELY** reconsider the testing approach
+2. Find programmatic alternative
+3. Implement automated test instead
+4. Only request manual testing if automation is genuinely impossible
+
+**Goal**: Enable continuous development velocity through automated verification. Every avoided manual test increases development speed and software quality.
+
+**Remember**: When tempted to ask for manual testing, first ask: "How can I test this programmatically?"
