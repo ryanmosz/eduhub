@@ -1,0 +1,9 @@
+program,date,time,instructor,room,duration,description
+Python 101,2025-02-01,09:00,Dr. Smith,Room A,90,Introduction to Python programming
+Math Workshop,2025-02-01,14:30,Prof. Johnson,Room B,60,Advanced Calculus workshop
+Science Lab,2025-02-02,10:00,Dr. Williams,Lab 1,120,Chemistry laboratory session
+History Seminar,2025-02-02,16:00,Prof. Brown,Room C,75,World War II discussion
+Art Class,2025-02-03,11:00,Ms. Davis,Studio,90,Watercolor painting techniques
+Physics Lecture,2025-02-03,13:00,Dr. Anderson,Auditorium,75,Quantum Mechanics introduction
+English Workshop,2025-02-04,10:30,Prof. Taylor,Room D,60,Creative Writing session
+Computer Science,2025-02-04,15:00,Dr. Wilson,Computer Lab,90,Data Structures and Algorithms 
