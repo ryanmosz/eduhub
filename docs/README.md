@@ -1,151 +1,123 @@
-# 📚 EduHub Documentation
+# EduHub Documentation Hub
 
-Welcome to the EduHub documentation! This guide helps you find the information you need quickly and efficiently.
+## 📚 Documentation Overview
 
-## 🧭 Quick Navigation
+This is the central hub for all EduHub project documentation. The docs are organized by audience and purpose to help you find exactly what you need.
 
-### 🚀 **New to EduHub?** Start Here:
-- **[Developer Onboarding](getting-started/developer-onboarding.md)** - Essential setup guide for new developers
-- **[Authentication Setup](getting-started/authentication-setup.md)** - OAuth2/Auth0 configuration guide
+## 🚨 Documentation Quality Notice
 
-### 🏗️ **Understanding the System?** Architecture:
-- **[System Architecture](architecture/system-architecture.md)** - Core system design and integration patterns
-- **[Tech Stack Overview](architecture/tech-stack-overview.md)** - Complete technology overview and decisions
-- **[API Structure](architecture/api-structure.md)** - FastAPI endpoint organization and patterns
-- **[Plone Integration](architecture/plone-integration.md)** - Legacy CMS integration strategy
-- **[Deployment Strategy](architecture/deployment-strategy.md)** - Container deployment and infrastructure
+**Latest Update: January 2025** - A comprehensive documentation audit was completed to ensure all content accurately reflects the implemented system. Misleading or outdated documentation has been moved to the `archive/` folder.
 
-### 👨‍💻 **Active Development?** Development Resources:
-- **[Testing Strategy](development/testing-strategy.md)** - Automated testing methodology and efficiency rules
-- **[Feature Planning Template](development/feature-planning-template.md)** - Universal template for planning new features
-- **[Phase 4 Planning](development/phase-4-planning.md)** - Next phase (CSV Schedule Importer) planning brief
-- **[GUI Development Plans](development/gui-development-plans.md)** - Frontend strategy and roadmap
+### 📁 Archive Folder
+The `docs/archive/` folder contains documentation that was removed from the main structure because it described unimplemented features or contained outdated information. See `docs/archive/ARCHIVE_NOTE.md` for details.
 
-### 📚 **Project Context?** Historical Documentation:
-- **[Original Assignment](project-history/original-assignment/)** - G2P6 Enterprise Week specification
-- **[Project Roadmap](project-history/roadmap/)** - Initial plans and feature analysis
-- **[Phase Reports](project-history/phase-reports/)** - Completed phase summaries and benchmarks
+## 🎯 Quick Navigation by Role
 
----
-
-## 📁 Directory Structure
-
-```
-docs/
-├── README.md                          # 👈 You are here
-├── getting-started/                   # 🚀 For new developers/users
-│   ├── developer-onboarding.md       # Setup guide and repository overview
-│   └── authentication-setup.md       # OAuth2/Auth0 configuration
-├── architecture/                      # 🏗️ System design & technical decisions
-│   ├── system-architecture.md        # Core architectural patterns
-│   ├── tech-stack-overview.md        # Technology choices and integration
-│   ├── api-structure.md             # FastAPI endpoint organization
-│   ├── plone-integration.md         # Legacy CMS integration strategy
-│   └── deployment-strategy.md       # Infrastructure and deployment
-├── development/                       # 👨‍💻 Active development resources
-│   ├── testing-strategy.md          # Automated testing methodology
-│   ├── feature-planning-template.md # Universal feature planning template
-│   ├── phase-4-planning.md         # CSV Schedule Importer planning
-│   └── gui-development-plans.md     # Frontend strategy and roadmap
-├── project-history/                  # 📚 Historical context & completed work
-│   ├── original-assignment/         # G2P6 Enterprise Week specification
-│   ├── roadmap/                     # Initial project plans and analysis
-│   └── phase-reports/               # Completed phase documentation
-└── archive/                          # 🗄️ Outdated/superseded documents
-```
-
----
-
-## 🎯 Documentation by Role
-
-### **🆕 New Developer**
-1. Start with **[Developer Onboarding](getting-started/developer-onboarding.md)**
-2. Set up authentication: **[Authentication Setup](getting-started/authentication-setup.md)**
-3. Understand the system: **[System Architecture](architecture/system-architecture.md)**
-4. Review the stack: **[Tech Stack Overview](architecture/tech-stack-overview.md)**
+### **👩‍💻 New Developer**
+Start here to get productive quickly:
+1. [`getting-started/developer-onboarding.md`](getting-started/developer-onboarding.md) - Essential setup guide
+2. [`getting-started/authentication-setup.md`](getting-started/authentication-setup.md) - Auth0 configuration
+3. [`development/testing-strategy.md`](development/testing-strategy.md) - Testing methodology
 
 ### **🏗️ System Architect**
-1. **[System Architecture](architecture/system-architecture.md)** - High-level design patterns
-2. **[Tech Stack Overview](architecture/tech-stack-overview.md)** - Technology decisions and rationale
-3. **[Plone Integration](architecture/plone-integration.md)** - Legacy system integration
-4. **[Deployment Strategy](architecture/deployment-strategy.md)** - Infrastructure planning
+Understand the technical decisions and system design:
+1. [`architecture/system-architecture.md`](architecture/system-architecture.md) - Overall system design
+2. [`architecture/tech-stack-overview.md`](architecture/tech-stack-overview.md) - Technology choices
+3. [`architecture/plone-integration.md`](architecture/plone-integration.md) - Legacy system integration
 
-### **📋 Product Manager**
-1. **[Project Roadmap](project-history/roadmap/initial-5day-plan.md)** - Original feature planning
-2. **[Feature Analysis](project-history/roadmap/feature-analysis.md)** - Feature prioritization decisions
-3. **[Phase 4 Planning](development/phase-4-planning.md)** - Next development phase
-4. **[GUI Development Plans](development/gui-development-plans.md)** - Frontend strategy
+### **📋 Project Manager**
+Track progress and understand implementation approach:
+1. [`/tasks/tasks-overall-project-plan.md`](../tasks/tasks-overall-project-plan.md) - High-level roadmap
+2. [`project-history/phase-reports/`](project-history/phase-reports/) - Completed phase summaries
+3. [`development/feature-planning-template.md`](development/feature-planning-template.md) - Planning methodology
 
 ### **🧪 QA Engineer**
-1. **[Testing Strategy](development/testing-strategy.md)** - Automated testing approach
-2. **[Authentication Setup](getting-started/authentication-setup.md)** - Testing OAuth flows
-3. **[Performance Benchmarks](project-history/phase-reports/performance-benchmarks.md)** - Performance baselines
+Understand testing approach and quality standards:
+1. [`development/testing-strategy.md`](development/testing-strategy.md) - Testing methodology
+2. [`getting-started/authentication-setup.md`](getting-started/authentication-setup.md) - Auth testing procedures
+3. [`/scripts/quick_integration_test.py`](../scripts/quick_integration_test.py) - Automated testing
 
-### **🚀 DevOps Engineer**
-1. **[Deployment Strategy](architecture/deployment-strategy.md)** - Infrastructure requirements
-2. **[System Architecture](architecture/system-architecture.md)** - Service dependencies
-3. **[Tech Stack Overview](architecture/tech-stack-overview.md)** - Runtime requirements
+## 📂 Documentation Structure
 
----
+### **🚀 Getting Started**
+Essential information for new team members:
+- [`developer-onboarding.md`](getting-started/developer-onboarding.md) - Setup checklist and key facts
+- [`authentication-setup.md`](getting-started/authentication-setup.md) - Auth0 configuration guide
 
-## 🏆 Project Status
+### **🏗️ Architecture**
+Technical design and system integration:
+- [`system-architecture.md`](architecture/system-architecture.md) - Complete system design
+- [`tech-stack-overview.md`](architecture/tech-stack-overview.md) - Technology stack details
+- [`plone-integration.md`](architecture/plone-integration.md) - Legacy CMS integration
+- [`deployment-strategy.md`](architecture/deployment-strategy.md) - Production deployment
 
-### ✅ **Completed Phases**
-- **Phase 1**: [Bootstrap & Initial Setup](project-history/phase-reports/phase-1-bootstrap-report.md)
-- **Phase 2**: [Python 3.11 Upgrade](project-history/phase-reports/phase-2-python311-report.md)
-- **Phase 3**: [OAuth2/SSO Gateway](getting-started/authentication-setup.md) ← **Current**
+### **💻 Development**
+Development workflows and planning:
+- [`testing-strategy.md`](development/testing-strategy.md) - Testing methodology and efficiency
+- [`gui-development-plans.md`](development/gui-development-plans.md) - UI/UX strategy
+- [`phase-4-planning.md`](development/phase-4-planning.md) - Next phase planning brief
+- [`feature-planning-template.md`](development/feature-planning-template.md) - Universal planning template
 
-### 🔄 **In Progress**
-- **Phase 4**: [CSV Schedule Importer](development/phase-4-planning.md) ← **Next**
-
-### 📋 **Planned Features**
-- Rich-Media Embeds (oEmbed)
-- Open Data API Endpoints
-- Role-Based Workflow Templates
-- Real-Time Alert Broadcasting
-
----
+### **📜 Project History**
+Historical context and completed work:
+- [`roadmap/`](project-history/roadmap/) - Original planning documents
+- [`phase-reports/`](project-history/phase-reports/) - Completed phase summaries
+- [`original-assignment/`](project-history/original-assignment/) - Initial requirements
 
 ## 🔍 Quick Reference
 
-### **Common Tasks**
-- **Set up development environment**: [Developer Onboarding](getting-started/developer-onboarding.md)
-- **Configure Auth0**: [Authentication Setup](getting-started/authentication-setup.md)
-- **Plan new feature**: [Feature Planning Template](development/feature-planning-template.md)
-- **Run tests**: [Testing Strategy](development/testing-strategy.md)
-- **Deploy system**: [Deployment Strategy](architecture/deployment-strategy.md)
+### **Current System Status (Phase 3 Complete)**
+- ✅ **Auth0 OAuth2**: Complete authorization code flow with JWT validation
+- ✅ **FastAPI Gateway**: Async Python API with auto-generated documentation
+- ✅ **Plone Integration**: HTTP bridge with user mapping and role synchronization
+- ✅ **Security Features**: Rate limiting, CORS, audit logging
+- ✅ **Test Console**: Interactive authentication testing interface
 
-### **Key Concepts**
-- **Hybrid Architecture**: Modern FastAPI + Legacy Plone CMS
-- **OAuth2 Gateway**: Auth0 integration with JWT tokens
-- **Async HTTP Bridge**: PloneClient for legacy system integration
-- **Progressive Enhancement**: HTML templates → React SPA migration
+### **Key Technical Decisions**
+- **Authentication**: Auth0 OAuth2 (not custom implementation)
+- **Backend**: FastAPI + httpx (not Django + SQLAlchemy)
+- **Legacy Bridge**: HTTP API calls (not direct database access)
+- **Frontend**: HTML templates (React planned for future)
+- **Deployment**: Stateless design (no Redis/PostgreSQL currently required)
 
-### **External Resources**
-- **Auth0 Dashboard**: [dev-1fx6yhxxi543ipno.us.auth0.com](https://manage.auth0.com/dashboard/us/dev-1fx6yhxxi543ipno)
-- **API Documentation**: `http://localhost:8000/docs` (when running locally)
-- **Test Console**: `http://localhost:8000/test/auth-console`
+### **Next Phase**: CSV Schedule Importer
+See [`development/phase-4-planning.md`](development/phase-4-planning.md) for detailed planning brief.
+
+## 📋 Documentation Standards
+
+### **Accuracy First**
+- ✅ **Document what exists** - Only describe implemented features
+- ❌ **Don't document aspirations** - No speculative or planned features as current
+- 🔄 **Update with changes** - Keep docs synchronized with implementation
+- 📝 **Archive outdated content** - Move misleading docs to archive
+
+### **Audience-Focused**
+- **New developers**: Setup guides and essential knowledge
+- **Architects**: Technical decisions and system design
+- **Project managers**: Progress tracking and planning
+- **QA engineers**: Testing procedures and quality standards
+
+### **Contributing Guidelines**
+1. **Before documenting**: Verify the feature/process actually exists
+2. **Use clear structure**: Follow existing document templates
+3. **Test instructions**: Ensure setup guides work for new users
+4. **Update related docs**: Keep cross-references current
+5. **Consider archive**: Move outdated content rather than deleting
+
+## 🔗 External Resources
+
+- **FastAPI Documentation**: https://fastapi.tiangolo.com/
+- **Auth0 Documentation**: https://auth0.com/docs
+- **Plone Documentation**: https://docs.plone.org/
+- **API Documentation**: http://localhost:8000/docs (when server running)
+
+## ❓ Getting Help
+
+- **Setup Issues**: Check [`getting-started/authentication-setup.md`](getting-started/authentication-setup.md) troubleshooting
+- **Technical Questions**: Review [`architecture/`](architecture/) documents
+- **Testing Problems**: See [`development/testing-strategy.md`](development/testing-strategy.md)
+- **Planning Questions**: Use [`development/feature-planning-template.md`](development/feature-planning-template.md)
 
 ---
 
-## 💡 Contributing to Documentation
-
-When adding new documentation:
-
-1. **Follow the naming convention**: `kebab-case.md`
-2. **Place in appropriate directory** based on content type
-3. **Update this README** if adding new major sections
-4. **Include clear headings** and table of contents for long documents
-5. **Cross-reference related documents** using relative links
-
-### **Documentation Standards**
-- Use **clear, descriptive titles**
-- Include **overview/summary** at the top
-- Add **code examples** where relevant
-- Maintain **consistent formatting** with existing docs
-- **Test all links** before committing
-
----
-
-*Last updated: Phase 3 completion (OAuth2/SSO Gateway)*
-*Next update: Phase 4 planning (CSV Schedule Importer)*
+**📝 Contributing**: When updating documentation, remember that accuracy and clarity are more valuable than comprehensiveness. Document what works, archive what doesn't, and help the next developer be productive quickly.

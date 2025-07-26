@@ -33,7 +33,24 @@ tox                # runs all envs
 tox -e py311       # single env
 ```
 
-## 3. Docker & Compose
+## 3. Auth0 Setup (Required)
+
+**CRITICAL**: New developers must configure Auth0 before the application will work.
+
+### Quick Setup:
+1. **Get credentials** from project maintainer or set up your own Auth0 tenant
+2. **Create `.env` file** in project root:
+```bash
+AUTH0_DOMAIN=dev-1fx6yhxxi543ipno.us.auth0.com
+AUTH0_CLIENT_ID=s05QngyZXEI3XNdirmJu0CscW1hNgaRD
+AUTH0_ALGORITHMS=["RS256"]
+```
+3. **Test authentication** at `http://localhost:8000/test/auth-console`
+
+### Detailed Setup:
+See `docs/getting-started/authentication-setup.md` for complete Auth0 configuration instructions.
+
+## 4. Docker & Compose
 
 Local full-stack:
 
@@ -51,18 +68,21 @@ Common commands:
 | view logs | `docker compose logs -f [service]` |
 | stop stack | `docker compose down` |
 
-## 4. Running Tests
+## 5. Running Tests
 
 ```bash
 pytest -q                # fast feedback
 pytest -q tests/hello.py # single file
+
+# Integration testing (Auth0 + Plone)
+python scripts/quick_integration_test.py
 ```
 
 * Async tests use **pytest-asyncio**; mark with `@pytest.mark.asyncio`.
 
 Coverage & benchmarks run automatically in CI.
 
-## 5. Code Quality Gates
+## 6. Code Quality Gates
 
 Tool | Invocation | CI Gate
 -----|------------|--------
@@ -78,7 +98,7 @@ Tip: install the git hook once:
 pre-commit install
 ```
 
-## 6. Commit & Branch Strategy
+## 7. Commit & Branch Strategy
 
 * **Conventional Commits** (`feat:`, `fix:`, `docs:`, `chore:` …).
 * Feature branches from `main`, PR via GitHub.
@@ -92,36 +112,30 @@ Adds async FastAPI route /hello returning JSON {"msg":"Hello World"}.
 Updates tests and OpenAPI docs.
 ```
 
-## 7. AI-Assisted Workflow
+## 8. Current Project Status
 
-We use **Cursor rules** under `.cursor/rules/`:
+**Phase 3 Complete**: OAuth2/SSO Gateway with Auth0 integration
+- ✅ Auth0 OAuth2 authorization code flow
+- ✅ JWT token validation and session management
+- ✅ Plone user mapping and role integration
+- ✅ Rate limiting and security features
+- ✅ Interactive test console for OAuth flows
 
-1. Write a PRD in `/tasks/prd-*.md` (prompt the AI, answer clarifying questions).
-2. Generate high-level tasks (`tasks/tasks-*.md`).
-3. Respond "Go" to explode into sub-tasks.
-4. Implement code; AI can draft patches via XML diff protocol.
+**Next Phase**: CSV Schedule Importer and additional features
 
-**Never** bypass the XML format when asking the assistant to change files—CI will reject the PR.
-
-## 8. Environment Variables
+## 9. Environment Variables
 
 1. Duplicate `.env.example` → `.env`.
 2. Fill in secrets (DB passwords, OAuth keys).
    *Never commit real secrets.*
 3. Docker Compose automatically loads `.env`.
 
-## 9. Continuous Integration (GitHub Actions)
-
-Matrix: `python-version: [3.9, 3.11]`
-
-Jobs:
-
-1. **lint** – black, isort, mypy
-2. **test** – pytest with coverage
-3. **build** – Docker image, push if on `main`
-4. **deploy** (future) – Helm upgrade to staging
-
-CI must be green before merge.
+**Required Auth0 Variables:**
+```bash
+AUTH0_DOMAIN=your-tenant.us.auth0.com
+AUTH0_CLIENT_ID=your_client_id_here
+AUTH0_ALGORITHMS=["RS256"]
+```
 
 ## 10. Useful Make Targets (coming soon)
 
@@ -132,7 +146,20 @@ make lint    # static checks
 make clean   # remove __pycache__, build artifacts
 ```
 
+## 11. Testing the Auth System
+
+### Quick Verification:
+1. Start server: `uvicorn src.eduhub.main:app --reload --host 127.0.0.1 --port 8000`
+2. Visit test console: `http://localhost:8000/test/auth-console`
+3. Click "🚀 Start Login Flow" and use test credentials
+4. Verify user info displays after login
+
+### API Testing:
+1. Visit Swagger UI: `http://localhost:8000/docs`
+2. Test protected endpoints with valid JWT tokens
+3. Verify rate limiting and error handling
+
 ---
 
 Happy hacking!
-Questions? Open an issue or ping in the #eduhub-dev Slack channel.
+Questions? Open an issue or check the authentication setup guide for Auth0 troubleshooting.

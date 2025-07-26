@@ -6,7 +6,7 @@ _A Two-Page Technical & Executive Overview_
 Plone is a **mature, open-source Content Management System (CMS)** that sits on top of the Zope application server.
 Launched in 2001, it has gained a reputation for *security*, *customisability* and *enterprise-grade workflows*. Governments, universities and large NGOs still run thousands of Plone sites—many containing more than a decade of curated content.
 
-### Key Value Propositions (Manager’s View)
+### Key Value Propositions (Manager's View)
 
 | Pillar | Why It Matters |
 |--------|----------------|
@@ -67,19 +67,19 @@ Because ZODB objects are in RAM-mapped caches, Plone can serve many reads per se
 
 Our **EduHub modernisation sprint** keeps Plone as *system-of-record* while layering modern services on top.
 
-| EduHub Component | Interaction with Plone |
-|------------------|------------------------|
-| **PloneClient (src/eduhub/plone_integration.py)** | Authenticates via `/@login` endpoint, performs RESTful CRUD, handles token refresh. |
-| **FastAPI Bridge** | Exposes `/content/*`, `/plone/info`, etc., transforming Plone JSON into ergonomic Pydantic models. |
-| **CSV Schedule Importer (Phase 4)** | Uses `create_content()` to bulk-insert _Event_ objects into the Plone site. |
-| **OAuth2 / SSO Gateway** | Planned mapping (`auth/plone_bridge.py`) adds Auth0 user IDs to Plone principals & roles. |
-| **Real-Time Alerts** | Publishes Plone content changes to WebSocket channels for live dashboards. |
+| EduHub Component | Interaction with Plone | Status |
+|------------------|------------------------|---------|
+| **PloneClient (src/eduhub/plone_integration.py)** | Authenticates via `/@login` endpoint, performs RESTful CRUD, handles token refresh. | ✅ **Implemented** |
+| **FastAPI Bridge** | Exposes `/auth/*` endpoints, transforming Plone JSON into ergonomic Pydantic models. | ✅ **Implemented** |
+| **OAuth2 / SSO Gateway** | Maps Auth0 user IDs to Plone principals & roles via `auth/plone_bridge.py`. | ✅ **Implemented** |
+| **CSV Schedule Importer (Phase 4)** | Will use `create_content()` to bulk-insert _Event_ objects into the Plone site. | 📋 **Planned** |
+| **Real-Time Alerts** | Will publish Plone content changes to WebSocket channels for live dashboards. | 📋 **Planned** |
 
 This approach lets us:
 
 * De-risk migration—existing editors keep working in the familiar Plone UI.
 * Deliver new REST/GraphQL APIs without rewriting legacy logic.
-* Achieve sub-2 ms response times thanks to FastAPI’s async I/O and Plone caching.
+* Achieve sub-2 ms response times thanks to FastAPI's async I/O and Plone caching.
 
 ## 6. Deployment & Ops Considerations
 
