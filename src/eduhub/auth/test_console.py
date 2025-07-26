@@ -1,27 +1,35 @@
 """
-EduHub OAuth2 Test Console
+FastAPI endpoint to serve OAuth2 testing console with integrated CSV Schedule Importer.
 
-Interactive browser-based testing interface for Auth0 OAuth2 flow.
-Provides persistent logging and clear step-by-step testing workflow.
+This provides a unified HTML interface for testing:
+1. OAuth2 authentication flow (login, user info, logout)
+2. CSV Schedule Importer functionality (upload, preview, import)
+
+All testing functionality is consolidated in one place per user request.
 """
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 
-router = APIRouter(prefix="/test", tags=["testing"])
+router = APIRouter(prefix="/test", tags=["Testing"])
 
 
 @router.get("/auth-console", response_class=HTMLResponse)
-async def auth_test_console():
+async def auth_console(request: Request):
     """
-    Traditional-style OAuth2 testing console with persistent logging.
-
-    Features:
-    - Persistent console output across page navigation
-    - Clear session state tracking
-    - Step-by-step workflow indicators
-    - Non-navigation test options where possible
+    Unified testing console for OAuth2 + CSV Schedule Importer.
+    
+    Serves an interactive HTML page that provides:
+    - OAuth2 flow testing (login, user info, logout)
+    - CSV file upload and processing
+    - System status checking
+    - Copy-to-clipboard console for debugging
+    
+    All functionality is consolidated per user request.
     """
+    # Extract configuration from request
+    auth0_domain = "dev-1fx6yhxxi543ipno.us.auth0.com"
+    auth0_client_id = "s05QngyZXEI3XNdirmJu0CscW1hNgaRD"
     base_url = "http://localhost:8000"
 
     html_content = f"""
@@ -30,7 +38,7 @@ async def auth_test_console():
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>EduHub Auth Test Console</title>
+        <title>🎓 EduHub Testing Console</title>
         <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
         <style>
             * {{
@@ -38,547 +46,599 @@ async def auth_test_console():
                 padding: 0;
                 box-sizing: border-box;
             }}
-
+            
             body {{
-                font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-                background: #0c0c0c;
-                color: #00ff00;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                 min-height: 100vh;
                 padding: 20px;
+                color: #333;
             }}
-
-            .terminal {{
+            
+            .container {{
                 max-width: 1200px;
                 margin: 0 auto;
-                background: #1a1a1a;
-                border: 2px solid #333;
-                border-radius: 8px;
-                padding: 20px;
-                box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
+                background: white;
+                border-radius: 15px;
+                box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+                overflow: hidden;
             }}
-
-            .terminal-header {{
-                display: flex;
-                align-items: center;
-                margin-bottom: 20px;
-                padding-bottom: 10px;
-                border-bottom: 1px solid #333;
-            }}
-
-            .terminal-title {{
-                color: #00ff00;
-                font-size: 1.2rem;
-                font-weight: bold;
-            }}
-
-            .session-status {{
-                margin-left: auto;
-                padding: 4px 12px;
-                border-radius: 4px;
-                font-size: 0.9rem;
-                font-weight: bold;
-            }}
-
-            .status-logged-out {{ background: #444; color: #ccc; }}
-            .status-logged-in {{ background: #0a5d0a; color: #00ff00; }}
-            .status-unknown {{ background: #5d5d0a; color: #ffff00; }}
-
-            .test-section {{
-                display: grid;
-                grid-template-columns: 400px 1fr;
-                gap: 20px;
-                margin-bottom: 20px;
-            }}
-
-            .control-panel {{
-                background: #262626;
-                border: 1px solid #444;
-                border-radius: 6px;
-                padding: 15px;
-            }}
-
-            .control-panel h3 {{
-                color: #00ccff;
-                margin-bottom: 15px;
-                font-size: 1rem;
-            }}
-
-            .credentials {{
-                background: #333;
-                border: 1px solid #555;
-                border-radius: 4px;
-                padding: 10px;
-                margin-bottom: 15px;
-                font-size: 0.9rem;
-            }}
-
-            .credential-item {{
-                margin: 5px 0;
-                cursor: pointer;
-                padding: 2px 6px;
-                border-radius: 3px;
-                transition: background 0.2s;
-            }}
-
-            .credential-item:hover {{
-                background: #444;
-            }}
-
-            .test-buttons {{
-                display: grid;
-                gap: 10px;
-            }}
-
-            .btn {{
-                padding: 10px 15px;
-                border: 1px solid #555;
-                background: #333;
-                color: #fff;
-                border-radius: 4px;
-                cursor: pointer;
-                font-family: inherit;
-                font-size: 0.9rem;
-                transition: all 0.2s;
-            }}
-
-            .btn:hover {{
-                background: #444;
-                border-color: #777;
-            }}
-
-            .btn-primary {{
-                background: #1a4a8a;
-                border-color: #2d5aa0;
-                color: #87ceeb;
-            }}
-
-            .btn-primary:hover {{
-                background: #2d5aa0;
-                border-color: #4169e1;
-            }}
-
-            .btn-danger {{
-                background: #8a1a1a;
-                border-color: #a02d2d;
-                color: #ffb3b3;
-            }}
-
-            .btn-danger:hover {{
-                background: #a02d2d;
-                border-color: #e14141;
-            }}
-
-            .btn-secondary {{
-                background: #1a8a1a;
-                border-color: #2da02d;
-                color: #b3ffb3;
-            }}
-
-            .btn-secondary:hover {{
-                background: #2da02d;
-                border-color: #41e141;
-            }}
-
-            .console-output {{
-                background: #000;
-                border: 1px solid #333;
-                border-radius: 6px;
-                padding: 15px;
-                height: 500px;
-                overflow-y: auto;
-                font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-                font-size: 0.9rem;
-                line-height: 1.4;
-            }}
-
-            .log-line {{
-                margin-bottom: 4px;
-                word-wrap: break-word;
-            }}
-
-            .log-timestamp {{
-                color: #666;
-                font-size: 0.8rem;
-            }}
-
-            .log-info {{ color: #00ccff; }}
-            .log-success {{ color: #00ff00; }}
-            .log-warning {{ color: #ffff00; }}
-            .log-error {{ color: #ff6666; }}
-            .log-debug {{ color: #cc99ff; }}
-
-            .console-controls {{
-                margin-top: 10px;
-                display: flex;
-                gap: 10px;
-            }}
-
-            .btn-small {{
-                padding: 6px 12px;
-                font-size: 0.8rem;
-            }}
-
-            .workflow-status {{
-                background: #262626;
-                border: 1px solid #444;
-                border-radius: 6px;
-                padding: 15px;
-                margin-bottom: 20px;
-            }}
-
-            .workflow-step {{
-                display: flex;
-                align-items: center;
-                margin: 8px 0;
-                font-size: 0.9rem;
-            }}
-
-            .step-icon {{
-                margin-right: 10px;
-                font-size: 1.2rem;
-            }}
-
-            .step-pending {{ color: #666; }}
-            .step-active {{ color: #ffff00; }}
-            .step-complete {{ color: #00ff00; }}
-            .step-error {{ color: #ff6666; }}
-
-            .copy-credential:hover { background: #6c757d; }
             
-            .file-upload {
-                margin: 15px 0;
+            .header {{
+                background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+                color: white;
+                padding: 30px;
+                text-align: center;
+            }}
+            
+            .header h1 {{
+                font-size: 2.5rem;
+                margin-bottom: 10px;
+            }}
+            
+            .header p {{
+                font-size: 1.2rem;
+                opacity: 0.9;
+            }}
+            
+            .content {{
+                padding: 40px;
+            }}
+            
+            .test-section {{
+                background: #f8fafc;
+                border-radius: 10px;
+                padding: 25px;
+                margin-bottom: 30px;
+                border-left: 5px solid #4f46e5;
+            }}
+            
+            .test-section h3 {{
+                font-size: 1.5rem;
+                margin-bottom: 20px;
+                color: #1e293b;
+            }}
+            
+            .auth-status {{
+                display: inline-block;
+                padding: 10px 20px;
+                border-radius: 25px;
+                font-weight: bold;
+                margin-bottom: 15px;
+                font-size: 1.1rem;
+            }}
+            
+            .authenticated {{
+                background: #10b981;
+                color: white;
+            }}
+            
+            .not-authenticated {{
+                background: #ef4444;
+                color: white;
+            }}
+            
+            .workflow-steps {{
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
+                margin: 20px 0;
+            }}
+            
+            .workflow-step {{
+                background: white;
                 padding: 15px;
-                border: 2px dashed #ccc;
                 border-radius: 8px;
                 text-align: center;
-                background: white;
-                cursor: pointer;
-            }
-            .file-upload.dragover { border-color: #2196F3; background: #f0f8ff; }
+                border: 2px solid #e2e8f0;
+                transition: all 0.3s ease;
+            }}
             
-            #systemStatus.operational { border-color: #4CAF50; background: #f8fff8; }
+            .workflow-step.active {{
+                border-color: #4f46e5;
+                background: #f0f9ff;
+                transform: translateY(-2px);
+            }}
+            
+            .workflow-step.completed {{
+                border-color: #10b981;
+                background: #f0fdf4;
+            }}
+            
+            .test-buttons {{
+                display: flex;
+                flex-wrap: wrap;
+                gap: 15px;
+                margin: 20px 0;
+            }}
+            
+            .btn {{
+                padding: 12px 24px;
+                border: none;
+                border-radius: 8px;
+                font-size: 1rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                text-decoration: none;
+                display: inline-block;
+            }}
+            
+            .btn:hover {{
+                transform: translateY(-2px);
+                box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            }}
+            
+            .btn-primary {{
+                background: #4f46e5;
+                color: white;
+            }}
+            
+            .btn-success {{
+                background: #10b981;
+                color: white;
+            }}
+            
+            .btn-warning {{
+                background: #f59e0b;
+                color: white;
+            }}
+            
+            .btn-danger {{
+                background: #ef4444;
+                color: white;
+            }}
+            
+            .btn-info {{
+                background: #3b82f6;
+                color: white;
+            }}
+            
+            .btn-secondary {{
+                background: #6b7280;
+                color: white;
+            }}
+            
+            .btn:disabled {{
+                background: #9ca3af;
+                cursor: not-allowed;
+                transform: none;
+            }}
+            
+            .credentials {{
+                background: #fef3c7;
+                border: 1px solid #f59e0b;
+                border-radius: 8px;
+                padding: 20px;
+                margin: 20px 0;
+            }}
+            
+            .credential-item {{
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin: 10px 0;
+                padding: 10px;
+                background: white;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: background 0.2s;
+            }}
+            
+            .credential-item:hover {{
+                background: #f9fafb;
+            }}
+            
+            .file-upload {{
+                border: 3px dashed #cbd5e1;
+                border-radius: 10px;
+                padding: 40px;
+                text-align: center;
+                margin: 20px 0;
+                transition: all 0.3s ease;
+                cursor: pointer;
+            }}
+            
+            .file-upload:hover {{
+                border-color: #4f46e5;
+                background: #f8fafc;
+            }}
+            
+            .file-upload.dragover {{
+                border-color: #10b981;
+                background: #f0fdf4;
+            }}
+            
+            .console {{
+                background: #1e293b;
+                color: #e2e8f0;
+                border-radius: 8px;
+                padding: 20px;
+                font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+                font-size: 14px;
+                max-height: 400px;
+                overflow-y: auto;
+                margin: 20px 0;
+                white-space: pre-wrap;
+                word-wrap: break-word;
+            }}
+            
+            .console-header {{
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 15px;
+            }}
+            
+            .console-header h4 {{
+                color: #1e293b;
+                margin: 0;
+            }}
+            
+            .copy-btn {{
+                background: #6b7280;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 0.9rem;
+            }}
+            
+            .copy-btn:hover {{
+                background: #4b5563;
+            }}
+            
+            .instructions {{
+                background: #dbeafe;
+                border: 1px solid #3b82f6;
+                border-radius: 8px;
+                padding: 20px;
+                margin: 20px 0;
+            }}
+            
+            .instructions h4 {{
+                color: #1e40af;
+                margin-bottom: 15px;
+            }}
+            
+            .instructions ol {{
+                padding-left: 20px;
+                line-height: 1.6;
+            }}
+            
+            .instructions li {{
+                margin: 8px 0;
+            }}
+            
+            .pro-tips {{
+                background: #f0f9ff;
+                border: 1px solid #0ea5e9;
+                border-radius: 8px;
+                padding: 15px;
+                margin: 15px 0;
+            }}
+            
+            .pro-tips h5 {{
+                color: #0c4a6e;
+                margin-bottom: 10px;
+            }}
+            
+            .pro-tips ul {{
+                padding-left: 20px;
+                line-height: 1.5;
+            }}
+            
+            .pro-tips li {{
+                margin: 5px 0;
+                font-size: 0.95rem;
+            }}
         </style>
     </head>
     <body>
-        <div class="terminal">
-            <div class="terminal-header">
-                <div class="terminal-title">🎓 EduHub OAuth2 Test Console</div>
-                <div id="sessionStatus" class="session-status status-unknown">Session: Unknown</div>
+        <div class="container">
+            <div class="header">
+                <h1>🎓 EduHub Testing Console</h1>
+                <p>OAuth2 Authentication + CSV Schedule Importer Testing</p>
             </div>
-
-            <div class="workflow-status">
-                <h3 style="color: #00ccff; margin-bottom: 10px;">OAuth2 Workflow Status</h3>
-                <div id="step1" class="workflow-step step-pending">
-                    <span class="step-icon">⏳</span>
-                    <span>1. Start unauthenticated</span>
+            
+            <div class="content">
+                <!-- Instructions Section -->
+                <div class="instructions">
+                    <h4>📋 Complete Testing Instructions</h4>
+                    <ol>
+                        <li><strong>OAuth2 Testing:</strong> Click "🚀 Start Login Flow" → use test credentials → verify user info → test logout</li>
+                        <li><strong>CSV Importer Testing:</strong> Must be authenticated first → upload/drag CSV file → test preview → test import</li>
+                        <li><strong>System Testing:</strong> Check system status, download template, test validation with invalid data</li>
+                        <li><strong>Problem Reporting:</strong> Use "Copy All" button to copy console logs for reporting issues</li>
+                    </ol>
+                    
+                    <div class="pro-tips">
+                        <h5>💡 Pro Tips</h5>
+                        <ul>
+                            <li>Click test credentials below to auto-copy them</li>
+                            <li>Watch the workflow tracker to see your progress</li>
+                            <li>CSV importer buttons only work when authenticated</li>
+                            <li>Use "Download Template" if you don't have a CSV file</li>
+                            <li>Try "Test Validation" to see error handling</li>
+                        </ul>
+                    </div>
                 </div>
-                <div id="step2" class="workflow-step step-pending">
-                    <span class="step-icon">⏳</span>
-                    <span>2. Initiate login flow</span>
-                </div>
-                <div id="step3" class="workflow-step step-pending">
-                    <span class="step-icon">⏳</span>
-                    <span>3. Auth0 authentication</span>
-                </div>
-                <div id="step4" class="workflow-step step-pending">
-                    <span class="step-icon">⏳</span>
-                    <span>4. Callback processing</span>
-                </div>
-                <div id="step5" class="workflow-step step-pending">
-                    <span class="step-icon">⏳</span>
-                    <span>5. Session established</span>
-                </div>
-                <div id="step6" class="workflow-step step-pending">
-                    <span class="step-icon">⏳</span>
-                    <span>6. Logout test</span>
-                </div>
-            </div>
-
-            <div class="test-section">
-                <div class="control-panel">
-                    <h3>🔧 Test Controls</h3>
-
+                
+                <!-- OAuth2 Testing Section -->
+                <div class="test-section">
+                    <h3>🔐 OAuth2 Authentication Testing</h3>
+                    
+                    <div id="authStatus" class="auth-status not-authenticated">
+                        <span id="authStatusText">❌ Not authenticated</span>
+                    </div>
+                    
+                    <div id="userInfo" style="margin: 10px 0; font-weight: bold;"></div>
+                    
+                    <div class="workflow-steps">
+                        <div class="workflow-step" id="step1">
+                            <div style="font-size: 2rem; margin-bottom: 10px;">🚀</div>
+                            <div>Login Flow</div>
+                        </div>
+                        <div class="workflow-step" id="step2">
+                            <div style="font-size: 2rem; margin-bottom: 10px;">🔑</div>
+                            <div>Auth0 Login</div>
+                        </div>
+                        <div class="workflow-step" id="step3">
+                            <div style="font-size: 2rem; margin-bottom: 10px;">✅</div>
+                            <div>User Verified</div>
+                        </div>
+                        <div class="workflow-step" id="step4">
+                            <div style="font-size: 2rem; margin-bottom: 10px;">🚪</div>
+                            <div>Logout</div>
+                        </div>
+                    </div>
+                    
                     <div class="credentials">
-                        <strong>Test Credentials:</strong><br>
-                        <div class="credential-item" onclick="copyText('dev@example.com')" title="Click to copy">
-                            📧 dev@example.com
+                        <h4>🧪 Test Credentials (Click to Copy)</h4>
+                        <div class="credential-item" onclick="copyToClipboard('dev@example.com')">
+                            <span>📧 dev@example.com</span>
+                            <span style="color: #6b7280;">(Click to copy)</span>
                         </div>
-                        <div class="credential-item" onclick="copyText('DevPassword123!')" title="Click to copy">
-                            🔑 DevPassword123!
+                        <div class="credential-item" onclick="copyToClipboard('DevPassword123!')">
+                            <span>🔑 DevPassword123!</span>
+                            <span style="color: #6b7280;">(Click to copy)</span>
                         </div>
-                        <div class="credential-item" onclick="copyText('admin@example.com')" title="Click to copy">
-                            📧 admin@example.com
+                        <div class="credential-item" onclick="copyToClipboard('admin@example.com')">
+                            <span>👑 admin@example.com</span>
+                            <span style="color: #6b7280;">(Admin account)</span>
                         </div>
-                        <div class="credential-item" onclick="copyText('AdminPassword123!')" title="Click to copy">
-                            🔑 AdminPassword123!
+                        <div class="credential-item" onclick="copyToClipboard('AdminPassword123!')">
+                            <span>🔐 AdminPassword123!</span>
+                            <span style="color: #6b7280;">(Admin password)</span>
                         </div>
                     </div>
-
+                    
                     <div class="test-buttons">
-                        <button class="btn btn-primary" onclick="startLoginFlow()">🚀 Start Login Flow</button>
-                        <button class="btn btn-secondary" onclick="testUserInfo()">👤 Check User Info</button>
-                        <button class="btn btn-danger" onclick="testLogout()">🚪 Test Logout</button>
-                        <button class="btn" onclick="checkAuthStatus()">🔍 Check Auth Status</button>
-                        <button class="btn" onclick="resetTest()">🔄 Reset Test</button>
-                        <button class="btn" onclick="debugCookies()">🍪 Debug Cookies</button>
-                        <button class="btn" onclick="simpleLogout()">🚪 Simple Logout</button>
-                        <button class="btn" onclick="window.open('{base_url}/docs', '_blank')">📚 Swagger UI</button>
+                        <button class="btn btn-primary" onclick="testLogin()">🚀 Start Login Flow</button>
+                        <button class="btn btn-info" onclick="testUserInfo()">👤 Get User Info</button>
+                        <button class="btn btn-warning" onclick="testLogout()">🚪 Test Logout</button>
+                        <button class="btn btn-secondary" onclick="openSwagger()">📖 API Docs</button>
                     </div>
                 </div>
-
-                <div>
-                    <div class="console-output" id="console"></div>
-                    <div class="console-controls">
-                        <button class="btn btn-small" onclick="clearConsole()">🗑️ Clear</button>
-                        <button class="btn btn-small" onclick="copyConsoleOutput()">📋 Copy Output</button>
-                        <button class="btn btn-small" onclick="saveConsoleLog()">💾 Save Log</button>
+                
+                <!-- CSV Schedule Importer Testing Section -->
+                <div class="test-section">
+                    <h3>📁 CSV Schedule Importer Testing</h3>
+                    <div class="file-upload" id="fileUpload">
+                        <input type="file" id="fileInput" accept=".csv, .xlsx, .xls" style="display: none;">
+                        <p>Drag & drop your CSV/Excel file here, or click to select</p>
+                        <p id="fileInfo">No file selected</p>
+                    </div>
+                    <div class="test-buttons">
+                        <button class="btn btn-warning" id="previewBtn" onclick="testPreview()" disabled>👀 Test Preview</button>
+                        <button class="btn btn-success" id="importBtn" onclick="testImport()" disabled>⚡ Test Import</button>
+                        <button class="btn btn-info" onclick="testValidation()">🧪 Test Validation</button>
+                        <button class="btn btn-secondary" onclick="downloadTemplate()">📋 Download Template</button>
+                        <button class="btn btn-secondary" onclick="checkSystemStatus()">⚙️ System Status</button>
+                    </div>
+                    <div id="systemStatus" style="margin-top: 15px; padding: 10px; background: #f8fcff; border: 2px solid #2196F3; border-radius: 8px;">
+                        <h4>System Status</h4>
+                        <p id="systemStatusText">Checking...</p>
+                        <p id="systemCapabilities"></p>
                     </div>
                 </div>
-            </div>
-
-            <div class="test-section">
-                <h3>📁 CSV Schedule Importer Testing</h3>
-                <div class="file-upload" id="fileUpload">
-                    <input type="file" id="fileInput" accept=".csv, .xlsx, .xls" style="display: none;">
-                    <p>Drag & drop your CSV/Excel file here, or click to select</p>
-                    <p id="fileInfo">No file selected</p>
-                </div>
-                <div class="test-buttons">
-                    <button class="btn btn-warning" id="previewBtn" onclick="testPreview()" disabled>👀 Test Preview</button>
-                    <button class="btn btn-success" id="importBtn" onclick="testImport()" disabled>⚡ Test Import</button>
-                    <button class="btn btn-info" onclick="testValidation()">🧪 Test Validation</button>
-                    <button class="btn btn-secondary" onclick="downloadTemplate()">📋 Download Template</button>
-                    <button class="btn btn-secondary" onclick="checkSystemStatus()">⚙️ System Status</button>
-                </div>
-                <div id="systemStatus" style="margin-top: 15px; padding: 10px; background: #f8fcff; border: 2px solid #2196F3; border-radius: 8px;">
-                    <h4>System Status</h4>
-                    <p id="systemStatusText">Checking...</p>
-                    <p id="systemCapabilities"></p>
+                
+                <!-- Console Section -->
+                <div class="test-section">
+                    <div class="console-header">
+                        <h4>📱 Test Console</h4>
+                        <button class="copy-btn" onclick="copyConsole()">Copy All</button>
+                    </div>
+                    <div id="console" class="console"></div>
                 </div>
             </div>
         </div>
 
         <script>
-            // Persistent logging across page reloads
-            const CONSOLE_KEY = 'eduhub_console_log';
-            const SESSION_KEY = 'eduhub_session_state';
+            // Global variables
+            let authToken = null;
+            let selectedFile = null;
+            const auth0_domain = '{auth0_domain}';
+            const auth0_client_id = '{auth0_client_id}';
+            const base_url = '{base_url}';
 
-            function log(message, type = 'info') {{
+            // Initialize on page load
+            document.addEventListener('DOMContentLoaded', function() {{
+                logConsole('🎓 EduHub OAuth2 Test Console Initialized');
+                logConsole('🔧 Auth0 Domain: ' + auth0_domain);
+                logConsole('🆔 Client ID: ' + auth0_client_id);
+                logConsole('🌐 Base URL: ' + base_url);
+                logConsole('');
+                logConsole('📋 Instructions:');
+                logConsole('1. Click "🚀 Start Login Flow" to begin');
+                logConsole('2. Use test credentials when prompted');
+                logConsole('3. Watch the workflow steps above');
+                logConsole('4. Test user info and logout when ready');
+                logConsole('5. Test CSV Schedule Importer functionality');
+                logConsole('');
+
+                checkAuthStatus();
+                setupFileUpload();
+                checkSystemStatus();
+            }});
+
+            // Console logging function
+            function logConsole(message) {{
                 const timestamp = new Date().toLocaleTimeString();
-                const logEntry = {{
-                    timestamp,
-                    message,
-                    type,
-                    id: Date.now()
-                }};
-
-                // Add to persistent storage
-                const existingLogs = JSON.parse(localStorage.getItem(CONSOLE_KEY) || '[]');
-                existingLogs.push(logEntry);
-                localStorage.setItem(CONSOLE_KEY, JSON.stringify(existingLogs));
-
-                // Display in console
-                displayLogEntry(logEntry);
-
-                // Auto-scroll to bottom
-                const console = document.getElementById('console');
-                console.scrollTop = console.scrollHeight;
+                const console_div = document.getElementById('console');
+                console_div.textContent += `[${{timestamp}}] ${{message}}\\n`;
+                console_div.scrollTop = console_div.scrollHeight;
+                
+                // Store in localStorage for persistence
+                const logs = JSON.parse(localStorage.getItem('consoleLogs') || '[]');
+                logs.push(`[${{timestamp}}] ${{message}}`);
+                localStorage.setItem('consoleLogs', JSON.stringify(logs.slice(-100))); // Keep last 100 logs
             }}
 
-            function displayLogEntry(entry) {{
-                const console = document.getElementById('console');
-                const line = document.createElement('div');
-                line.className = 'log-line';
-                line.innerHTML = '<span class="log-timestamp">[' + entry.timestamp + ']</span> <span class="log-' + entry.type + '">' + entry.message + '</span>';
-                console.appendChild(line);
-            }}
-
+            // Load persisted logs
             function loadPersistedLogs() {{
-                const logs = JSON.parse(localStorage.getItem(CONSOLE_KEY) || '[]');
-                const console = document.getElementById('console');
-                console.innerHTML = '';
-                logs.forEach(displayLogEntry);
-                console.scrollTop = console.scrollHeight;
+                const logs = JSON.parse(localStorage.getItem('consoleLogs') || '[]');
+                const console_div = document.getElementById('console');
+                console_div.textContent = logs.join('\\n') + '\\n';
+                console_div.scrollTop = console_div.scrollHeight;
             }}
 
-            function clearConsole() {{
-                localStorage.removeItem(CONSOLE_KEY);
-                document.getElementById('console').innerHTML = '';
-                log('🧹 Console cleared', 'info');
-            }}
-
-            function copyConsoleOutput() {{
-                const console = document.getElementById('console');
-                const text = console.innerText;
-                navigator.clipboard.writeText(text).then(() => {{
-                    log('📋 Console output copied to clipboard', 'success');
+            // Copy console content to clipboard
+            function copyConsole() {{
+                const console_div = document.getElementById('console');
+                navigator.clipboard.writeText(console_div.textContent).then(() => {{
+                    logConsole('📋 Console output copied to clipboard');
                 }}).catch(err => {{
-                    log('❌ Failed to copy: ' + err, 'error');
+                    logConsole('❌ Failed to copy console output: ' + err.message);
                 }});
             }}
 
-            function saveConsoleLog() {{
-                const logs = JSON.parse(localStorage.getItem(CONSOLE_KEY) || '[]');
-                const text = logs.map(l => '[' + l.timestamp + '] ' + l.message).join('\\n');
-                const blob = new Blob([text], {{ type: 'text/plain' }});
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'eduhub-auth-test-' + new Date().toISOString().split('T')[0] + '.log';
-                a.click();
-                URL.revokeObjectURL(url);
-                log('💾 Console log saved', 'success');
-            }}
-
-            function copyText(text) {{
+            // Copy text to clipboard
+            function copyToClipboard(text) {{
                 navigator.clipboard.writeText(text).then(() => {{
-                    log('📋 Copied: ' + text, 'success');
+                    logConsole('📋 Copied: ' + text);
                 }}).catch(err => {{
-                    log('❌ Copy failed: ' + err, 'error');
+                    logConsole('❌ Failed to copy: ' + err.message);
                 }});
             }}
 
-            function updateWorkflowStep(stepNumber, status, icon = null) {{
-                const step = document.getElementById('step' + stepNumber);
-                const iconEl = step.querySelector('.step-icon');
-
-                step.className = 'workflow-step step-' + status;
-                if (icon) iconEl.textContent = icon;
-            }}
-
-            function updateSessionStatus(status) {{
-                const statusEl = document.getElementById('sessionStatus');
-                statusEl.className = 'session-status status-' + status;
-
-                switch(status) {{
-                    case 'logged-in':
-                        statusEl.textContent = 'Session: ✅ Authenticated';
-                        break;
-                    case 'logged-out':
-                        statusEl.textContent = 'Session: ❌ Not Authenticated';
-                        break;
-                    default:
-                        statusEl.textContent = 'Session: ❓ Unknown';
+            // Get auth token from cookies
+            function getAuthToken() {{
+                const cookies = document.cookie.split(';');
+                for (let cookie of cookies) {{
+                    const [name, value] = cookie.trim().split('=');
+                    if (name === 'access_token' || name === 'id_token') {{
+                        return value;
+                    }}
                 }}
-
-                localStorage.setItem(SESSION_KEY, status);
-            }}
-
-            function startLoginFlow() {{
-                log('🚀 Starting OAuth2 login flow...', 'info');
-                updateWorkflowStep(1, 'complete', '✅');
-                updateWorkflowStep(2, 'active', '⚡');
-
-                log('📋 Remember to use test credentials:', 'warning');
-                log('   📧 dev@example.com / 🔑 DevPassword123!', 'warning');
-                log('   📧 admin@example.com / 🔑 AdminPassword123!', 'warning');
-                log('🌐 Redirecting to Auth0...', 'info');
-
-                // Store that we're starting login
-                localStorage.setItem('login_initiated', 'true');
-
-                // Redirect to login
-                setTimeout(() => {{
-                    window.location.href = '{base_url}/auth/login?return_to=/test/auth-console';
-                }}, 1500);
-            }}
-
-            function getCookie(name) {{
-                const value = `; ${{document.cookie}}`;
-                const parts = value.split(`; ${{name}}=`);
-                if (parts.length === 2) return parts.pop().split(';').shift();
                 return null;
             }}
 
-            function getAuthToken() {{
-                // Try to get token from cookie first (preferred)
-                const cookieToken = getCookie('access_token');
-                if (cookieToken) {{
-                    return cookieToken;
-                }}
-
-                // Fallback to localStorage for backward compatibility
-                return localStorage.getItem('access_token');
+            // OAuth2 Flow Functions
+            async function testLogin() {{
+                logConsole('🚀 Starting OAuth2 login flow...');
+                logConsole('📋 Remember to use test credentials:');
+                logConsole('📧 dev@example.com / 🔑 DevPassword123!');
+                logConsole('📧 admin@example.com / 🔑 AdminPassword123!');
+                
+                document.getElementById('step1').classList.add('active');
+                
+                const return_to = encodeURIComponent(window.location.href);
+                const loginUrl = `/auth/login?return_to=${{return_to}}`;
+                
+                logConsole('🌐 Redirecting to Auth0...');
+                window.location.href = loginUrl;
             }}
 
-            function testUserInfo() {{
-                log('👤 Testing user info endpoint...', 'info');
-
-                const token = getAuthToken();
-                if (!token) {{
-                    log('❌ No authentication token found', 'error');
-                    log('💡 Try logging in first', 'warning');
-                    updateSessionStatus('logged-out');
-                    return;
-                }}
-
-                fetch('{base_url}/auth/user', {{
-                    headers: {{
-                        'Authorization': 'Bearer ' + token
-                    }}
-                }})
-                .then(async response => {{
+            async function testUserInfo() {{
+                logConsole('👤 Testing user info endpoint...');
+                try {{
+                    const response = await fetch('/auth/user', {{
+                        credentials: 'include'
+                    }});
+                    
                     if (response.ok) {{
-                        const user = await response.json();
-                        log('✅ User info retrieved successfully:', 'success');
-                        log('   📧 Email: ' + user.email, 'info');
-                        log('   👤 Name: ' + user.name, 'info');
-                        log('   🆔 Subject: ' + user.sub, 'debug');
-                        updateSessionStatus('logged-in');
-                        return user;
+                        const userData = await response.json();
+                        logConsole('✅ User info retrieved successfully:');
+                        logConsole('📧 Email: ' + userData.email);
+                        logConsole('🆔 ID: ' + userData.sub);
+                        logConsole('👤 Name: ' + userData.name);
+                        logConsole('🏠 Plone ID: ' + (userData.plone_user_id || 'Not synced'));
+                        
+                        document.getElementById('step3').classList.add('completed');
+                        return userData;
                     }} else {{
-                        const error = await response.json();
-                        log('❌ User info failed: ' + response.status + ' - ' + error.detail, 'error');
-                        updateSessionStatus('logged-out');
+                        logConsole('❌ Failed to get user info: ' + response.status);
                         return null;
                     }}
-                }})
-                .catch(error => {{
-                    log('❌ Network error getting user info: ' + error.message, 'error');
-                    updateSessionStatus('unknown');
-                }});
+                }} catch (error) {{
+                    logConsole('❌ Error getting user info: ' + error.message);
+                    return null;
+                }}
+            }}
+
+            async function logout() {{
+                logConsole('🚪 Logging out...');
+                try {{
+                    const response = await fetch('/auth/logout', {{
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: {{
+                            'Content-Type': 'application/json'
+                        }},
+                        body: JSON.stringify({{
+                            return_to: window.location.href // This return_to is now ignored by server
+                        }})
+                    }});
+                    
+                    if (response.ok) {{
+                        const result = await response.json(); // Parse JSON response
+                        logConsole('✅ Logout successful');
+                        
+                        // Clear any remaining cookies on client side
+                        document.cookie = 'access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+                        document.cookie = 'id_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+                        
+                        // Update UI immediately
+                        document.getElementById('authStatus').className = 'auth-status not-authenticated';
+                        document.getElementById('authStatusText').textContent = '❌ Not authenticated';
+                        document.getElementById('userInfo').textContent = '';
+                        document.getElementById('previewBtn').disabled = true;
+                        document.getElementById('importBtn').disabled = true;
+                        
+                        logConsole('🔄 Session cleared locally');
+                        
+                        // Redirect to Auth0 logout (clears Auth0 session)
+                        if (result.redirect_url) {{
+                            logConsole('🌐 Redirecting to complete logout...');
+                            setTimeout(() => {{
+                                window.location.href = result.redirect_url;
+                            }}, 1000);
+                        }}
+                    }} else {{
+                        logConsole('❌ Logout failed');
+                    }}
+                }} catch (error) {{
+                    logConsole('❌ Logout error: ' + error.message);
+                    
+                    // Force clear cookies even if request failed
+                    document.cookie = 'access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+                    document.cookie = 'id_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+                    
+                    // Update UI
+                    document.getElementById('authStatus').className = 'auth-status not-authenticated';
+                    document.getElementById('authStatusText').textContent = '❌ Not authenticated';
+                    document.getElementById('userInfo').textContent = '';
+                    document.getElementById('previewBtn').disabled = true;
+                    document.getElementById('importBtn').disabled = true;
+                    
+                    logConsole('🔄 Session cleared locally (fallback)');
+                }}
             }}
 
             function testLogout() {{
-                log('🚪 Testing logout endpoint...', 'info');
-                updateWorkflowStep(6, 'active', '⚡');
-
-                fetch('{base_url}/auth/logout', {{
-                    method: 'POST',
-                    headers: {{
-                        'Content-Type': 'application/json'
-                    }},
-                    body: JSON.stringify({{
-                        'return_to': '{base_url}/test/auth-console'
-                    }})
-                }})
-                .then(async response => {{
-                    if (response.ok) {{
-                        const data = await response.json();
-                        log('✅ Logout endpoint responded:', 'success');
-                        log('   📄 Message: ' + data.message, 'info');
-                        log('   🔗 Auth0 logout URL generated', 'info');
-                        log('🌐 Redirecting to Auth0 logout...', 'info');
-                        updateWorkflowStep(6, 'complete', '✅');
-                        updateSessionStatus('logged-out');
-
-                        // Clear any stored tokens
-                        document.cookie = 'access_token=; Max-Age=0; path=/';
-                        localStorage.removeItem('access_token');
-
-                        setTimeout(() => {{
-                            window.location.href = data.redirect_url;
-                        }}, 2000);
-                    }} else {{
-                        const error = await response.json();
-                        log('❌ Logout failed: ' + response.status + ' - ' + error.detail, 'error');
-                        updateWorkflowStep(6, 'error', '❌');
-                    }}
-                }})
-                .catch(error => {{
-                    log('❌ Logout request failed: ' + error.message, 'error');
-                    updateWorkflowStep(6, 'error', '❌');
-                }});
+                logout();
             }}
 
             async function checkAuthStatus() {{
@@ -617,272 +677,186 @@ async def auth_test_console():
                     }}
                 }} catch (error) {{
                     logConsole('❌ Error checking auth status: ' + error.message);
+                    document.getElementById('authStatus').className = 'auth-status not-authenticated';
+                    document.getElementById('authStatusText').textContent = '❌ Error checking status';
+                    authToken = null;
                 }}
             }}
 
-            function resetTest() {{
-                log('🔄 Resetting test workflow...', 'info');
-
-                // Reset workflow steps
-                for (let i = 1; i <= 6; i++) {{
-                    updateWorkflowStep(i, 'pending', '⏳');
-                }}
-
-                updateSessionStatus('unknown');
-                localStorage.removeItem('login_initiated');
-                localStorage.removeItem('access_token');
-                document.cookie = 'access_token=; Max-Age=0; path=/';
-
-                // Clear the first workflow step and set it to complete as a visual indicator
-                updateWorkflowStep(1, 'complete', '✅');
-
-                log('✅ Test reset complete', 'success');
-                log('🔧 All tokens cleared and workflow reset', 'info');
-                log('📊 Session status reset to unknown', 'info');
-                log('🎯 Ready for a fresh test cycle', 'success');
-                log('👉 Click "🚀 Start Login Flow" to begin', 'info');
-            }}
-
-            function debugCookies() {{
-                log('🍪 Debug: Checking all cookies and tokens...', 'info');
-                log('📋 Raw document.cookie: "' + document.cookie + '"', 'debug');
-
-                const accessTokenCookie = getCookie('access_token');
-                const localStorageToken = localStorage.getItem('access_token');
-
-                if (accessTokenCookie) {{
-                    log('✅ access_token cookie found: ' + accessTokenCookie.substring(0, 50) + '...', 'success');
-                }} else {{
-                    log('❌ No access_token cookie found', 'error');
-                }}
-
-                if (localStorageToken) {{
-                    log('📦 localStorage token found: ' + localStorageToken.substring(0, 50) + '...', 'info');
-                }} else {{
-                    log('📦 No localStorage token found', 'info');
-                }}
-
-                const finalToken = getAuthToken();
-                if (finalToken) {{
-                    log('🔑 Final token from getAuthToken(): ' + finalToken.substring(0, 50) + '...', 'success');
-                }} else {{
-                    log('❌ getAuthToken() returned null', 'error');
-                }}
-            }}
-
-            function simpleLogout() {{
-                log('🚪 Performing simple logout (clearing tokens)...', 'info');
-                document.cookie = 'access_token=; Max-Age=0; path=/';
-                localStorage.removeItem('access_token');
-                log('✅ Simple logout complete. Tokens cleared.', 'success');
-                updateSessionStatus('logged-out');
-                updateWorkflowStep(6, 'complete', '✅');
-            }}
-
-            function openSwagger() {
+            function openSwagger() {{
                 logConsole('📖 Opening Swagger documentation...');
                 window.open('/docs', '_blank');
-            }
+            }}
             
-            async function checkSystemStatus() {
+            async function checkSystemStatus() {{
                 logConsole('⚙️ Checking CSV importer system status...');
-                try {
+                try {{
                     const response = await fetch('/import/schedule/status');
-                    if (response.ok) {
+                    if (response.ok) {{
                         const status = await response.json();
                         document.getElementById('systemStatusText').textContent = '✅ ' + status.status;
                         document.getElementById('systemCapabilities').innerHTML = '📁 Formats: ' + status.supported_formats.join(', ') + '<br>📏 Max size: ' + status.max_file_size_mb + 'MB';
                         logConsole('✅ CSV importer system operational');
-                        logConsole('📁 Supported formats: ' + status.supported_formats.join(', '));
-                    } else {
-                        logConsole('❌ CSV importer system status check failed');
-                    }
-                } catch (error) {
-                    logConsole('❌ System status error: ' + error.message);
-                }
-            }
-            
-            function setupFileUpload() {
+                    }} else {{
+                        logConsole('❌ System status check failed');
+                        document.getElementById('systemStatusText').textContent = '❌ System check failed';
+                    }}
+                }} catch (error) {{
+                    logConsole('❌ Error checking system status: ' + error.message);
+                    document.getElementById('systemStatusText').textContent = '❌ Error checking system';
+                }}
+            }}
+
+            function setupFileUpload() {{
                 const fileUpload = document.getElementById('fileUpload');
                 const fileInput = document.getElementById('fileInput');
-                
-                if (!fileUpload || !fileInput) return; // Elements not on this page
-                
-                fileUpload.onclick = () => fileInput.click();
-                
-                fileUpload.ondragover = (e) => {
+                const fileInfo = document.getElementById('fileInfo');
+
+                // Click to select file
+                fileUpload.addEventListener('click', () => {{
+                    fileInput.click();
+                }});
+
+                // Handle file selection
+                fileInput.addEventListener('change', handleFileSelect);
+
+                // Drag and drop handlers
+                fileUpload.addEventListener('dragover', (e) => {{
                     e.preventDefault();
                     fileUpload.classList.add('dragover');
-                };
-                
-                fileUpload.ondragleave = () => {
+                }});
+
+                fileUpload.addEventListener('dragleave', () => {{
                     fileUpload.classList.remove('dragover');
-                };
-                
-                fileUpload.ondrop = (e) => {
+                }});
+
+                fileUpload.addEventListener('drop', (e) => {{
                     e.preventDefault();
                     fileUpload.classList.remove('dragover');
+                    
                     const files = e.dataTransfer.files;
-                    if (files.length > 0) {
-                        handleFileSelect(files[0]);
-                    }
-                };
-                
-                fileInput.onchange = (e) => {
-                    if (e.target.files.length > 0) {
-                        handleFileSelect(e.target.files[0]);
-                    }
-                };
-            }
-            
-            function handleFileSelect(file) {
-                selectedFile = file;
-                logConsole('📁 File selected: ' + file.name + ' (' + (file.size / 1024).toFixed(2) + ' KB)');
-                
-                document.getElementById('fileInfo').innerHTML = '<strong>Selected file:</strong> ' + file.name + '<br><strong>Size:</strong> ' + (file.size / 1024).toFixed(2) + ' KB<br><strong>Type:</strong> ' + (file.type || 'Unknown');
-                
-                // Enable buttons if authenticated
-                const authStatus = document.getElementById('authStatus');
-                if (authStatus && authStatus.classList.contains('authenticated')) {
-                    document.getElementById('previewBtn').disabled = false;
-                    document.getElementById('importBtn').disabled = false;
-                }
-            }
+                    if (files.length > 0) {{
+                        fileInput.files = files;
+                        handleFileSelect({{target: fileInput}});
+                    }}
+                }});
+            }}
 
-            async function downloadTemplate() {
+            function handleFileSelect(event) {{
+                const file = event.target.files[0];
+                if (file) {{
+                    selectedFile = file;
+                    const fileInfo = document.getElementById('fileInfo');
+                    fileInfo.innerHTML = `📄 ${{file.name}} (${{(file.size / 1024).toFixed(1)}} KB)`;
+                    
+                    logConsole('📁 File selected: ' + file.name);
+                    logConsole('📏 Size: ' + (file.size / 1024).toFixed(1) + ' KB');
+                    
+                    // Enable preview/import buttons if authenticated
+                    checkAuthStatus();
+                }}
+            }}
+
+            function downloadTemplate() {{
                 logConsole('📋 Downloading CSV template...');
-                try {
-                    const response = await fetch('/import/schedule/template');
-                    const blob = await response.blob();
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'schedule_template.csv';
-                    document.body.appendChild(a);
-                    a.click();
-                    logConsole('✅ Template downloaded successfully');
-                } catch (error) {
-                    logConsole('❌ Template download failed: ' + error.message);
-                }
-            }
+                window.location.href = '/import/schedule/template';
+                logConsole('✅ Template download started');
+            }}
 
-            async function testPreview() {
-                if (!selectedFile) {
-                    logConsole('❌ No file selected');
+            async function testPreview() {{
+                if (!selectedFile) {{
+                    logConsole('❌ No file selected for preview');
                     return;
-                }
-                
+                }}
+
                 logConsole('👀 Testing preview mode with: ' + selectedFile.name);
-                await uploadFile(true);
-            }
+                await uploadFile(true); // preview_only = true
+            }}
 
-            async function testImport() {
-                if (!selectedFile) {
-                    logConsole('❌ No file selected');
+            async function testImport() {{
+                if (!selectedFile) {{
+                    logConsole('❌ No file selected for import');
                     return;
-                }
-                
-                logConsole('⚡ Testing import mode with: ' + selectedFile.name);
-                await uploadFile(false);
-            }
+                }}
 
-            async function uploadFile(previewOnly) {
+                logConsole('⚡ Testing import mode with: ' + selectedFile.name);
+                await uploadFile(false); // preview_only = false
+            }}
+
+            async function uploadFile(previewOnly) {{
                 const formData = new FormData();
                 formData.append('file', selectedFile);
-                formData.append('preview_only', previewOnly.toString());
-                
-                try {
-                    logConsole('📤 Uploading ' + selectedFile.name + '...');
-                    const response = await fetch('/import/schedule', {
+                formData.append('preview_only', previewOnly);
+
+                try {{
+                    logConsole(`🔄 Uploading file for ${{previewOnly ? 'preview' : 'import'}}...`);
+                    
+                    const response = await fetch('/import/schedule', {{
                         method: 'POST',
                         body: formData,
                         credentials: 'include'
-                    });
-                    
-                    const result = await response.json();
-                    
-                    if (response.ok) {
-                        logConsole('✅ Upload successful!');
-                        logConsole('📊 Processing results:');
-                        logConsole('   Total rows: ' + result.total_rows);
-                        logConsole('   Valid rows: ' + result.valid_rows);
-                        logConsole('   Errors: ' + (result.validation_errors?.length || 0));
-                        logConsole('   Conflicts: ' + (result.conflicts?.length || 0));
-                        logConsole('   Success: ' + result.success);
-                        logConsole('   Processing time: ' + result.processing_time_ms + 'ms');
-                        
-                        if (result.validation_errors && result.validation_errors.length > 0) {
-                            logConsole('🔍 Validation errors:');
-                            result.validation_errors.forEach(error => {
-                                logConsole('   Row ' + error.row_number + ': ' + error.message);
-                            });
-                        }
-                    } else {
-                        logConsole('❌ Upload failed: ' + (result.message || result.detail || 'Unknown error'));
-                    }
-                } catch (error) {
-                    logConsole('❌ Upload error: ' + error.message);
-                }
-            }
+                    }});
 
-            async function testValidation() {
+                    if (response.ok) {{
+                        const result = await response.json();
+                        logConsole(`✅ ${{previewOnly ? 'Preview' : 'Import'}} successful!`);
+                        logConsole('📊 Total rows: ' + result.total_rows);
+                        logConsole('✅ Valid rows: ' + result.valid_rows);
+                        logConsole('⚠️ Validation errors: ' + result.validation_errors.length);
+                        logConsole('⚡ Conflicts: ' + result.conflicts.length);
+                        logConsole('⏱️ Processing time: ' + result.processing_time_ms + 'ms');
+                        
+                        if (result.created_uids && result.created_uids.length > 0) {{
+                            logConsole('🆔 Created UIDs: ' + result.created_uids.slice(0, 3).join(', ') + 
+                                     (result.created_uids.length > 3 ? '...' : ''));
+                        }}
+                        
+                        if (result.validation_errors.length > 0) {{
+                            logConsole('📝 Validation errors found:');
+                            result.validation_errors.slice(0, 5).forEach(error => {{
+                                logConsole(`  Row ${{error.row_number}}: ${{error.message}}`);
+                            }});
+                        }}
+                    }} else {{
+                        const error = await response.json();
+                        logConsole(`❌ ${{previewOnly ? 'Preview' : 'Import'}} failed: ` + error.detail);
+                    }}
+                }} catch (error) {{
+                    logConsole(`❌ Upload error: ` + error.message);
+                }}
+            }}
+
+            async function testValidation() {{
                 logConsole('🧪 Testing validation with invalid data...');
                 
-                // Create a test file with invalid data
-                const invalidCsv = 'program,date,time,instructor,room,duration,description\\nTest Program,invalid-date,25:00,Dr. Test,Room A,999,Test description';
-                
-                const blob = new Blob([invalidCsv], { type: 'text/csv' });
-                const file = new File([blob], 'test_invalid.csv', { type: 'text/csv' });
-                
-                const formData = new FormData();
-                formData.append('file', file);
-                formData.append('preview_only', 'true');
-                
-                try {
-                    const response = await fetch('/import/schedule', {
-                        method: 'POST',
-                        body: formData,
-                        credentials: 'include'
-                    });
-                    
-                    const result = await response.json();
-                    
-                    logConsole('✅ Validation test completed');
-                    if (result.validation_errors) {
-                        logConsole('🔍 Validation results:');
-                        result.validation_errors.forEach(error => {
-                            logConsole('   Row ' + error.row_number + ': ' + error.message);
-                        });
-                    }
-                } catch (error) {
-                    logConsole('❌ Validation test error: ' + error.message);
-                }
-            }
+                // Create a CSV with invalid data for testing
+                const invalidCsv = `program,date,time,instructor,room,duration,description
+Python 101,2025-02-01,09:00,Dr. Smith,Room A,90,Valid entry
+,2025-02-01,14:30,Prof. Johnson,Room B,60,Missing program name
+Math Workshop,invalid-date,14:30,Prof. Johnson,Room B,60,Invalid date format
+Science Lab,2025-02-02,25:00,Dr. Williams,Lab 1,120,Invalid time format
+History Seminar,2025-02-02,16:00,,Room C,75,Missing instructor
+Art Class,2025-02-03,11:00,Ms. Davis,,90,Missing room
+Physics Lecture,2025-02-03,13:00,Dr. Anderson,Auditorium,999,Duration too long`;
 
-            // Initialize on page load
-            document.addEventListener('DOMContentLoaded', function() {
-                logConsole('🎓 EduHub OAuth2 Test Console Initialized');
-                logConsole('🔧 Auth0 Domain: ' + auth0_domain);
-                logConsole('🆔 Client ID: ' + auth0_client_id);
-                logConsole('🌐 Base URL: ' + base_url);
-                logConsole('');
-                logConsole('📋 Instructions:');
-                logConsole('1. Click "🚀 Start Login Flow" to begin');
-                logConsole('2. Use test credentials when prompted');
-                logConsole('3. Watch the workflow steps above');
-                logConsole('4. Test user info and logout when ready');
-                logConsole('5. Test CSV Schedule Importer functionality');
-                logConsole('');
+                const blob = new Blob([invalidCsv], {{type: 'text/csv'}});
+                const file = new File([blob], 'test_validation.csv', {{type: 'text/csv'}});
+                
+                selectedFile = file;
+                document.getElementById('fileInfo').innerHTML = '🧪 test_validation.csv (validation test)';
+                
+                logConsole('📁 Generated test file with validation errors');
+                await uploadFile(true); // Test preview with invalid data
+            }}
 
-                checkAuthStatus();
-                setupFileUpload();
-                checkSystemStatus();
-            });
+            // Load persisted logs on page load
+            loadPersistedLogs();
 
-            let selectedFile = null;
+            // Check auth status periodically
+            setInterval(checkAuthStatus, 30000); // Every 30 seconds
         </script>
     </body>
     </html>
     """
-
-    return html_content
+    
+    return HTMLResponse(content=html_content)
