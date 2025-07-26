@@ -10,7 +10,7 @@ import os
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 
-router = APIRouter()
+router = APIRouter(prefix="/test")
 
 
 @router.get("/schedule-test", response_class=HTMLResponse)
