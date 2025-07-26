@@ -6,29 +6,32 @@ including authentication, file upload, validation, and results display.
 """
 
 import os
+
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 
 router = APIRouter()
 
+
 @router.get("/schedule-test", response_class=HTMLResponse)
 async def schedule_test_console(request: Request):
     """
     Unified test console for CSV Schedule Importer.
-    
+
     Single page that handles:
     - OAuth2 authentication flow
-    - File upload testing 
+    - File upload testing
     - Results display
     - Console output with copy functionality
     """
-    
+
     # Get configuration from environment
     auth0_domain = os.getenv("AUTH0_DOMAIN", "dev-1fx6yhxxi543ipno.us.auth0.com")
     auth0_client_id = os.getenv("AUTH0_CLIENT_ID", "s05QngyZXEI3XNdirmJu0CscW1hNgaRD")
     base_url = str(request.url).replace(str(request.url.path), "")
-    
-    html_content = """
+
+    html_content = (
+        """
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -38,17 +41,17 @@ async def schedule_test_console(request: Request):
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
+        body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
-        .container { 
-            max-width: 1000px; 
-            margin: 0 auto; 
-            background: white; 
-            border-radius: 12px; 
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
             padding: 30px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
@@ -72,7 +75,7 @@ async def schedule_test_console(request: Request):
         .auth-status.authenticated { border-color: #4CAF50; background: #f8fff8; }
         .auth-status.not-authenticated { border-color: #f44336; background: #fff8f8; }
         .system-status.operational { border-color: #2196F3; background: #f8fcff; }
-        
+
         .test-section {
             margin-bottom: 30px;
             padding: 20px;
@@ -101,7 +104,7 @@ async def schedule_test_console(request: Request):
         .btn-danger:hover { background: #d32f2f; }
         .btn-secondary { background: #757575; color: white; }
         .btn-secondary:hover { background: #616161; }
-        
+
         .file-upload {
             margin: 15px 0;
             padding: 15px;
@@ -111,7 +114,7 @@ async def schedule_test_console(request: Request):
             background: white;
         }
         .file-upload.dragover { border-color: #2196F3; background: #f0f8ff; }
-        
+
         .console {
             background: #1e1e1e;
             color: #00ff00;
@@ -143,7 +146,7 @@ async def schedule_test_console(request: Request):
             font-size: 12px;
         }
         .copy-btn:hover { background: #555; }
-        
+
         .credentials {
             background: #fff3cd;
             border: 1px solid #ffeaa7;
@@ -166,7 +169,7 @@ async def schedule_test_console(request: Request):
             cursor: pointer;
             font-size: 12px;
         }
-        
+
         .results { margin-top: 20px; }
         .result-item {
             padding: 10px;
@@ -186,6 +189,31 @@ async def schedule_test_console(request: Request):
             <p>Complete testing interface for file upload, authentication, and validation</p>
         </div>
         
+        <div class="test-section" style="background: #e8f5e8; border-color: #28a745;">
+            <h3>📋 Testing Instructions</h3>
+            <div style="background: white; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <h4>🎯 How to Test the CSV Schedule Importer:</h4>
+                <ol style="margin: 10px 0; padding-left: 20px; line-height: 1.6;">
+                    <li><strong>🔐 Authenticate First:</strong> Click "🚀 Login with Auth0" and use the test credentials below (click Copy buttons for easy access)</li>
+                    <li><strong>📁 Upload a File:</strong> Either drag & drop a CSV/Excel file or click the upload area to select one</li>
+                    <li><strong>📋 Get a Template:</strong> If you need a sample file, click "📋 Download Template" for the correct format</li>
+                    <li><strong>👀 Test Preview:</strong> Click "👀 Test Preview" to validate your file without creating any content</li>
+                    <li><strong>⚡ Test Import:</strong> Click "⚡ Test Import" to process the file and create actual Plone content</li>
+                    <li><strong>🧪 Test Validation:</strong> Click "🧪 Test Validation" to see how the system handles invalid data</li>
+                    <li><strong>📋 Copy Results:</strong> Use "📋 Copy All" button to copy the entire console output for sharing</li>
+                </ol>
+                <div style="background: #fff3cd; padding: 10px; border-radius: 4px; margin: 10px 0; border-left: 4px solid #ffc107;">
+                    <strong>💡 Pro Tips:</strong>
+                    <ul style="margin: 5px 0; padding-left: 20px;">
+                        <li>Preview mode shows validation errors without creating content</li>
+                        <li>Import mode creates actual Plone events (only works with valid data)</li>
+                        <li>All test results appear in the console below and in the Results section</li>
+                        <li>File size limit is 10MB, supports CSV, XLSX, and XLS formats</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
         <div class="status-section">
             <div class="auth-status not-authenticated" id="authStatus">
                 <h3>🔐 Authentication Status</h3>
@@ -198,7 +226,7 @@ async def schedule_test_console(request: Request):
                 <p id="systemCapabilities"></p>
             </div>
         </div>
-        
+
         <div class="test-section">
             <h3>🔑 Authentication</h3>
             <div class="credentials">
@@ -226,7 +254,7 @@ async def schedule_test_console(request: Request):
                 <button class="btn btn-danger" onclick="logout()">🚪 Logout</button>
             </div>
         </div>
-        
+
         <div class="test-section">
             <h3>📁 File Upload Testing</h3>
             <div class="file-upload" id="fileUpload">
@@ -244,26 +272,32 @@ async def schedule_test_console(request: Request):
             </div>
             <div id="fileInfo" style="margin-top: 10px;"></div>
         </div>
-        
+
         <div class="console-header">
             <h3>🖥️ Console Output</h3>
             <button class="copy-btn" onclick="copyConsole()">📋 Copy All</button>
         </div>
         <div class="console" id="console"></div>
-        
+
         <div class="results" id="results"></div>
     </div>
 
     <script>
         let selectedFile = null;
         let authToken = null;
-        
+
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
             logConsole('🎓 CSV Schedule Importer Test Console Initialized');
-            logConsole('🔧 Auth0 Domain: """ + auth0_domain + """');
-            logConsole('🆔 Client ID: """ + auth0_client_id + """');
-            logConsole('🌐 Base URL: """ + base_url + """');
+            logConsole('🔧 Auth0 Domain: """
+        + auth0_domain
+        + """');
+            logConsole('🆔 Client ID: """
+        + auth0_client_id
+        + """');
+            logConsole('🌐 Base URL: """
+        + base_url
+        + """');
             logConsole('');
             logConsole('📋 Instructions:');
             logConsole('1. Click "🚀 Login with Auth0" to authenticate');
@@ -271,62 +305,62 @@ async def schedule_test_console(request: Request):
             logConsole('3. Use Preview or Import buttons to test functionality');
             logConsole('4. Copy console output if you need to share results');
             logConsole('');
-            
+
             checkAuthStatus();
             checkSystemStatus();
             setupFileUpload();
         });
-        
+
         function logConsole(message) {
             const console = document.getElementById('console');
             const timestamp = new Date().toLocaleTimeString();
             console.innerHTML += '[' + timestamp + '] ' + message + '\\n';
             console.scrollTop = console.scrollHeight;
         }
-        
+
         function copyConsole() {
             const consoleText = document.getElementById('console').innerText;
             navigator.clipboard.writeText(consoleText).then(() => {
                 logConsole('📋 Console output copied to clipboard');
             });
         }
-        
+
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(() => {
                 logConsole('📋 Copied: ' + text);
             });
         }
-        
+
         function startLogin() {
             logConsole('🚀 Starting OAuth2 login flow...');
             logConsole('📋 Remember to use test credentials:');
             logConsole('📧 dev@example.com / 🔑 DevPassword123!');
             logConsole('📧 admin@example.com / 🔑 AdminPassword123!');
             logConsole('🌐 Redirecting to Auth0...');
-            
+
             const returnTo = encodeURIComponent(window.location.href);
             const authUrl = '/auth/login?return_to=' + returnTo;
             window.location.href = authUrl;
         }
-        
+
         async function checkAuthStatus() {
             logConsole('🔍 Checking authentication status...');
             try {
                 const response = await fetch('/auth/user', {
                     credentials: 'include'
                 });
-                
+
                 if (response.ok) {
                     const userData = await response.json();
                     authToken = getAuthToken();
-                    
+
                     document.getElementById('authStatus').className = 'auth-status authenticated';
                     document.getElementById('authStatusText').textContent = '✅ Authenticated';
                     document.getElementById('userInfo').innerHTML = '👤 ' + userData.email + '<br>🆔 ' + userData.sub;
-                    
+
                     logConsole('✅ Authenticated as: ' + userData.email);
                     logConsole('🆔 User ID: ' + userData.sub);
-                    
+
                     // Enable file upload buttons
                     document.getElementById('previewBtn').disabled = false;
                     document.getElementById('importBtn').disabled = false;
@@ -335,7 +369,7 @@ async def schedule_test_console(request: Request):
                     document.getElementById('authStatusText').textContent = '❌ Not authenticated';
                     document.getElementById('userInfo').textContent = '';
                     logConsole('❌ Not currently authenticated');
-                    
+
                     // Disable file upload buttons
                     document.getElementById('previewBtn').disabled = true;
                     document.getElementById('importBtn').disabled = true;
@@ -344,7 +378,7 @@ async def schedule_test_console(request: Request):
                 logConsole('❌ Error checking auth status: ' + error.message);
             }
         }
-        
+
         function getAuthToken() {
             // Try to get JWT from cookies
             const cookies = document.cookie.split(';');
@@ -356,7 +390,7 @@ async def schedule_test_console(request: Request):
             }
             return null;
         }
-        
+
         async function logout() {
             logConsole('🚪 Logging out...');
             try {
@@ -370,7 +404,7 @@ async def schedule_test_console(request: Request):
                         return_to: window.location.href
                     })
                 });
-                
+
                 if (response.ok) {
                     logConsole('✅ Logout successful');
                     setTimeout(() => checkAuthStatus(), 1000);
@@ -381,7 +415,7 @@ async def schedule_test_console(request: Request):
                 logConsole('❌ Logout error: ' + error.message);
             }
         }
-        
+
         async function checkSystemStatus() {
             logConsole('⚙️ Checking system status...');
             try {
@@ -399,22 +433,22 @@ async def schedule_test_console(request: Request):
                 logConsole('❌ System status error: ' + error.message);
             }
         }
-        
+
         function setupFileUpload() {
             const fileUpload = document.getElementById('fileUpload');
             const fileInput = document.getElementById('fileInput');
-            
+
             fileUpload.onclick = () => fileInput.click();
-            
+
             fileUpload.ondragover = (e) => {
                 e.preventDefault();
                 fileUpload.classList.add('dragover');
             };
-            
+
             fileUpload.ondragleave = () => {
                 fileUpload.classList.remove('dragover');
             };
-            
+
             fileUpload.ondrop = (e) => {
                 e.preventDefault();
                 fileUpload.classList.remove('dragover');
@@ -423,27 +457,27 @@ async def schedule_test_console(request: Request):
                     handleFileSelect(files[0]);
                 }
             };
-            
+
             fileInput.onchange = (e) => {
                 if (e.target.files.length > 0) {
                     handleFileSelect(e.target.files[0]);
                 }
             };
         }
-        
+
         function handleFileSelect(file) {
             selectedFile = file;
             logConsole('📁 File selected: ' + file.name + ' (' + (file.size / 1024).toFixed(2) + ' KB)');
-            
+
             document.getElementById('fileInfo').innerHTML = '<strong>Selected file:</strong> ' + file.name + '<br><strong>Size:</strong> ' + (file.size / 1024).toFixed(2) + ' KB<br><strong>Type:</strong> ' + (file.type || 'Unknown');
-            
+
             // Enable buttons if authenticated
             if (authToken || document.getElementById('authStatus').classList.contains('authenticated')) {
                 document.getElementById('previewBtn').disabled = false;
                 document.getElementById('importBtn').disabled = false;
             }
         }
-        
+
         async function downloadTemplate() {
             logConsole('📋 Downloading CSV template...');
             try {
@@ -459,32 +493,32 @@ async def schedule_test_console(request: Request):
                 logConsole('❌ Template download failed: ' + error.message);
             }
         }
-        
+
         async function testPreview() {
             if (!selectedFile) {
                 logConsole('❌ No file selected');
                 return;
             }
-            
+
             logConsole('👀 Testing preview mode with: ' + selectedFile.name);
             await uploadFile(true);
         }
-        
+
         async function testImport() {
             if (!selectedFile) {
                 logConsole('❌ No file selected');
                 return;
             }
-            
+
             logConsole('⚡ Testing import mode with: ' + selectedFile.name);
             await uploadFile(false);
         }
-        
+
         async function uploadFile(previewOnly) {
             const formData = new FormData();
             formData.append('file', selectedFile);
             formData.append('preview_only', previewOnly.toString());
-            
+
             try {
                 logConsole('📤 Uploading ' + selectedFile.name + '...');
                 const response = await fetch('/import/schedule', {
@@ -492,9 +526,9 @@ async def schedule_test_console(request: Request):
                     body: formData,
                     credentials: 'include'
                 });
-                
+
                 const result = await response.json();
-                
+
                 if (response.ok) {
                     logConsole('✅ Upload successful!');
                     displayResult(result, 'success');
@@ -514,29 +548,29 @@ async def schedule_test_console(request: Request):
                 displayResult({error: error.message}, 'error');
             }
         }
-        
+
         async function testValidation() {
             logConsole('🧪 Testing validation with invalid data...');
-            
+
             // Create a test file with invalid data
             const invalidCsv = 'program,date,time,instructor,room,duration,description\\nTest Program,invalid-date,25:00,Dr. Test,Room A,999,Test description';
-            
+
             const blob = new Blob([invalidCsv], { type: 'text/csv' });
             const file = new File([blob], 'test_invalid.csv', { type: 'text/csv' });
-            
+
             const formData = new FormData();
             formData.append('file', file);
             formData.append('preview_only', 'true');
-            
+
             try {
                 const response = await fetch('/import/schedule', {
                     method: 'POST',
                     body: formData,
                     credentials: 'include'
                 });
-                
+
                 const result = await response.json();
-                
+
                 if (response.ok || response.status === 422) {
                     logConsole('✅ Validation test completed');
                     displayResult(result, 'warning');
@@ -553,14 +587,14 @@ async def schedule_test_console(request: Request):
                 logConsole('❌ Validation test error: ' + error.message);
             }
         }
-        
+
         function displayResult(result, type) {
             const resultsDiv = document.getElementById('results');
             const resultItem = document.createElement('div');
             resultItem.className = 'result-item result-' + type;
             resultItem.innerHTML = '<h4>📊 ' + (type === 'success' ? 'Success' : type === 'error' ? 'Error' : 'Warning') + '</h4><pre>' + JSON.stringify(result, null, 2) + '</pre>';
             resultsDiv.appendChild(resultItem);
-            
+
             // Scroll to results
             resultItem.scrollIntoView({ behavior: 'smooth' });
         }
@@ -568,5 +602,6 @@ async def schedule_test_console(request: Request):
 </body>
 </html>
     """
-    
-    return html_content 
+    )
+
+    return html_content
