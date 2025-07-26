@@ -222,16 +222,11 @@ async def logout(request: Request):
     Returns:
         AuthResponse: Logout confirmation with session cleanup
     """
-    # Try to get return_to from request body, fallback to test console
-    return_to = f"{BASE_URL}/test/auth-console"  # Default to test console
+    # Always redirect to auth console (already configured in Auth0)
+    return_to = f"{BASE_URL}/test/auth-console"
 
-    try:
-        body = await request.json()
-        if "return_to" in body:
-            return_to = body["return_to"]
-    except:
-        # No JSON body or parsing error, use default
-        pass
+    # Note: We ignore any return_to in request body and always use auth console
+    # since it's already configured in Auth0 allowed logout URLs
 
     # Get current token for audit logging
     current_token = request.cookies.get("access_token")
