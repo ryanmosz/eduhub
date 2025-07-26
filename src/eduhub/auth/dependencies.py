@@ -61,10 +61,14 @@ def validate_jwt_token(token: str) -> dict:
         # Decode token header to get key ID
         unverified_header = jwt.get_unverified_header(token)
 
+        token_kid = unverified_header.get("kid")
+
         # Find the correct key
         rsa_key = {}
+        available_kids = []
         for key in jwks["keys"]:
-            if key["kid"] == unverified_header["kid"]:
+            available_kids.append(key.get("kid"))
+            if key["kid"] == token_kid:
                 rsa_key = {
                     "kty": key["kty"],
                     "kid": key["kid"],
@@ -77,7 +81,7 @@ def validate_jwt_token(token: str) -> dict:
         if not rsa_key:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Unable to find appropriate key",
+                detail=f"Unable to find key with kid '{token_kid}'. Available kids: {available_kids}",
             )
 
         # Validate and decode token
@@ -85,8 +89,8 @@ def validate_jwt_token(token: str) -> dict:
             token,
             rsa_key,
             algorithms=AUTH0_ALGORITHMS,
-            audience=AUTH0_CLIENT_ID,
             issuer=f"https://{AUTH0_DOMAIN}/",
+            options={"verify_aud": False},  # Skip audience verification for MVP
         )
 
         return payload

@@ -10,10 +10,16 @@ from contextlib import asynccontextmanager
 from typing import Any, Dict, List, Optional
 
 from fastapi import Depends, FastAPI, HTTPException, Query
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 
 # Import the hello world module for basic endpoints
 from hello import app as hello_app
+
+# Import auth router
+from .auth.oauth import router as auth_router
+from .auth.test_console import (
+    router as test_router,  # Re-enabled after fixing syntax error
+)
 
 # Import Plone integration
 from .plone_integration import (
@@ -71,6 +77,22 @@ app = FastAPI(
 # Include the hello world endpoints
 app.mount("/hello", hello_app)
 
+# Include the authentication endpoints
+app.include_router(auth_router)
+
+# Include the test console
+app.include_router(test_router)
+
+
+@app.get("/favicon.ico")
+async def favicon():
+    """Serve a simple graduation cap favicon for all pages."""
+    # Simple SVG favicon with graduation cap emoji
+    svg_content = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        <text y=".9em" font-size="90">🎓</text>
+    </svg>"""
+    return Response(content=svg_content, media_type="image/svg+xml")
+
 
 @app.get("/")
 async def root():
@@ -80,10 +102,12 @@ async def root():
         "version": "0.1.0",
         "description": "Modern education portal bridging FastAPI with Plone CMS",
         "endpoints": {
+            "auth": "/auth - OAuth2 authentication endpoints (login, callback, user, logout)",
             "hello": "/hello - Hello world and async demo endpoints",
             "plone": "/plone - Plone CMS integration endpoints",
             "content": "/content - Content management endpoints",
             "docs": "/docs - API documentation",
+            "test": "/test/auth-console - OAuth2 testing console",
         },
     }
 

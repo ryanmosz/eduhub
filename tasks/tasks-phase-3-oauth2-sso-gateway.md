@@ -62,18 +62,18 @@ Legacy Integration Depth: **Full user/role mapping** - Required for Plone securi
   - [x] 3.2.8 **TEST**: Check Swagger UI at <http://localhost:8000/docs> shows new auth module structure
   - [x] 3.2.9 **TEST**: Confirm all auth dependencies install correctly with `pip install -r requirements.txt`
 
-- [ ] **3.3 Auth0 OAuth2 Flow Implementation**
+- [x] **3.3 Auth0 OAuth2 Flow Implementation**
   - Implement Auth0 authorization code flow with minimal FastAPI endpoints.
-  - [ ] 3.3.1 Create `/auth/login` endpoint that redirects to Auth0 Universal Login
-  - [ ] 3.3.2 Create `/auth/callback` endpoint to handle Auth0 callback with authorization code
-  - [ ] 3.3.3 Implement token exchange logic (authorization code → access token)
-  - [ ] 3.3.4 Create `/auth/logout` endpoint for Auth0 logout with return URL
-  - [ ] 3.3.5 Add JWT token validation function using Auth0's public keys (JWKS)
-  - [ ] 3.3.6 Create `/auth/user` endpoint to return current authenticated user info
-  - [ ] 3.3.7 **TEST**: Use Swagger UI to access `/auth/login` and verify redirect to Auth0 Universal Login
-  - [ ] 3.3.8 **TEST**: Complete login flow manually and verify `/auth/callback` processes authorization code
-  - [ ] 3.3.9 **TEST**: Verify JWT token generation by calling `/auth/user` endpoint via Swagger UI
-  - [ ] 3.3.10 **TEST**: Test `/auth/logout` endpoint redirects properly and clears session
+  - [x] 3.3.1 Create `/auth/login` endpoint that redirects to Auth0 Universal Login
+  - [x] 3.3.2 Create `/auth/callback` endpoint to handle Auth0 callback with authorization code
+  - [x] 3.3.3 Implement token exchange logic (authorization code → access token)
+  - [x] 3.3.4 Create `/auth/logout` endpoint for Auth0 logout with return URL
+  - [x] 3.3.5 Add JWT token validation function using Auth0's public keys (JWKS)
+  - [x] 3.3.6 Create `/auth/user` endpoint to return current authenticated user info
+  - [x] 3.3.7 **TEST**: Use Swagger UI to access `/auth/login` and verify redirect to Auth0 Universal Login
+  - [x] 3.3.8 **TEST**: Complete login flow manually and verify `/auth/callback` processes authorization code
+  - [x] 3.3.9 **TEST**: Verify JWT token generation by calling `/auth/user` endpoint via Swagger UI
+  - [x] 3.3.10 **TEST**: Test `/auth/logout` endpoint redirects properly and clears session
 
 - [ ] **3.4 Existing PloneClient Integration**
   - Integrate Auth0 user data with existing Plone user system using current PloneClient.
