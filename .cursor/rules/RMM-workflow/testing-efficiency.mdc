@@ -3,6 +3,47 @@ Globs: **/*.py, **/*.md, **/test*.py, **/tasks*.md
 
 # Testing Efficiency & Automation Rule
 
+## 🚨 CRITICAL: Terminal Command Visibility
+
+**PROVEN WORKING METHOD** - User must see real-time progress, not spinning circles:
+
+### ❌ WRONG - Hidden Loops (User Sees Spinning Circle)
+```bash
+# USER SEES: Spinning circle for 6+ seconds → thinks it's hung → interrupts
+for i in {1..12}; do curl "http://localhost:8000/test"; sleep 0.5; done
+```
+
+### ✅ CORRECT - Chained Commands (User Sees Each Step)
+```bash
+# USER SEES: Each result appears immediately as it executes
+echo "Testing rate limiting - 12 requests..." && curl -w "Request 1: %{http_code}\n" "http://localhost:8000/auth/login" && curl -w "Request 2: %{http_code}\n" "http://localhost:8000/auth/login" && curl -w "Request 3: %{http_code}\n" "http://localhost:8000/auth/login" && echo "Rate limiting test complete"
+```
+
+### **VERIFIED RULES (TESTED & WORKING):**
+1. **`is_background: false`** - User sees output in real-time
+2. **Chain with `&&`** - Each command shows immediately when it finishes
+3. **No loops** - Use individual chained commands instead
+4. **Progress indicators** - `echo` statements and `-w` flags show what's happening
+5. **No silent gaps >3 seconds** - If any step takes longer, break it down further
+
+### **EMERGENCY RULE**
+If user sees spinning circle >3 seconds = They WILL interrupt thinking it's hung.
+**Solution**: Chain individual commands so each step appears immediately.
+
+### **Examples - TESTED WORKING**
+```bash
+# ✅ WORKING: 12-step rate limit test - each result appears immediately
+echo "Testing..." && curl -w "Request 1: %{http_code}\n" "url1" && curl -w "Request 2: %{http_code}\n" "url2" && echo "Complete"
+
+# ✅ WORKING: Progress test - user sees each step
+echo "Starting..." && sleep 1 && echo "Step 1 complete" && sleep 1 && echo "Step 2 complete" && echo "Done"
+
+# ❌ BROKEN: User sees spinning circle, thinks it's hung
+for i in {1..12}; do curl "http://localhost:8000/test"; done
+```
+
+---
+
 ## CRITICAL PRINCIPLE: **Automate Before Asking**
 
 **MANDATORY**: Before requesting ANY manual testing from the user, MUST re-evaluate if the test can be automated programmatically. Manual testing is a major efficiency blocker and should only be used as a last resort.
