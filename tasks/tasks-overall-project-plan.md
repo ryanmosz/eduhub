@@ -25,7 +25,7 @@
 - [x] **2.0 Python 3.11 + Async Upgrade Harness**
   - Migrate codebase to Python 3.11, introduce async I/O, ensure backward compatibility.
 
-- [ ] **3.0 OAuth2 / SSO Gateway**
+- [x] **3.0 OAuth2 / SSO Gateway**
   - Implement FastAPI auth façade with Auth0; issue JWT accepted by legacy layers.
 
 - [ ] **4.0 CSV Schedule Importer**
