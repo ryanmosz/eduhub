@@ -5,12 +5,12 @@ This folder contains documentation that was removed from the main docs structure
 ## Archive Reasons
 
 ### `api-structure.md` (from docs/architecture/)
-**Archived**: January 2025  
+**Archived**: January 2025
 **Reason**: This document described a complete API structure with endpoints like `/content/`, `/users/`, complex schemas, and SDKs that were never implemented. The actual EduHub API is much simpler, focused on Auth0 OAuth2 integration and Plone bridging. This aspirational documentation would have misled new developers about the current system capabilities.
 
 **Current Reality**: The actual API consists of:
 - `/auth/*` endpoints for OAuth2 authentication
-- `/plone/*` endpoints for legacy CMS integration  
+- `/plone/*` endpoints for legacy CMS integration
 - `/ ` root endpoint for basic API info
 - FastAPI auto-generated `/docs` and `/openapi.json`
 
@@ -23,4 +23,4 @@ This folder contains documentation that was removed from the main docs structure
 
 ---
 
-*For current, accurate documentation, see the main `/docs/` folder structure.* 
+*For current, accurate documentation, see the main `/docs/` folder structure.*

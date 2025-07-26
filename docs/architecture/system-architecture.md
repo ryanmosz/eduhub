@@ -2,7 +2,7 @@
 
 > **Current Status**
 > EduHub is a *modern FastAPI gateway* that provides OAuth2 authentication and API access to an existing **Plone CMS** core.
-> All authentication flows through Auth0, content comes from Plone via HTTP API calls, and the system is designed for 
+> All authentication flows through Auth0, content comes from Plone via HTTP API calls, and the system is designed for
 > incremental modernization without disrupting existing workflows.
 
 This document outlines the actual implemented architecture, technical design, and integration patterns for the EduHub education portal.
@@ -258,7 +258,7 @@ GET  /test/auth-console  # Interactive OAuth test interface
 
 # Plone Integration (via PloneClient)
 # - User lookup and creation
-# - Role/group synchronization  
+# - Role/group synchronization
 # - Graceful fallback when Plone unavailable
 ```
 
@@ -288,7 +288,7 @@ GET  /test/auth-console  # Interactive OAuth test interface
 ```python
 # Implemented security measures:
 - JWKS key rotation support
-- Token expiry validation  
+- Token expiry validation
 - Signature verification
 - Issuer validation
 - Graceful error handling
@@ -344,7 +344,7 @@ ENVIRONMENT=production
 ```python
 # Integration test script: scripts/quick_integration_test.py
 - Server connectivity verification
-- Auth endpoint documentation check  
+- Auth endpoint documentation check
 - JWT validation testing
 - Token status verification
 - CORS preflight testing
@@ -401,7 +401,7 @@ Architecture Considerations:
 ### Scalability Path
 ```yaml
 Current: Single FastAPI instance + Plone
-Short-term: Load balanced FastAPI instances  
+Short-term: Load balanced FastAPI instances
 Long-term: Microservices extraction from Plone
 Database: Consider PostgreSQL for new features
 Caching: Redis for frequently accessed Plone content

@@ -90,7 +90,7 @@ CORS: Configured for Auth0 callbacks
 
 **Integration Points:**
 - **Auth0** handles universal login and user management
-- **FastAPI** validates JWT tokens and manages sessions  
+- **FastAPI** validates JWT tokens and manages sessions
 - **PloneClient** maps Auth0 users to Plone accounts
 - **Rate limiting** protects against abuse
 
@@ -159,7 +159,7 @@ User Management: acl_users + PlonePAS
 ```yaml
 API Endpoints:
   - /@login: Authentication
-  - /@users: User management  
+  - /@users: User management
   - /@groups: Group/role management
   - /@content: Content CRUD operations
   - /@search: Content search capabilities
@@ -177,13 +177,13 @@ The bridge between modern FastAPI and legacy Plone:
 ```python
 class PloneClient:
     """Async HTTP client for Plone CMS integration"""
-    
+
     # Implemented methods:
     async def authenticate(self) -> str
     async def get_user_by_email(self, email: str) -> Dict
     async def create_user(self, user_data: Dict) -> Dict
     async def get_user_roles(self, user_id: str) -> List[str]
-    
+
     # Connection management:
     - httpx.AsyncClient with connection pooling
     - Automatic token refresh
@@ -219,7 +219,7 @@ Auth0 to Plone Mapping:
   Email: dev@example.com → dev_example_com (username)
   Metadata: Auth0 custom claims → Plone user properties
   Roles: Auth0 app_metadata → Plone groups/roles
-  
+
 Fallback Behavior:
   - Create Plone user if doesn't exist
   - Default to 'Member' role for new users
@@ -250,7 +250,7 @@ Rate Limiting:
   - 5 requests per minute for auth endpoints
   - IP-based tracking with in-memory storage
   - HTTP 429 responses with retry headers
-  
+
 CORS Configuration:
   - Auth0 callback URLs whitelisted
   - Development origins (localhost:8000)
@@ -318,7 +318,7 @@ pytest tests/
 black src/
 isort src/
 
-# Type checking  
+# Type checking
 mypy src/
 
 # Linting
@@ -351,7 +351,7 @@ Required Variables:
   - AUTH0_DOMAIN: Your Auth0 tenant domain
   - AUTH0_CLIENT_ID: Application client identifier
   - AUTH0_ALGORITHMS: JWT signature algorithms (["RS256"])
-  
+
 Optional Variables:
   - PLONE_BASE_URL: Override default Plone location
   - ENVIRONMENT: development/staging/production

@@ -1,6 +1,5 @@
 ## Relevant Files
 
-
 - `src/eduhub/workflows/__init__.py` – Package initialisation.
 - `src/eduhub/workflows/templates.py` – Pre-defined Plone workflow templates & role mappings.
 - `src/eduhub/workflows/endpoints.py` – FastAPI router exposing `/workflows` management endpoints.

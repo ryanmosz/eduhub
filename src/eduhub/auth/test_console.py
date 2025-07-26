@@ -18,13 +18,13 @@ router = APIRouter(prefix="/test", tags=["Testing"])
 async def auth_console(request: Request):
     """
     Unified testing console for OAuth2 + CSV Schedule Importer.
-    
+
     Serves an interactive HTML page that provides:
     - OAuth2 flow testing (login, user info, logout)
     - CSV file upload and processing
     - System status checking
     - Copy-to-clipboard console for debugging
-    
+
     All functionality is consolidated per user request.
     """
     # Extract configuration from request
@@ -46,7 +46,7 @@ async def auth_console(request: Request):
                 padding: 0;
                 box-sizing: border-box;
             }}
-            
+
             body {{
                 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -54,7 +54,7 @@ async def auth_console(request: Request):
                 padding: 20px;
                 color: #333;
             }}
-            
+
             .container {{
                 max-width: 1200px;
                 margin: 0 auto;
@@ -63,28 +63,28 @@ async def auth_console(request: Request):
                 box-shadow: 0 20px 40px rgba(0,0,0,0.1);
                 overflow: hidden;
             }}
-            
+
             .header {{
                 background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
                 color: white;
                 padding: 30px;
                 text-align: center;
             }}
-            
+
             .header h1 {{
                 font-size: 2.5rem;
                 margin-bottom: 10px;
             }}
-            
+
             .header p {{
                 font-size: 1.2rem;
                 opacity: 0.9;
             }}
-            
+
             .content {{
                 padding: 40px;
             }}
-            
+
             .test-section {{
                 background: #f8fafc;
                 border-radius: 10px;
@@ -92,13 +92,13 @@ async def auth_console(request: Request):
                 margin-bottom: 30px;
                 border-left: 5px solid #4f46e5;
             }}
-            
+
             .test-section h3 {{
                 font-size: 1.5rem;
                 margin-bottom: 20px;
                 color: #1e293b;
             }}
-            
+
             .auth-status {{
                 display: inline-block;
                 padding: 10px 20px;
@@ -107,24 +107,24 @@ async def auth_console(request: Request):
                 margin-bottom: 15px;
                 font-size: 1.1rem;
             }}
-            
+
             .authenticated {{
                 background: #10b981;
                 color: white;
             }}
-            
+
             .not-authenticated {{
                 background: #ef4444;
                 color: white;
             }}
-            
+
             .workflow-steps {{
                 display: grid;
                 grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
                 gap: 15px;
                 margin: 20px 0;
             }}
-            
+
             .workflow-step {{
                 background: white;
                 padding: 15px;
@@ -133,25 +133,25 @@ async def auth_console(request: Request):
                 border: 2px solid #e2e8f0;
                 transition: all 0.3s ease;
             }}
-            
+
             .workflow-step.active {{
                 border-color: #4f46e5;
                 background: #f0f9ff;
                 transform: translateY(-2px);
             }}
-            
+
             .workflow-step.completed {{
                 border-color: #10b981;
                 background: #f0fdf4;
             }}
-            
+
             .test-buttons {{
                 display: flex;
                 flex-wrap: wrap;
                 gap: 15px;
                 margin: 20px 0;
             }}
-            
+
             .btn {{
                 padding: 12px 24px;
                 border: none;
@@ -163,48 +163,48 @@ async def auth_console(request: Request):
                 text-decoration: none;
                 display: inline-block;
             }}
-            
+
             .btn:hover {{
                 transform: translateY(-2px);
                 box-shadow: 0 8px 16px rgba(0,0,0,0.2);
             }}
-            
+
             .btn-primary {{
                 background: #4f46e5;
                 color: white;
             }}
-            
+
             .btn-success {{
                 background: #10b981;
                 color: white;
             }}
-            
+
             .btn-warning {{
                 background: #f59e0b;
                 color: white;
             }}
-            
+
             .btn-danger {{
                 background: #ef4444;
                 color: white;
             }}
-            
+
             .btn-info {{
                 background: #3b82f6;
                 color: white;
             }}
-            
+
             .btn-secondary {{
                 background: #6b7280;
                 color: white;
             }}
-            
+
             .btn:disabled {{
                 background: #9ca3af;
                 cursor: not-allowed;
                 transform: none;
             }}
-            
+
             .credentials {{
                 background: #fef3c7;
                 border: 1px solid #f59e0b;
@@ -212,7 +212,7 @@ async def auth_console(request: Request):
                 padding: 20px;
                 margin: 20px 0;
             }}
-            
+
             .credential-item {{
                 display: flex;
                 justify-content: space-between;
@@ -224,11 +224,11 @@ async def auth_console(request: Request):
                 cursor: pointer;
                 transition: background 0.2s;
             }}
-            
+
             .credential-item:hover {{
                 background: #f9fafb;
             }}
-            
+
             .file-upload {{
                 border: 3px dashed #cbd5e1;
                 border-radius: 10px;
@@ -238,17 +238,17 @@ async def auth_console(request: Request):
                 transition: all 0.3s ease;
                 cursor: pointer;
             }}
-            
+
             .file-upload:hover {{
                 border-color: #4f46e5;
                 background: #f8fafc;
             }}
-            
+
             .file-upload.dragover {{
                 border-color: #10b981;
                 background: #f0fdf4;
             }}
-            
+
             .console {{
                 background: #1e293b;
                 color: #e2e8f0;
@@ -262,19 +262,19 @@ async def auth_console(request: Request):
                 white-space: pre-wrap;
                 word-wrap: break-word;
             }}
-            
+
             .console-header {{
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
                 margin-bottom: 15px;
             }}
-            
+
             .console-header h4 {{
                 color: #1e293b;
                 margin: 0;
             }}
-            
+
             .copy-btn {{
                 background: #6b7280;
                 color: white;
@@ -284,11 +284,11 @@ async def auth_console(request: Request):
                 cursor: pointer;
                 font-size: 0.9rem;
             }}
-            
+
             .copy-btn:hover {{
                 background: #4b5563;
             }}
-            
+
             .instructions {{
                 background: #dbeafe;
                 border: 1px solid #3b82f6;
@@ -296,21 +296,21 @@ async def auth_console(request: Request):
                 padding: 20px;
                 margin: 20px 0;
             }}
-            
+
             .instructions h4 {{
                 color: #1e40af;
                 margin-bottom: 15px;
             }}
-            
+
             .instructions ol {{
                 padding-left: 20px;
                 line-height: 1.6;
             }}
-            
+
             .instructions li {{
                 margin: 8px 0;
             }}
-            
+
             .pro-tips {{
                 background: #f0f9ff;
                 border: 1px solid #0ea5e9;
@@ -318,17 +318,17 @@ async def auth_console(request: Request):
                 padding: 15px;
                 margin: 15px 0;
             }}
-            
+
             .pro-tips h5 {{
                 color: #0c4a6e;
                 margin-bottom: 10px;
             }}
-            
+
             .pro-tips ul {{
                 padding-left: 20px;
                 line-height: 1.5;
             }}
-            
+
             .pro-tips li {{
                 margin: 5px 0;
                 font-size: 0.95rem;
@@ -341,7 +341,7 @@ async def auth_console(request: Request):
                 <h1>🎓 EduHub Testing Console</h1>
                 <p>OAuth2 Authentication + CSV Schedule Importer Testing</p>
             </div>
-            
+
             <div class="content">
                 <!-- Instructions Section -->
                 <div class="instructions">
@@ -352,7 +352,7 @@ async def auth_console(request: Request):
                         <li><strong>System Testing:</strong> Check system status, download template, test validation with invalid data</li>
                         <li><strong>Problem Reporting:</strong> Use "Copy All" button to copy console logs for reporting issues</li>
                     </ol>
-                    
+
                     <div class="pro-tips">
                         <h5>💡 Pro Tips</h5>
                         <ul>
@@ -364,17 +364,17 @@ async def auth_console(request: Request):
                         </ul>
                     </div>
                 </div>
-                
+
                 <!-- OAuth2 Testing Section -->
                 <div class="test-section">
                     <h3>🔐 OAuth2 Authentication Testing</h3>
-                    
+
                     <div id="authStatus" class="auth-status not-authenticated">
                         <span id="authStatusText">❌ Not authenticated</span>
                     </div>
-                    
+
                     <div id="userInfo" style="margin: 10px 0; font-weight: bold;"></div>
-                    
+
                     <div class="workflow-steps">
                         <div class="workflow-step" id="step1">
                             <div style="font-size: 2rem; margin-bottom: 10px;">🚀</div>
@@ -393,7 +393,7 @@ async def auth_console(request: Request):
                             <div>Logout</div>
                         </div>
                     </div>
-                    
+
                     <div class="credentials">
                         <h4>🧪 Test Credentials (Click to Copy)</h4>
                         <div class="credential-item" onclick="copyToClipboard('dev@example.com')">
@@ -413,7 +413,7 @@ async def auth_console(request: Request):
                             <span style="color: #6b7280;">(Admin password)</span>
                         </div>
                     </div>
-                    
+
                     <div class="test-buttons">
                         <button class="btn btn-primary" onclick="testLogin()">🚀 Start Login Flow</button>
                         <button class="btn btn-info" onclick="testUserInfo()">👤 Get User Info</button>
@@ -421,7 +421,7 @@ async def auth_console(request: Request):
                         <button class="btn btn-secondary" onclick="openSwagger()">📖 API Docs</button>
                     </div>
                 </div>
-                
+
                 <!-- CSV Schedule Importer Testing Section -->
                 <div class="test-section">
                     <h3>📁 CSV Schedule Importer Testing</h3>
@@ -443,7 +443,7 @@ async def auth_console(request: Request):
                         <p id="systemCapabilities"></p>
                     </div>
                 </div>
-                
+
                 <!-- Console Section -->
                 <div class="test-section">
                     <div class="console-header">
@@ -489,7 +489,7 @@ async def auth_console(request: Request):
                 const console_div = document.getElementById('console');
                 console_div.textContent += `[${{timestamp}}] ${{message}}\\n`;
                 console_div.scrollTop = console_div.scrollHeight;
-                
+
                 // Store in localStorage for persistence
                 const logs = JSON.parse(localStorage.getItem('consoleLogs') || '[]');
                 logs.push(`[${{timestamp}}] ${{message}}`);
@@ -541,12 +541,12 @@ async def auth_console(request: Request):
                 logConsole('📋 Remember to use test credentials:');
                 logConsole('📧 dev@example.com / 🔑 DevPassword123!');
                 logConsole('📧 admin@example.com / 🔑 AdminPassword123!');
-                
+
                 document.getElementById('step1').classList.add('active');
-                
+
                 const return_to = encodeURIComponent(window.location.href);
                 const loginUrl = `/auth/login?return_to=${{return_to}}`;
-                
+
                 logConsole('🌐 Redirecting to Auth0...');
                 window.location.href = loginUrl;
             }}
@@ -557,7 +557,7 @@ async def auth_console(request: Request):
                     const response = await fetch('/auth/user', {{
                         credentials: 'include'
                     }});
-                    
+
                     if (response.ok) {{
                         const userData = await response.json();
                         logConsole('✅ User info retrieved successfully:');
@@ -565,7 +565,7 @@ async def auth_console(request: Request):
                         logConsole('🆔 ID: ' + userData.sub);
                         logConsole('👤 Name: ' + userData.name);
                         logConsole('🏠 Plone ID: ' + (userData.plone_user_id || 'Not synced'));
-                        
+
                         document.getElementById('step3').classList.add('completed');
                         return userData;
                     }} else {{
@@ -591,24 +591,24 @@ async def auth_console(request: Request):
                             return_to: window.location.href // This return_to is now ignored by server
                         }})
                     }});
-                    
+
                     if (response.ok) {{
                         const result = await response.json(); // Parse JSON response
                         logConsole('✅ Logout successful');
-                        
+
                         // Clear any remaining cookies on client side
                         document.cookie = 'access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
                         document.cookie = 'id_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-                        
+
                         // Update UI immediately
                         document.getElementById('authStatus').className = 'auth-status not-authenticated';
                         document.getElementById('authStatusText').textContent = '❌ Not authenticated';
                         document.getElementById('userInfo').textContent = '';
                         document.getElementById('previewBtn').disabled = true;
                         document.getElementById('importBtn').disabled = true;
-                        
+
                         logConsole('🔄 Session cleared locally');
-                        
+
                         // Redirect to Auth0 logout (clears Auth0 session)
                         if (result.redirect_url) {{
                             logConsole('🌐 Redirecting to complete logout...');
@@ -621,18 +621,18 @@ async def auth_console(request: Request):
                     }}
                 }} catch (error) {{
                     logConsole('❌ Logout error: ' + error.message);
-                    
+
                     // Force clear cookies even if request failed
                     document.cookie = 'access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
                     document.cookie = 'id_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-                    
+
                     // Update UI
                     document.getElementById('authStatus').className = 'auth-status not-authenticated';
                     document.getElementById('authStatusText').textContent = '❌ Not authenticated';
                     document.getElementById('userInfo').textContent = '';
                     document.getElementById('previewBtn').disabled = true;
                     document.getElementById('importBtn').disabled = true;
-                    
+
                     logConsole('🔄 Session cleared locally (fallback)');
                 }}
             }}
@@ -647,17 +647,17 @@ async def auth_console(request: Request):
                     const response = await fetch('/auth/user', {{
                         credentials: 'include'
                     }});
-                    
+
                     if (response.ok) {{
                         const userData = await response.json();
                         authToken = getAuthToken();
                         document.getElementById('authStatus').className = 'auth-status authenticated';
                         document.getElementById('authStatusText').textContent = '✅ Authenticated';
                         document.getElementById('userInfo').innerHTML = '👤 ' + userData.email + '<br>🆔 ' + userData.sub;
-                        
+
                         logConsole('✅ Authenticated as: ' + userData.email);
                         logConsole('🆔 User ID: ' + userData.sub);
-                        
+
                         // Enable CSV importer buttons if file is selected
                         if (selectedFile && document.getElementById('previewBtn')) {{
                             document.getElementById('previewBtn').disabled = false;
@@ -668,7 +668,7 @@ async def auth_console(request: Request):
                         document.getElementById('authStatusText').textContent = '❌ Not authenticated';
                         document.getElementById('userInfo').innerHTML = '';
                         authToken = null;
-                        
+
                         // Disable CSV importer buttons
                         if (document.getElementById('previewBtn')) {{
                             document.getElementById('previewBtn').disabled = true;
@@ -687,7 +687,7 @@ async def auth_console(request: Request):
                 logConsole('📖 Opening Swagger documentation...');
                 window.open('/docs', '_blank');
             }}
-            
+
             async function checkSystemStatus() {{
                 logConsole('⚙️ Checking CSV importer system status...');
                 try {{
@@ -733,7 +733,7 @@ async def auth_console(request: Request):
                 fileUpload.addEventListener('drop', (e) => {{
                     e.preventDefault();
                     fileUpload.classList.remove('dragover');
-                    
+
                     const files = e.dataTransfer.files;
                     if (files.length > 0) {{
                         fileInput.files = files;
@@ -748,10 +748,10 @@ async def auth_console(request: Request):
                     selectedFile = file;
                     const fileInfo = document.getElementById('fileInfo');
                     fileInfo.innerHTML = `📄 ${{file.name}} (${{(file.size / 1024).toFixed(1)}} KB)`;
-                    
+
                     logConsole('📁 File selected: ' + file.name);
                     logConsole('📏 Size: ' + (file.size / 1024).toFixed(1) + ' KB');
-                    
+
                     // Enable preview/import buttons if authenticated
                     checkAuthStatus();
                 }}
@@ -790,7 +790,7 @@ async def auth_console(request: Request):
 
                 try {{
                     logConsole(`🔄 Uploading file for ${{previewOnly ? 'preview' : 'import'}}...`);
-                    
+
                     const response = await fetch('/import/schedule', {{
                         method: 'POST',
                         body: formData,
@@ -805,12 +805,12 @@ async def auth_console(request: Request):
                         logConsole('⚠️ Validation errors: ' + result.validation_errors.length);
                         logConsole('⚡ Conflicts: ' + result.conflicts.length);
                         logConsole('⏱️ Processing time: ' + result.processing_time_ms + 'ms');
-                        
+
                         if (result.created_uids && result.created_uids.length > 0) {{
-                            logConsole('🆔 Created UIDs: ' + result.created_uids.slice(0, 3).join(', ') + 
+                            logConsole('🆔 Created UIDs: ' + result.created_uids.slice(0, 3).join(', ') +
                                      (result.created_uids.length > 3 ? '...' : ''));
                         }}
-                        
+
                         if (result.validation_errors.length > 0) {{
                             logConsole('📝 Validation errors found:');
                             result.validation_errors.slice(0, 5).forEach(error => {{
@@ -828,7 +828,7 @@ async def auth_console(request: Request):
 
             async function testValidation() {{
                 logConsole('🧪 Testing validation with invalid data...');
-                
+
                 // Create a CSV with invalid data for testing
                 const invalidCsv = `program,date,time,instructor,room,duration,description
 Python 101,2025-02-01,09:00,Dr. Smith,Room A,90,Valid entry
@@ -841,10 +841,10 @@ Physics Lecture,2025-02-03,13:00,Dr. Anderson,Auditorium,999,Duration too long`;
 
                 const blob = new Blob([invalidCsv], {{type: 'text/csv'}});
                 const file = new File([blob], 'test_validation.csv', {{type: 'text/csv'}});
-                
+
                 selectedFile = file;
                 document.getElementById('fileInfo').innerHTML = '🧪 test_validation.csv (validation test)';
-                
+
                 logConsole('📁 Generated test file with validation errors');
                 await uploadFile(true); // Test preview with invalid data
             }}
@@ -858,5 +858,5 @@ Physics Lecture,2025-02-03,13:00,Dr. Anderson,Auditorium,999,Duration too long`;
     </body>
     </html>
     """
-    
+
     return HTMLResponse(content=html_content)
