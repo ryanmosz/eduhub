@@ -28,7 +28,7 @@
 - [x] **3.0 OAuth2 / SSO Gateway**
   - Implement FastAPI auth façade with Auth0; issue JWT accepted by legacy layers.
 
-- [ ] **4.0 CSV Schedule Importer**
+- [x] **4.0 CSV Schedule Importer** (✅ Completed)
   - Build file upload endpoint for bulk program schedule imports; transform CSV to Plone content.
 
 - [ ] **5.0 Rich-Media Embeds (oEmbed)**

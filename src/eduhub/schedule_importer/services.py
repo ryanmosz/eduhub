@@ -168,8 +168,8 @@ class ScheduleImportService:
             "title": f"{row.program} - {row.instructor}",
             "description": row.description or f"Program: {row.program}",
             "start": start_datetime,  # Event start time
-            "end": end_datetime,      # Event end time
-            "location": row.room,     # Event location
+            "end": end_datetime,  # Event end time
+            "location": row.room,  # Event location
             "attendees": [row.instructor],  # List of attendees
             # Custom fields for educational content
             "program_name": row.program,
@@ -188,40 +188,42 @@ class ScheduleImportService:
             # Create the event in Plone using the REST API
             # Events are typically created in a folder like /events or at the site root
             parent_path = "events"  # Default path for events, could be configurable
-            
+
             # Create the event content
             response = await self.plone_client.create_content(
                 parent_path=parent_path,
                 portal_type="Event",  # Plone Event content type
-                **event_data
+                **event_data,
             )
-            
+
             # Extract UID from response
             uid = response.get("UID")
             if not uid:
                 raise Exception(f"Failed to get UID from created event: {response}")
-                
+
             return uid
-            
+
         except Exception as e:
             logger.error(f"Failed to create event in Plone: {e}")
             raise Exception(f"Failed to create event in Plone: {str(e)}")
 
-    async def _rollback_created_content(self, uid_paths: dict[str, str], user: User) -> None:
+    async def _rollback_created_content(
+        self, uid_paths: dict[str, str], user: User
+    ) -> None:
         """
         Rollback (delete) content that was created during a failed import.
 
         This ensures atomicity - either all content is created or none is.
-        
+
         Args:
             uid_paths: Dictionary mapping UIDs to their corresponding paths
             user: User context for content deletion
         """
         if not uid_paths:
             return
-            
+
         logger.info(f"Rolling back {len(uid_paths)} created events")
-        
+
         for uid, path in uid_paths.items():
             try:
                 success = await self.plone_client.delete_content(path)
@@ -229,7 +231,7 @@ class ScheduleImportService:
                     logger.info(f"Successfully deleted event with UID: {uid}")
                 else:
                     logger.warning(f"Failed to delete event with UID: {uid}")
-                    
+
             except Exception as e:
                 logger.error(f"Error deleting event with UID {uid}: {e}")
                 # Continue trying to delete other events even if one fails

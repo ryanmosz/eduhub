@@ -27,7 +27,9 @@ def get_schedule_import_service() -> ScheduleImportService:
     if os.getenv("PLONE_MOCK_MODE", "false").lower() == "true":
         # Create a mock PloneClient for testing without real Plone
         mock_client = AsyncMock(spec=PloneClient)
-        mock_client.create_content.return_value = {"UID": f"mock-uid-{hash(str(id(mock_client))) % 10000:04d}"}
+        mock_client.create_content.return_value = {
+            "UID": f"mock-uid-{hash(str(id(mock_client))) % 10000:04d}"
+        }
         mock_client.delete_content.return_value = True
         return ScheduleImportService(mock_client)
     else:
