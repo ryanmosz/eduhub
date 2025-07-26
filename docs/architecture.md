@@ -1,5 +1,11 @@
 # EduHub Architecture Documentation
 
+> **Executive Summary**
+> EduHub is a *modern shell* (FastAPI + async Python 3.11, Docker-first) wrapped **around** a proven but aging **Plone CMS** core.
+> All new functionality—APIs, auth, CSV import, real-time alerts, React SPA—is built in the modern layer, while content &
+> workflow logic stay in Plone.  A lightweight HTTP bridge keeps the two worlds in sync so we can ship user-visible wins
+> in days (not months) without a risky big-bang migration.
+
 This document outlines the architectural decisions, technical design, and system integration patterns for the EduHub modern education portal.
 
 ## 📋 Table of Contents
@@ -21,11 +27,11 @@ This document outlines the architectural decisions, technical design, and system
 EduHub modernizes a legacy Plone CMS and Django application into a contemporary education platform while preserving existing content and functionality.
 
 ### Core Objectives
-- **Legacy Preservation**: Maintain access to existing Plone content
-- **Modern Interface**: Provide contemporary web experience
-- **API-First Design**: Enable future integrations and frontend flexibility
-- **Scalable Foundation**: Support growth and feature evolution
-- **Developer Experience**: Ensure maintainable, testable codebase
+- **Legacy Preservation**: Maintain access to existing Plone content **via a thin async HTTP bridge (PloneClient)**.
+- **Modern Interface**: Provide contemporary web experience **through FastAPI endpoints and a React Admin SPA**.
+- **API-First Design**: Enable future integrations and frontend flexibility **(REST + upcoming GraphQL)**.
+- **Scalable Foundation**: Support growth and feature evolution **using Docker, container PaaS (Render), and stateless design**.
+- **Developer Experience**: Ensure maintainable, testable codebase **with Python 3.11, type hints, and automated CI gates**.
 
 ### Strategic Approach
 ```mermaid
@@ -35,19 +41,19 @@ graph TB
         A --> C[User Management]
         A --> D[Workflow Engine]
     end
-    
+
     subgraph "Bridge Layer"
         E[FastAPI Integration] --> F[REST API Translation]
         E --> G[Authentication Bridge]
         E --> H[Content Transformation]
     end
-    
+
     subgraph "Modern Layer"
         I[React Frontend] --> J[Modern UI/UX]
         I --> K[Responsive Design]
         I --> L[Interactive Features]
     end
-    
+
     A --> E
     E --> I
 ```
@@ -134,50 +140,50 @@ graph TB
         C[Mobile App] --> D[Native UI]
         E[API Clients] --> F[Integration Layer]
     end
-    
+
     subgraph "API Gateway Layer"
         G[FastAPI Application]
         H[Authentication Middleware]
         I[Rate Limiting]
         J[Request Validation]
     end
-    
+
     subgraph "Service Layer"
         K[Content Service] --> L[Plone Integration]
         M[User Service] --> N[Auth Provider]
         O[Search Service] --> P[Search Engine]
         Q[Notification Service] --> R[Message Queue]
     end
-    
+
     subgraph "Data Layer"
         S[PostgreSQL] --> T[Application Data]
         U[Redis] --> V[Cache + Sessions]
         W[Plone CMS] --> X[Legacy Content]
     end
-    
+
     subgraph "Infrastructure"
         Y[Docker Compose] --> Z[Local Development]
         AA[Kubernetes] --> BB[Production Deployment]
     end
-    
+
     B --> G
     D --> G
     F --> G
-    
+
     G --> H
     H --> I
     I --> J
-    
+
     J --> K
     J --> M
     J --> O
     J --> Q
-    
+
     K --> S
     M --> S
     O --> S
     Q --> U
-    
+
     L --> W
 ```
 
@@ -190,26 +196,60 @@ graph LR
         A --> D[Search API]
         A --> E[Admin API]
     end
-    
+
     subgraph "Integration Services"
         F[Plone Bridge] --> G[Content Sync]
         F --> H[Auth Integration]
         F --> I[Media Handling]
     end
-    
+
     subgraph "Background Services"
         J[Celery Worker] --> K[Content Processing]
         J --> L[Email Notifications]
         J --> M[Report Generation]
     end
-    
+
     B --> F
     C --> H
     D --> G
     E --> F
-    
+
     F --> J
 ```
+
+## 🧩 Legacy Integration with Plone
+
+EduHub treats Plone as a *system-of-record* and surfaces its data through a **Bridge Layer**:
+
+| Layer | Responsibility | Key Module / File |
+|-------|----------------|-------------------|
+| FastAPI Adapter | Defines REST endpoints consumed by React, CSV importer, etc. | `src/eduhub/main.py` |
+| PloneClient | Async HTTP client, token auth, retry & error handling | `src/eduhub/plone_integration.py` |
+| Transformation | Converts Plone’s JSON (ZODB) shape → `PloneContent` Pydantic model | `transform_plone_content()` |
+| Auth Mapping | (Phase 3) Maps Auth0 user → Plone user/roles | `auth/plone_bridge.py` *(planned)* |
+
+**Request Flow**
+
+```mermaid
+sequenceDiagram
+    participant UI as React / Swagger / CLI
+    participant API as FastAPI Layer
+    participant Bridge as PloneClient
+    participant Plone as Plone CMS
+
+    UI->>API: GET /content/?query=Math
+    API->>Bridge: search_content(...)
+    Bridge->>Plone: /Plone/@search?q=Math
+    Plone-->>Bridge: JSON results
+    Bridge-->>API: Parsed dict
+    API-->>UI: List[PloneContent] (JSON)
+```
+
+**Why this matters**
+
+1. **Zero data duplication** – avoids multi-source-of-truth problems.
+2. **Incremental rollout** – we can re-platform feature-by-feature while editors keep using Plone UI.
+3. **Performance** – async httpx + Redis caching (future) keep latency sub-2 ms (see benchmark report).
 
 ## 🔗 Integration Patterns
 
@@ -306,18 +346,18 @@ CREATE TABLE user_activity (
 
 #### Cache Layer (Redis)
 ```yaml
-Sessions: 
+Sessions:
   key_pattern: "session:{session_id}"
   ttl: 24 hours
-  
+
 Content Cache:
   key_pattern: "content:{uid}"
   ttl: 1 hour
-  
+
 Search Results:
   key_pattern: "search:{query_hash}"
   ttl: 15 minutes
-  
+
 User Permissions:
   key_pattern: "perms:{user_id}"
   ttl: 5 minutes
@@ -338,7 +378,7 @@ sequenceDiagram
     participant F as FastAPI
     participant R as Redis
     participant P as Plone
-    
+
     C->>F: GET /content/document
     F->>R: Check cache
     alt Cache Hit
@@ -360,7 +400,7 @@ sequenceDiagram
     participant P as Plone
     participant R as Redis
     participant D as Database
-    
+
     C->>F: POST /content/
     F->>P: Create content
     P->>F: Created content
@@ -449,7 +489,7 @@ Services:
   - PostgreSQL: Docker container with persistent volume
   - Redis: Docker container for cache and sessions
   - Plone: Docker container with buildout development instance
-  
+
 Networking:
   - FastAPI: http://localhost:8000
   - PostgreSQL: localhost:5432
@@ -463,41 +503,41 @@ graph TB
     subgraph "Load Balancer"
         A[nginx/HAProxy]
     end
-    
+
     subgraph "Application Tier"
         B[FastAPI Pod 1]
         C[FastAPI Pod 2]
         D[FastAPI Pod N]
     end
-    
+
     subgraph "Worker Tier"
         E[Celery Worker 1]
         F[Celery Worker 2]
     end
-    
+
     subgraph "Data Tier"
         G[PostgreSQL Primary]
         H[PostgreSQL Replica]
         I[Redis Cluster]
         J[Plone Cluster]
     end
-    
+
     subgraph "Storage"
         K[Persistent Volumes]
         L[Object Storage]
     end
-    
+
     A --> B
     A --> C
     A --> D
-    
+
     B --> G
     B --> I
     B --> J
-    
+
     E --> I
     E --> G
-    
+
     G --> K
     J --> K
     J --> L
@@ -571,7 +611,7 @@ async def get_content_with_cache(uid: str) -> PloneContent:
     cached = await redis.get(f"content:{uid}")
     if cached:
         return PloneContent.parse_raw(cached)
-    
+
     content = await plone_client.get_content(uid)
     await redis.setex(f"content:{uid}", 3600, content.json())
     return content
@@ -652,7 +692,7 @@ class SearchService:
 
 #### 1. **FastAPI over Django/Flask**
 **Decision**: Use FastAPI as the primary web framework
-**Rationale**: 
+**Rationale**:
 - Modern async/await support
 - Automatic OpenAPI documentation
 - Excellent performance characteristics
@@ -739,6 +779,21 @@ class SearchService:
 **Options**: ELK Stack, Prometheus/Grafana, DataDog, New Relic
 **Factors**: Cost, features, integration complexity
 
+## 🗺️ Feature-to-Architecture Mapping
+
+| ✅ Feature | Architectural Touch-points | Status |
+|-----------|----------------------------|--------|
+| **Python 3.11 + Async Upgrade** | Entire FastAPI layer, tox matrix, Dockerfile base image | *Complete* |
+| **OAuth2 / SSO Gateway (Auth0)** | `auth/` package, FastAPI middleware, Plone role mapping | *In Progress (Phase 3)* |
+| **CSV Schedule Importer** | FastAPI upload endpoint → Bridge `create_content()` | *Planned (Phase 4)* |
+| **Rich-Media Embeds (oEmbed)** | FastAPI micro-service, cache layer | *Planned (Phase 4)* |
+| **Open Data API** | Additional REST routes leveraging existing bridge | *Planned* |
+| **Role-Based Workflows** | Uses Plone’s workflow engine via Bridge | *Planned* |
+| **Real-Time Alert Broadcasting** | FastAPI WebSocket hub + Redis / Slack integration | *Planned* |
+| **React Admin SPA** | Consumes FastAPI REST+GraphQL, Auth0 tokens | *Conditional* |
+
+This mapping shows **where** each deliverable hooks into the stack, helping managers assess scope, risk, and resource allocation at a glance.
+
 ## 📚 Documentation Standards
 
 ### Architecture Documentation Maintenance
@@ -755,4 +810,4 @@ class SearchService:
 
 ---
 
-**This architecture provides a solid foundation for modernizing legacy education technology while maintaining reliability, security, and scalability for future growth.** 
+**This architecture provides a solid foundation for modernizing legacy education technology while maintaining reliability, security, and scalability for future growth.**

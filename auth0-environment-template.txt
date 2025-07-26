@@ -1,0 +1,15 @@
+# Auth0 Environment Variables Template
+# Copy these variables to your .env file
+
+# Auth0 Configuration for EduHub MVP
+AUTH0_DOMAIN=dev-1fx6yhxxi543ipno.us.auth0.com
+AUTH0_CLIENT_ID=s05QngyZXEI3XNdirmJu0CscW1hNgaRD
+AUTH0_CLIENT_SECRET=
+AUTH0_ALGORITHMS=RS256
+AUTH0_AUDIENCE=s05QngyZXEI3XNdirmJu0CscW1hNgaRD
+
+# Additional FastAPI Configuration
+DEBUG=true
+SECRET_KEY=your-secret-key-for-development
+BASE_URL=http://localhost:8000
+LOG_LEVEL=INFO

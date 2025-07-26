@@ -36,29 +36,31 @@ Legacy Integration Depth: **Full user/role mapping** - Required for Plone securi
 
 ## Tasks — Phase 3 Detailed Subtasks
 
-- [ ] **3.1 Auth0 Quick Setup & Configuration**
+- [x] **3.1 Auth0 Quick Setup & Configuration**
   - Set up Auth0 tenant and configure minimal application settings for FastAPI integration.
+  - **Auth0 Domain**: `dev-1fx6yhxxi543ipno.us.auth0.com`
+  - **Client ID**: `s05QngyZXEI3XNdirmJu0CscW1hNgaRD`
 
-  - [ ] 3.1.1 Create Auth0 free tenant account and obtain domain URL
-  - [ ] 3.1.2 Create Single Page Application in Auth0 dashboard for dev environment
-  - [ ] 3.1.3 Configure callback URLs for local development (<http://localhost:8000>)
-  - [ ] 3.1.4 Create test users in Auth0 for development (<dev@example.com>, <admin@example.com>)
-  - [ ] 3.1.5 Note down Auth0 domain, client ID, and client secret for environment configuration
-  - [ ] 3.1.6 Enable email/password database connection and disable social logins for MVP
-  - [ ] 3.1.7 **TEST**: Verify Auth0 Universal Login works by manually logging in test user via Auth0 dashboard
-  - [ ] 3.1.8 **TEST**: Confirm Auth0 application settings show correct callback URLs and connection status
+  - [x] 3.1.1 Create Auth0 free tenant account and obtain domain URL
+  - [x] 3.1.2 Create Single Page Application in Auth0 dashboard for dev environment
+  - [x] 3.1.3 Configure callback URLs for local development (<http://localhost:8000>)
+  - [x] 3.1.4 Create test users in Auth0 for development (<dev@example.com>, <admin@example.com>)
+  - [x] 3.1.5 Note down Auth0 domain, client ID, and client secret for environment configuration
+  - [x] 3.1.6 Enable email/password database connection and disable social logins for MVP
+  - [x] 3.1.7 **TEST**: Verify Auth0 Universal Login works by manually logging in test user via Auth0 dashboard
+  - [x] 3.1.8 **TEST**: Confirm Auth0 application settings show correct callback URLs and connection status
 
-- [ ] **3.2 FastAPI Authentication Infrastructure**
+- [x] **3.2 FastAPI Authentication Infrastructure**
   - Add minimal auth module to existing FastAPI app without disrupting current architecture.
-  - [ ] 3.2.1 Create `src/eduhub/auth/__init__.py` and auth module structure
-  - [ ] 3.2.2 Add auth dependencies to requirements.txt (python-jose, python-multipart)
-  - [ ] 3.2.3 Create JWT validation dependency using FastAPI Depends pattern
-  - [ ] 3.2.4 Add Auth0 environment variables to .env.example and docker-compose.yml
-  - [ ] 3.2.5 Create basic User model in `src/eduhub/auth/models.py`
-  - [ ] 3.2.6 Add HTTPBearer security scheme for FastAPI automatic docs
-  - [ ] 3.2.7 **TEST**: Verify FastAPI starts successfully with `uvicorn src.eduhub.main:app --reload`
-  - [ ] 3.2.8 **TEST**: Check Swagger UI at <http://localhost:8000/docs> shows new auth module structure
-  - [ ] 3.2.9 **TEST**: Confirm all auth dependencies install correctly with `pip install -r requirements.txt`
+  - [x] 3.2.1 Create `src/eduhub/auth/__init__.py` and auth module structure
+  - [x] 3.2.2 Add auth dependencies to requirements.txt (python-jose, python-multipart)
+  - [x] 3.2.3 Create JWT validation dependency using FastAPI Depends pattern
+  - [x] 3.2.4 Add Auth0 environment variables to .env.example and docker-compose.yml
+  - [x] 3.2.5 Create basic User model in `src/eduhub/auth/models.py`
+  - [x] 3.2.6 Add HTTPBearer security scheme for FastAPI automatic docs
+  - [x] 3.2.7 **TEST**: Verify FastAPI starts successfully with `uvicorn src.eduhub.main:app --reload`
+  - [x] 3.2.8 **TEST**: Check Swagger UI at <http://localhost:8000/docs> shows new auth module structure
+  - [x] 3.2.9 **TEST**: Confirm all auth dependencies install correctly with `pip install -r requirements.txt`
 
 - [ ] **3.3 Auth0 OAuth2 Flow Implementation**
   - Implement Auth0 authorization code flow with minimal FastAPI endpoints.

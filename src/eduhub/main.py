@@ -55,6 +55,17 @@ app = FastAPI(
     description="Modern education portal API bridging FastAPI with legacy Plone CMS",
     version="0.1.0",
     lifespan=lifespan,
+    # Add security scheme for OAuth2/JWT authentication
+    openapi_components={
+        "securitySchemes": {
+            "HTTPBearer": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT",
+                "description": "Auth0 JWT token authentication. Get your token from /auth/login",
+            }
+        }
+    },
 )
 
 # Include the hello world endpoints
