@@ -7,10 +7,10 @@ Welcome to the EduHub documentation! This guide helps you find the information y
 ### 🚀 **New to EduHub?** Start Here:
 - **[Developer Onboarding](getting-started/developer-onboarding.md)** - Essential setup guide for new developers
 - **[Authentication Setup](getting-started/authentication-setup.md)** - OAuth2/Auth0 configuration guide
-- **[Tech Stack Overview](getting-started/tech-stack-overview.md)** - Complete technology overview
 
 ### 🏗️ **Understanding the System?** Architecture:
 - **[System Architecture](architecture/system-architecture.md)** - Core system design and integration patterns
+- **[Tech Stack Overview](architecture/tech-stack-overview.md)** - Complete technology overview and decisions
 - **[API Structure](architecture/api-structure.md)** - FastAPI endpoint organization and patterns
 - **[Plone Integration](architecture/plone-integration.md)** - Legacy CMS integration strategy
 - **[Deployment Strategy](architecture/deployment-strategy.md)** - Container deployment and infrastructure
@@ -35,10 +35,10 @@ docs/
 ├── README.md                          # 👈 You are here
 ├── getting-started/                   # 🚀 For new developers/users
 │   ├── developer-onboarding.md       # Setup guide and repository overview
-│   ├── authentication-setup.md       # OAuth2/Auth0 configuration
-│   └── tech-stack-overview.md        # Technology choices and integration
+│   └── authentication-setup.md       # OAuth2/Auth0 configuration
 ├── architecture/                      # 🏗️ System design & technical decisions
 │   ├── system-architecture.md        # Core architectural patterns
+│   ├── tech-stack-overview.md        # Technology choices and integration
 │   ├── api-structure.md             # FastAPI endpoint organization
 │   ├── plone-integration.md         # Legacy CMS integration strategy
 │   └── deployment-strategy.md       # Infrastructure and deployment
@@ -61,14 +61,14 @@ docs/
 ### **🆕 New Developer**
 1. Start with **[Developer Onboarding](getting-started/developer-onboarding.md)**
 2. Set up authentication: **[Authentication Setup](getting-started/authentication-setup.md)**
-3. Understand the stack: **[Tech Stack Overview](getting-started/tech-stack-overview.md)**
-4. Review architecture: **[System Architecture](architecture/system-architecture.md)**
+3. Understand the system: **[System Architecture](architecture/system-architecture.md)**
+4. Review the stack: **[Tech Stack Overview](architecture/tech-stack-overview.md)**
 
 ### **🏗️ System Architect**
 1. **[System Architecture](architecture/system-architecture.md)** - High-level design patterns
-2. **[Plone Integration](architecture/plone-integration.md)** - Legacy system integration
-3. **[Deployment Strategy](architecture/deployment-strategy.md)** - Infrastructure planning
-4. **[Tech Stack Overview](getting-started/tech-stack-overview.md)** - Technology decisions
+2. **[Tech Stack Overview](architecture/tech-stack-overview.md)** - Technology decisions and rationale
+3. **[Plone Integration](architecture/plone-integration.md)** - Legacy system integration
+4. **[Deployment Strategy](architecture/deployment-strategy.md)** - Infrastructure planning
 
 ### **📋 Product Manager**
 1. **[Project Roadmap](project-history/roadmap/initial-5day-plan.md)** - Original feature planning
@@ -84,7 +84,7 @@ docs/
 ### **🚀 DevOps Engineer**
 1. **[Deployment Strategy](architecture/deployment-strategy.md)** - Infrastructure requirements
 2. **[System Architecture](architecture/system-architecture.md)** - Service dependencies
-3. **[Tech Stack Overview](getting-started/tech-stack-overview.md)** - Runtime requirements
+3. **[Tech Stack Overview](architecture/tech-stack-overview.md)** - Runtime requirements
 
 ---
 
