@@ -583,12 +583,12 @@ async def auth_test_console():
 
             async function checkAuthStatus() {{
                 logConsole('🔍 Checking authentication status...');
-                try {
-                    const response = await fetch('/auth/user', {
+                try {{
+                    const response = await fetch('/auth/user', {{
                         credentials: 'include'
-                    });
+                    }});
                     
-                    if (response.ok) {
+                    if (response.ok) {{
                         const userData = await response.json();
                         authToken = getAuthToken();
                         document.getElementById('authStatus').className = 'auth-status authenticated';
@@ -599,22 +599,22 @@ async def auth_test_console():
                         logConsole('🆔 User ID: ' + userData.sub);
                         
                         // Enable CSV importer buttons if file is selected
-                        if (selectedFile && document.getElementById('previewBtn')) {
+                        if (selectedFile && document.getElementById('previewBtn')) {{
                             document.getElementById('previewBtn').disabled = false;
                             document.getElementById('importBtn').disabled = false;
-                        }
-                    } else {
+                        }}
+                    }} else {{
                         document.getElementById('authStatus').className = 'auth-status not-authenticated';
                         document.getElementById('authStatusText').textContent = '❌ Not authenticated';
                         document.getElementById('userInfo').innerHTML = '';
                         authToken = null;
                         
                         // Disable CSV importer buttons
-                        if (document.getElementById('previewBtn')) {
+                        if (document.getElementById('previewBtn')) {{
                             document.getElementById('previewBtn').disabled = true;
                             document.getElementById('importBtn').disabled = true;
-                        }
-                    }
+                        }}
+                    }}
                 }} catch (error) {{
                     logConsole('❌ Error checking auth status: ' + error.message);
                 }}
