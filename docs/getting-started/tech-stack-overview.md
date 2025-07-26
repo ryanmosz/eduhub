@@ -25,23 +25,23 @@ graph TB
         B --> D[Redis Cache]
         B --> E[Celery Workers]
     end
-    
+
     subgraph "🔗 Integration Bridge"
         F[HTTP Client] --> G[REST API Translation]
         G --> H[Data Transformation]
         H --> I[Authentication Bridge]
     end
-    
+
     subgraph "🏛️ Legacy Layer"
         J[Plone CMS 6.1] --> K[ZODB Storage]
         J --> L[Legacy Users]
         J --> M[Content Workflows]
         J --> N[File Storage]
     end
-    
+
     B --> F
     F --> J
-    
+
     style A fill:#e8f5e8
     style B fill:#e8f5e8
     style C fill:#e8f5e8
@@ -177,14 +177,14 @@ Configuration: buildout.cfg + instance configuration
 # Located: src/eduhub/plone_integration.py
 class PloneClient:
     """Async HTTP client for Plone CMS integration."""
-    
+
     # Modern → Legacy Communication
     async def get_content(self, path: str) -> Dict[str, Any]
     async def search_content(self, query: str) -> List[PloneContent]
     async def create_content(self, parent_path: str, data: Dict) -> PloneContent
     async def update_content(self, path: str, data: Dict) -> PloneContent
     async def delete_content(self, path: str) -> bool
-    
+
     # Authentication Bridge
     async def authenticate(self, username: str, password: str) -> Optional[str]
     async def get_site_info(self) -> Dict[str, Any]
@@ -221,7 +221,7 @@ async def authenticate_with_plone(username: str, password: str) -> Optional[str]
         plone_token = await client.authenticate(username, password)
         if not plone_token:
             return None
-            
+
         # Step 2: Generate modern JWT token
         jwt_payload = {"sub": username, "plone_token": plone_token}
         return create_jwt_token(jwt_payload)
@@ -238,7 +238,7 @@ sequenceDiagram
     participant Bridge as PloneClient
     participant Legacy as Plone CMS
     participant ZODB as ZODB Storage
-    
+
     Client->>API: GET /content/document
     API->>Cache: Check cache
     alt Cache Hit
@@ -343,17 +343,17 @@ async def get_content(path: str):
     cached = await redis.get(f"content:{path}")
     if cached:
         return json.loads(cached)
-    
+
     # 2. Fetch from legacy system (Plone)
     async with PloneClient() as client:
         plone_data = await client.get_content(path)
-    
+
     # 3. Transform to modern format
     modern_data = transform_plone_content(plone_data)
-    
+
     # 4. Cache in modern system
     await redis.setex(f"content:{path}", 3600, modern_data.json())
-    
+
     # 5. Return modern response
     return modern_data
 ```
@@ -365,23 +365,23 @@ async def get_content(path: str):
 async def create_content(content: CreateContentRequest):
     # 1. Validate with modern schema (Pydantic)
     validated_data = content.dict()
-    
+
     # 2. Transform to legacy format
     plone_payload = transform_to_plone_format(validated_data)
-    
+
     # 3. Create in legacy system (Plone)
     async with PloneClient() as client:
         plone_response = await client.create_content(
             parent_path=content.parent_path,
             data=plone_payload
         )
-    
+
     # 4. Store metadata in modern system (PostgreSQL)
     await store_content_metadata(plone_response["UID"], validated_data)
-    
+
     # 5. Invalidate cache
     await redis.delete(f"content:{content.parent_path}")
-    
+
     return transform_plone_content(plone_response)
 ```
 
@@ -391,15 +391,15 @@ async def create_content(content: CreateContentRequest):
 @celery_app.task
 async def sync_content_metadata():
     """Background task to sync content between systems."""
-    
+
     # 1. Get changes from legacy system
     async with PloneClient() as client:
         recent_changes = await client.get_recent_changes()
-    
+
     # 2. Update modern metadata store
     for change in recent_changes:
         await update_modern_metadata(change["UID"], change)
-    
+
     # 3. Invalidate affected cache entries
     for change in recent_changes:
         cache_key = f"content:{change['path']}"
@@ -415,7 +415,7 @@ Modern Development:
   Port: 8000
   Environment: Python 3.13 venv
   Dependencies: requirements-dev.txt
-  
+
 Legacy Development:
   Command: cd upstream/buildout.coredev && ./bin/instance fg
   Port: 8080
@@ -472,16 +472,16 @@ Integration Testing:
 ### Production Architecture
 ```yaml
 Load Balancer: nginx/HAProxy
-Application Tier: 
+Application Tier:
   - FastAPI containers (multiple instances)
   - Gunicorn ASGI server
   - Container orchestration (Docker/Kubernetes)
-  
+
 Data Tier:
   - PostgreSQL cluster (primary + replicas)
   - Redis cluster (cache + sessions)
   - Plone cluster (legacy content)
-  
+
 Storage:
   - Persistent volumes (database)
   - Object storage (Plone files)
@@ -508,12 +508,12 @@ Development:
   - Modern: Local venv + hot reload
   - Legacy: Buildout + foreground mode
   - Integration: Both systems on localhost
-  
+
 Staging:
   - Modern: Docker containers
   - Legacy: Plone container
   - Integration: Internal networking
-  
+
 Production:
   - Modern: Kubernetes pods
   - Legacy: Plone cluster
@@ -542,38 +542,38 @@ graph LR
     B --> C[Phase 2: Hybrid Operations]
     C --> D[Phase 3: Modern Primary]
     D --> E[Future: Legacy Optional]
-    
+
     B1[API Bridge Created]
     B2[Modern Cache Layer]
     B3[Modern Authentication]
-    
+
     C1[Modern Database]
     C2[Background Sync]
     C3[Modern Frontend]
-    
+
     D1[Legacy Read-Only]
     D2[Modern Primary]
     D3[Migration Tools]
-    
+
     E1[Legacy Sunset]
     E2[Full Modern Stack]
-    
+
     B --> B1
     B --> B2
     B --> B3
-    
+
     C --> C1
     C --> C2
     C --> C3
-    
+
     D --> D1
     D --> D2
     D --> D3
-    
+
     E --> E1
     E --> E2
 ```
 
 ---
 
-**This technology stack provides a robust foundation for modernizing legacy Plone infrastructure while maintaining compatibility and enabling gradual migration to contemporary web technologies.** 
+**This technology stack provides a robust foundation for modernizing legacy Plone infrastructure while maintaining compatibility and enabling gradual migration to contemporary web technologies.**

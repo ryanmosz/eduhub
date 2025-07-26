@@ -60,7 +60,7 @@ GET    /content/{path}
 # Create new content
 POST   /content/
 
-# Update existing content  
+# Update existing content
 PUT    /content/{path}
 
 # Delete content
@@ -144,7 +144,7 @@ POST /api/v1/example/{id}
 {
   "id": "123e4567-e89b-12d3-a456-426614174000",
   "title": "Example Title",
-  "description": "Example description", 
+  "description": "Example description",
   "created_at": "2024-01-20T10:30:00Z",
   "updated_at": "2024-01-20T10:30:00Z",
   "metadata": {
@@ -225,13 +225,13 @@ sequenceDiagram
     participant C as Client
     participant A as API
     participant P as Plone
-    
+
     C->>A: POST /auth/login {username, password}
     A->>P: Authenticate with Plone
     P->>A: User data + Plone token
     A->>A: Generate JWT token
     A->>C: JWT token + user info
-    
+
     Note over C,A: For subsequent requests
     C->>A: API request with Authorization header
     A->>A: Validate JWT token
@@ -407,4 +407,4 @@ results = await client.content.search(
 
 ---
 
-**This structure provides a comprehensive framework for documenting the EduHub API as it evolves and grows.** 
+**This structure provides a comprehensive framework for documenting the EduHub API as it evolves and grows.**

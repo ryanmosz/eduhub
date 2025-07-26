@@ -144,10 +144,22 @@ Create `tasks/tasks-phase-[X]-[feature-name].md` with these sections:
 ### **1. Header Section**
 ```markdown
 ## Relevant Files
-[List all files that will be created/modified]
+
+- `path/to/potential/file1.ts` - Contains the main component for this feature.
+- `path/to/file1.test.ts` - Unit tests for `file1.ts`.
+- `path/to/another/file.tsx` - API route handler for data submission.
+- `path/to/another/file.test.tsx` - Unit tests for `another/file.tsx`.
+- `lib/utils/helpers.ts` - Utility functions needed for calculations.
+- `lib/utils/helpers.test.ts` - Unit tests for `helpers.ts`.
+
+- **Dependencies / Integration Points** – List existing modules or services this feature touches (e.g., auth middleware, Plone bridge, external APIs).
+
+- **Sample Fixtures** – Enumerate any test assets required (e.g., `fixtures/sample_valid.csv`, `fixtures/avatar.png`).
 
 ### Notes
-[Key implementation notes and testing approach]
+
+- Unit tests should typically be placed alongside the code files they are testing (e.g., `MyComponent.tsx` and `MyComponent.test.tsx` in the same directory).
+- Use `npx jest [optional/path/to/test/file]` to run tests. Running without a path executes all tests found by the Jest configuration.
 ```
 
 ### **2. Parent Tasks with Subtasks**
@@ -155,10 +167,12 @@ Follow the exact pattern:
 ```markdown
 - [ ] **[X.1] Parent Task Name**
   - Brief description of what this accomplishes
+  - **Risk & Mitigation**: _One-line summary of potential blocker & fallback._
+  - **Benchmark / Acceptance Target**: _If applicable (e.g., "response time <200 ms")._
   - [ ] [X.1.1] Specific subtask
   - [ ] [X.1.2] Another subtask
-  - [ ] [X.1.3] **TEST**: Specific automated test description
-  - [ ] [X.1.4] **TEST**: Another automated test description
+  - [ ] [X.1.3] **TEST**: Automated check — specify tool (`pytest`, `TestClient`, `Playwright`, etc.) and any mocks/stubs used
+  - [ ] [X.1.4] **TEST**: Another automated test — specify tool and mocks/stubs
 ```
 
 ---
