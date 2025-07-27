@@ -31,7 +31,7 @@ services:
       - key: AUTH0_ISSUER
         value: https://dev-1fx6yhxxi543ipno.us.auth0.com/
       - key: CORS_ORIGINS
-        value: https://eduhub-frontend-six.vercel.app,http://localhost:5173
+        value: https://eduhub-frontend-six.vercel.app,http://localhost:5173,http://localhost:3000
       - key: ENVIRONMENT
         value: production
       - key: LOG_LEVEL
