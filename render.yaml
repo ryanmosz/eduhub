@@ -34,7 +34,7 @@ services:
       - key: AUTH0_ISSUER
         value: https://dev-1fx6yhxxi543ipno.us.auth0.com/
       - key: CORS_ORIGINS
-        value: https://your-app-name.vercel.app,http://localhost:5173
+        value: https://eduhub-frontend-zhsrbq9z5-ryan-moszynskis-projects.vercel.app,http://localhost:5173
       - key: ENVIRONMENT
         value: production
       - key: LOG_LEVEL
@@ -44,14 +44,14 @@ services:
       - key: PORT
         value: 8000
 
+  # Redis service
+  - type: redis
+    name: eduhub-redis
+    plan: free  # Or 'starter' for production
+    maxmemoryPolicy: allkeys-lru
+
 databases:
   - name: eduhub-db
     databaseName: eduhub
     user: eduhub
-    plan: starter  # Or 'free' for testing
-
-services:
-  - type: redis
-    name: eduhub-redis
-    plan: starter  # Or 'free' for testing
-    maxmemoryPolicy: allkeys-lru
+    plan: free  # Or 'starter' for production
