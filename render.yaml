@@ -5,16 +5,12 @@ services:
     runtime: python
     buildCommand: pip install -e ".[dev]"
     startCommand: uvicorn src.eduhub.main:app --host 0.0.0.0 --port $PORT
+    plan: free
     envVars:
       - key: DATABASE_URL
-        fromDatabase:
-          name: eduhub-db
-          property: connectionString
+        value: sqlite:///./eduhub.db  # Using SQLite for free tier
       - key: REDIS_URL
-        fromService:
-          type: redis
-          name: eduhub-redis
-          property: connectionString
+        value: redis://localhost:6379/0  # Will use in-memory cache instead
       - key: PLONE_URL
         value: http://localhost:8080/Plone  # Update for production
       - key: PLONE_USERNAME
@@ -44,15 +40,6 @@ services:
       - key: PORT
         value: 8000
 
-  # Redis service
-  - type: redis
-    name: eduhub-redis
-    plan: free  # Or 'starter' for production
-    maxmemoryPolicy: allkeys-lru
-    ipAllowList: []  # Allow connections from Render services only
-
-databases:
-  - name: eduhub-db
-    databaseName: eduhub
-    user: eduhub
-    plan: free  # Or 'starter' for production
+# Note: Redis and PostgreSQL removed for free tier deployment
+# Free tier databases are ephemeral and limited
+# Using SQLite for database and in-memory cache instead
