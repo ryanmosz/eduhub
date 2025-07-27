@@ -12,7 +12,8 @@ import {
   Menu,
   X,
   Zap,
-  Shield
+  Shield,
+  Lock
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -27,6 +28,7 @@ const navigation = [
   { name: 'Open Data', href: '/data', icon: Database, phase: 'Phase 6' },
   { name: 'Workflows', href: '/workflows', icon: Workflow, phase: 'Phase 7' },
   { name: 'Alerts', href: '/alerts', icon: Bell, phase: 'Phase 8' },
+  { name: 'Role Access', href: '/rbac-demo', icon: Lock, phase: 'Demo' },
 ];
 
 export function MainLayout() {

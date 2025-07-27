@@ -273,7 +273,10 @@ class PloneClient:
         content_data.update(kwargs)
 
         response = await self._request("POST", endpoint, json_data=content_data)
-        return await response.json()
+        json_result = response.json()
+        if asyncio.iscoroutine(json_result):
+            return await json_result
+        return json_result
 
     async def create_content_with_embeds(
         self,

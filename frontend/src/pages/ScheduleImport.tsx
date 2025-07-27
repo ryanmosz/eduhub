@@ -65,41 +65,89 @@ export function ScheduleImport() {
 
     setIsUploading(true);
 
-    // Simulate upload with visual progress
     try {
-      // In demo, we simulate the upload
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append('file', file);
       
-      setImportResult({
-        filename: file.name,
-        total_rows: 45,
-        valid_rows: 43,
-        validation_errors: [
-          { row_number: 7, field: 'time', message: 'Invalid time format: "25:00"' },
-          { row_number: 23, field: 'date', message: 'Invalid date format: "2025-13-01"' }
-        ],
-        conflicts: [],
-        success: true,
-        processing_time_ms: 234
+      // First, preview the import
+      const previewResponse = await fetch('/schedule/import/schedule?preview_only=true', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData
       });
       
-      // Simulate sending alert to students
-      try {
-        await fetch('/alerts/send', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({
-            title: 'Schedule Updated',
-            message: `Your Spring 2025 schedule has been updated with ${43} new events`,
-            priority: 'medium',
-            category: 'schedule',
-            channels: ['websocket']
-          })
-        });
-      } catch (error) {
-        console.error('Failed to send schedule update alert:', error);
+      if (!previewResponse.ok) {
+        throw new Error('Preview failed');
       }
+      
+      const previewData = await previewResponse.json();
+      
+      // If preview is valid, proceed with actual import
+      if (previewData.success || previewData.valid) {
+        const importResponse = await fetch('/schedule/import/schedule?preview_only=false', {
+          method: 'POST',
+          credentials: 'include',
+          body: formData
+        });
+        
+        if (!importResponse.ok) {
+          throw new Error('Import failed');
+        }
+        
+        const result = await importResponse.json();
+        setImportResult({
+          filename: file.name,
+          total_rows: result.total_rows,
+          valid_rows: result.valid_rows,
+          validation_errors: result.validation_errors || [],
+          conflicts: result.conflicts || [],
+          success: result.success,
+          processing_time_ms: result.processing_time_ms || 0
+        });
+        
+        // If successful, send alert to students
+        if (result.success) {
+          try {
+            await fetch('/alerts/send', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify({
+                title: 'Schedule Updated',
+                message: `Your Spring 2025 schedule has been updated with ${result.valid_rows} new events`,
+                priority: 'medium',
+                category: 'schedule',
+                channels: ['websocket']
+              })
+            });
+          } catch (error) {
+            console.error('Failed to send schedule update alert:', error);
+          }
+        }
+      } else {
+        // Show validation errors from preview
+        setImportResult({
+          filename: file.name,
+          total_rows: previewData.total_rows,
+          valid_rows: previewData.valid_rows,
+          validation_errors: previewData.validation_errors || [],
+          conflicts: previewData.conflicts || [],
+          success: false,
+          processing_time_ms: 0
+        });
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      setImportResult({
+        filename: file.name,
+        total_rows: 0,
+        valid_rows: 0,
+        validation_errors: [{ row_number: 0, field: 'file', message: error.message }],
+        conflicts: [],
+        success: false,
+        processing_time_ms: 0
+      });
     } finally {
       setIsUploading(false);
     }
@@ -131,6 +179,12 @@ export function ScheduleImport() {
               </CardDescription>
             </CardHeader>
             <CardContent>
+              <div className="mb-4 p-4 bg-purple-50 border border-purple-200 rounded-lg">
+                <p className="text-sm text-purple-800">
+                  <strong>Plone Integration:</strong> Uploaded schedules create Event objects directly in Plone CMS.
+                  Each row becomes a Plone Event with proper permissions and workflow states.
+                </p>
+              </div>
               <div
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}

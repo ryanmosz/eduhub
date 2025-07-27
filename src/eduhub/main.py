@@ -23,6 +23,7 @@ from .performance_demo import router as performance_router
 from .plone_content_endpoints import router as plone_content_router
 from .schedule_importer.endpoints import router as schedule_router
 from .workflows.endpoints import router as workflows_router
+from .rbac_demo import router as rbac_router
 
 # Configure logging
 logging.basicConfig(
@@ -125,6 +126,7 @@ app.include_router(alerts_router, prefix="/alerts", tags=["Real-time Alerts"])
 app.include_router(plone_content_router, prefix="/plone", tags=["Plone Content"])
 app.include_router(schedule_router, prefix="/schedule", tags=["Schedule Import"])
 app.include_router(performance_router, tags=["Performance Demo"])
+app.include_router(rbac_router, tags=["RBAC Demo"])
 
 
 @app.get("/", tags=["Root"])

@@ -3,6 +3,7 @@
 demo prep per phase
 need to do phase 2-8
 for each phase, we need to:
+review Project plan, project plan addendum, and the phase X you know whatever we're working on. Tasks list to refresh your memory on what this phase actually was all about. then: 
 1-make sure gui works on admin and student sites
   a-we will show demo info / functionality tests such as the REST stress test on the admin site only, for student site only functionality is important 
 2-make sure plone is integrated into demo for this phase
@@ -10,9 +11,10 @@ for each phase, we need to:
   a-how/what we are demoing
   b-why its useful
   c-describes plone integration
-Done: 2, 3, 
+Done: 2, 3, 4
+Extra: Role Demo(admin)
 
-
+# Phase 2 - Python 3.11 + async upgrade
 ## Quick Setup (2 min)
 1. Login as admin@example.com 
 2. Navigate to ⚡ Performance page
@@ -109,3 +111,108 @@ Done: 2, 3,
 - Role mapping from Auth0 metadata
 - Groups preserved from existing Plone setup
 - No passwords stored in Plone (external auth)
+
+---
+
+# Phase 4: CSV Schedule Import to Plone Demo
+
+## Quick Setup (1 min)
+1. Login as admin@example.com  
+2. Navigate to 📅 Schedule Import page
+3. Have sample CSV ready (or use drag & drop)
+
+## The Demo (3-4 min)
+
+### Opening Statement
+> "We built a bulk import system that creates Plone Events directly from CSV files. No more manual data entry - import hundreds of schedule items in seconds."
+
+### Demo Steps
+
+1. **Show Plone Integration Notice**
+   - Point to purple box at top
+   - "Each row creates a real Plone Event object"
+   - "Full workflow states and permissions preserved"
+
+2. **Upload CSV File**
+   - Drag and drop sample_schedule.csv
+   - "CSV with date, time, program, instructor, room"
+   - Preview shows first 3 rows instantly
+
+3. **Import Process**
+   - Click "Import Schedule" button
+   - "First validates all rows, then creates Plone content"
+   - Watch success message: "43 of 45 rows imported"
+
+4. **Show Results**
+   - ✅ 43 events created in Plone
+   - 2 validation errors caught before import
+   - 234ms processing time
+   - "127 students automatically notified"
+
+### Key Points
+- **Direct Plone Integration** - Creates native Event objects
+- **Validation First** - Catches errors before touching Plone
+- **Transactional Safety** - All-or-nothing import with rollback
+- **Automatic Notifications** - Students get alerts on schedule changes
+
+### Why This Matters
+> "Department heads can upload their entire semester schedule at once. What used to take hours of manual entry now takes 30 seconds, and students are notified instantly."
+
+## Technical Details (if asked)
+- Uses Plone REST API @content endpoint
+- Maps CSV → Plone Event schema
+- Bulk creation with transaction support
+- Conflict detection for room/time overlaps
+- Full audit trail in database
+
+---
+
+# Role-Based Access Control Demo (Bonus Feature)
+
+## Quick Setup (30 sec)
+1. Have admin logged in regular Chrome tab
+2. Have student logged in incognito tab
+3. Navigate to 🔒 Role Access page on admin
+
+## The Demo (3-4 min)
+
+### Opening Statement
+> "We integrate Plone's existing role system with our modern API. Your Plone permissions automatically work here - no duplicate role management."
+
+### Demo Steps
+
+1. **Show Admin's Access Level**
+   - Point to roles: Manager, Authenticated, Member
+   - "Admin has full Plone Manager permissions"
+   - Show the role hierarchy diagram
+
+2. **Test Access Buttons**
+   - Click "View Courses" - ✅ Works (all roles)
+   - Click "Import Schedule" - ✅ Works (Editor+)
+   - Click "Manage Users" - ✅ Works (Manager only)
+
+3. **Switch to Student Tab**
+   - Show student dashboard
+   - "Students have read-only access"
+   - "They can view courses but can't edit"
+
+4. **Explain Permission Flow**
+   - Walk through the 5-step integration
+   - "Plone roles → FastAPI permissions → UI features"
+
+### Key Benefits
+- **No Duplicate Roles** - Use existing Plone permissions
+- **Granular Control** - Different access per role
+- **API Enforcement** - Permissions checked at API level
+- **Preserves Investment** - Years of Plone config still works
+
+### Why This Matters
+> "When you promote a teacher to department head in Plone, they automatically get schedule import access here. No need to update permissions in two places."
+
+## Plone Integration Details
+- Fetches roles via Plone REST API @users endpoint
+- Maps Plone roles (Manager, Editor, Member) to permissions
+- Enforces at FastAPI dependency level
+- Student = Member role (read-only)
+- Admin = Manager role (full access)
+- Real-time role sync with Plone

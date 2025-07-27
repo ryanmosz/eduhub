@@ -12,6 +12,7 @@ import { WorkflowTemplates } from '@/pages/WorkflowTemplates';
 import { RealTimeAlerts } from '@/pages/RealTimeAlerts';
 import { PerformanceDemo } from '@/pages/PerformanceDemo';
 import { AuthDemo } from '@/pages/AuthDemo';
+import { RoleAccessDemo } from '@/pages/RoleAccessDemo';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -69,6 +70,7 @@ function AuthenticatedApp() {
         <Route path="alerts" element={<RealTimeAlerts />} />
         <Route path="performance" element={<PerformanceDemo />} />
         <Route path="auth-demo" element={<AuthDemo />} />
+        <Route path="rbac-demo" element={<RoleAccessDemo />} />
       </Route>
       <Route path="/callback" element={<CallbackHandler />} />
     </Routes>
