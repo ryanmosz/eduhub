@@ -1,0 +1,57 @@
+services:
+  # Web service for the FastAPI backend
+  - type: web
+    name: eduhub-api
+    runtime: python
+    buildCommand: pip install -e ".[dev]"
+    startCommand: uvicorn src.eduhub.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: eduhub-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: eduhub-redis
+          property: connectionString
+      - key: PLONE_URL
+        value: http://localhost:8080/Plone  # Update for production
+      - key: PLONE_USERNAME
+        sync: false  # Set in Render dashboard
+      - key: PLONE_PASSWORD
+        sync: false  # Set in Render dashboard
+      - key: SECRET_KEY
+        generateValue: true
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: AUTH0_DOMAIN
+        value: dev-1fx6yhxxi543ipno.us.auth0.com
+      - key: AUTH0_API_AUDIENCE
+        value: https://eduhub-api.example.com
+      - key: AUTH0_ALGORITHMS
+        value: RS256
+      - key: AUTH0_ISSUER
+        value: https://dev-1fx6yhxxi543ipno.us.auth0.com/
+      - key: CORS_ORIGINS
+        value: https://your-app-name.vercel.app,http://localhost:5173
+      - key: ENVIRONMENT
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: PYTHONUNBUFFERED
+        value: 1
+      - key: PORT
+        value: 8000
+
+databases:
+  - name: eduhub-db
+    databaseName: eduhub
+    user: eduhub
+    plan: starter  # Or 'free' for testing
+
+services:
+  - type: redis
+    name: eduhub-redis
+    plan: starter  # Or 'free' for testing
+    maxmemoryPolicy: allkeys-lru

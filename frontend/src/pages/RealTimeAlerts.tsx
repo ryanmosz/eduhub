@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Bell, BellOff, CheckCircle2, AlertCircle, Info, MessageSquare, Clock, Settings, Send, Trash2 } from 'lucide-react';
+import { getWebSocketUrl } from '@/utils/websocket';
 
 interface Alert {
   id: string;
@@ -83,7 +84,7 @@ export function RealTimeAlerts() {
     const connectWebSocket = () => {
       try {
         setWsStatus('connecting');
-        const websocket = new WebSocket('ws://localhost:8000/alerts/ws');
+        const websocket = new WebSocket(getWebSocketUrl('/alerts/ws'));
         
         websocket.onopen = () => {
           console.log('Admin WebSocket connected');
@@ -410,7 +411,8 @@ export function RealTimeAlerts() {
               type="button"
               onClick={async () => {
                 try {
-                  const response = await fetch('/alerts/send', {
+                  const apiUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || '';
+                  const response = await fetch(`${apiUrl}/alerts/send`, {
                     method: 'POST',
                     headers: {
                       'Content-Type': 'application/json',

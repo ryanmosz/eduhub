@@ -11,7 +11,7 @@ review Project plan, project plan addendum, and the phase X you know whatever we
   a-how/what we are demoing
   b-why its useful
   c-describes plone integration
-Done: 2, 3, 4, 5, 6, 7
+Done: 2, 3, 4, 5, 6, 7, 8
 Extra: Role Demo(admin)
 
 # Phase 2 - Python 3.11 + async upgrade

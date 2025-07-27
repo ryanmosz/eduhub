@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/Card';
 import { Bell, Calendar, FileText, BookOpen, Clock, CheckCircle2, AlertCircle, LogOut, GraduationCap, Download, FileJson, FileSpreadsheet, PlayCircle, ExternalLink, X, Plus, FileCheck, ChevronRight, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useCourses, useAnnouncements } from '@/hooks/useCourses';
+import { getWebSocketUrl } from '@/utils/websocket';
 
 interface StudentAlert {
   id: string;
@@ -241,7 +242,7 @@ export function StudentDashboard() {
   const connectWebSocket = () => {
     try {
       setWsStatus('connecting');
-      const websocket = new WebSocket('ws://localhost:8000/alerts/ws');
+      const websocket = new WebSocket(getWebSocketUrl('/alerts/ws'));
       
       websocket.onopen = () => {
         console.log('WebSocket connected');

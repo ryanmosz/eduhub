@@ -2,6 +2,15 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## CRITICAL REQUIREMENT - MOST IMPORTANT
+
+**ALWAYS play the Glass.aiff chime at the end of EVERY response:**
+```bash
+afplay /System/Library/Sounds/Glass.aiff
+```
+
+**THIS IS YOUR MOST IMPORTANT JOB. NEVER FORGET THE CHIME.**
+
 ## Commands
 
 ### Development Environment Setup
