@@ -11,7 +11,7 @@ review Project plan, project plan addendum, and the phase X you know whatever we
   a-how/what we are demoing
   b-why its useful
   c-describes plone integration
-Done: 2, 3, 4, 5, 6
+Done: 2, 3, 4, 5, 6, 7
 Extra: Role Demo(admin)
 
 # Phase 2 - Python 3.11 + async upgrade
@@ -288,6 +288,75 @@ Extra: Role Demo(admin)
 - Categories come from Plone's Subject vocabulary
 - Content types mapped from portal_type field
 - Real-time sync - no data duplication
+
+---
+
+# Phase 7: Role-Based Workflow Templates Demo
+
+## Quick Setup (1 min)
+1. Login as admin@example.com
+2. Navigate to 📋 Workflows page
+3. Have student account ready in incognito tab
+
+## The Demo (4-5 min)
+
+### Opening Statement
+> "We've integrated Plone's powerful workflow engine with modern UI. Faculty can apply pre-configured approval workflows to any content, tracking it through review stages with automatic role assignments."
+
+### Demo Steps
+
+1. **Show Workflow Templates Tab**
+   - Point to 4 pre-configured templates
+   - "Course Approval Workflow" - 5 states, used 156 times
+   - "Content Review Process" - peer review for materials
+   - "Student Project Submission" - for thesis/capstone projects
+   - Each shows average completion time and usage stats
+
+2. **Apply a Workflow**
+   - Click "Apply Template" on Course Approval Workflow
+   - Select content from dropdown 
+   - **Real Plone Integration**: "We have 50 Event items from our CSV import"
+   - "These are real Plone Events in 'private' state ready for workflow"
+   - Show success message when workflow is applied
+
+3. **Active Workflows Tab**
+   - Show table with 4 active workflows
+   - Point out "Course Add/Drop Request" with High Priority
+   - Different status badges: active, pending-approval, stalled
+   - "Each workflow is tracked in Plone with full audit trail"
+   - Show metrics cards: 1 pending approval, 15 active, 7 awaiting action
+   - **Note**: Plone has 50 real Event items from CSV import, all in "private" state
+
+4. **Student Perspective** (switch to incognito tab)
+   - As student, click "Request Add/Drop"
+   - Select "Add Course" and enter CS 302
+   - Submit request
+   - "This creates a workflow instance in Plone assigned to advisors"
+
+### Key Benefits
+- **Pre-configured Templates** - No need to build workflows from scratch
+- **Role-Based Assignment** - Automatically assigns to right people
+- **Progress Tracking** - See where content is in approval process
+- **Student Self-Service** - Students can initiate requests directly
+- **Audit Trail** - Full history stored in Plone
+
+### Why This Matters
+> "Department chairs can track all course proposals in one place. Students get transparency on their requests. IT doesn't build custom approval systems - we leverage Plone's existing workflow engine with a modern interface."
+
+## Technical Details (if asked)
+- Uses Plone's DCWorkflow engine
+- Maps education roles to Plone roles
+- Templates defined in YAML for easy modification
+- Audit logs stored in PostgreSQL with Plone references
+- REST API for workflow transitions
+
+## Plone Integration Details
+- Each template creates a DCWorkflow definition in Plone
+- States map to Plone workflow states (private, pending, published, etc.)
+- Transitions use Plone's security matrix
+- Role assignments sync with Plone's local roles
+- Workflow history stored in Plone's workflow_history
+- Uses `portal_workflow` tool for all operations
 
 ---
 
