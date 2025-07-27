@@ -20,6 +20,7 @@ from .auth.dependencies import HTTPException
 from .auth.oauth import router as auth_router
 from .auth.test_console import router as test_router
 from .oembed.endpoints import router as oembed_router
+from .open_data.endpoints import router as open_data_router
 from .plone_content_endpoints import router as plone_content_router
 from .schedule_importer.endpoints import router as schedule_router
 
@@ -75,6 +76,7 @@ app.include_router(auth_router, tags=["Authentication"])
 app.include_router(test_router, tags=["Testing"])
 app.include_router(schedule_router, tags=["Schedule Import"])
 app.include_router(oembed_router, tags=["Rich Media Embeds"])
+app.include_router(open_data_router, tags=["Open Data"])
 app.include_router(plone_content_router, tags=["Plone Content with oEmbed"])
 
 
@@ -91,6 +93,7 @@ async def root():
             "plone": "/plone - Plone CMS integration endpoints",
             "import": "/import - Schedule import endpoints (CSV/Excel)",
             "embed": "/embed - 🎬 Rich Media Embeds (oEmbed proxy service)",
+            "data": "/data - 📊 Open Data API (public content access)",
             "plone_content": "/plone/content - 📄 Content management with auto-embed injection",
             "content": "/content - Content management endpoints",
             "docs": "/docs - API documentation",
