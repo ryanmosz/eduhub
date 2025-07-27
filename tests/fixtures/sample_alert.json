@@ -1,0 +1,17 @@
+{
+  "title": "Workflow State Changed",
+  "message": "Document 'Annual Report 2024' has been approved and published.",
+  "priority": "medium",
+  "category": "workflow",
+  "channels": ["websocket", "slack"],
+  "source": "workflow_engine",
+  "user_id": "auth0|user123",
+  "metadata": {
+    "document_id": "doc_12345",
+    "workflow_id": "simple_review",
+    "previous_state": "pending_review",
+    "new_state": "published",
+    "approved_by": "auth0|manager456"
+  },
+  "slack_channel": "#content-updates"
+} 
