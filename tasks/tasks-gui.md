@@ -67,3 +67,36 @@ Each parent task includes a brief *Risk & Mitigation* line.
   - [ ] 9.5.4 Gate `frontend.yml` with `yarn test --coverage && yarn build` before Vercel deploy.
   - [ ] 9.5.5 Add Lighthouse-CI GitHub Action to assert PWA & performance scores ≥ 80.
   - [ ] 9.5.6 Document local dev scripts (`yarn dev`, `yarn test:watch`, `yarn storybook`) in README.
+
+---
+
+## 📊 Phase 9 Progress Tracking
+
+**Started**: 2025-01-27
+**Target**: Complete React Admin SPA consuming APIs from Phases 1-8
+
+### Task Breakdown by Feature
+
+#### Core Infrastructure
+
+- [ ] Frontend scaffold with Vite + React + TypeScript
+- [ ] Tailwind CSS v4 configuration
+- [ ] ShadCN UI component library setup
+- [ ] Auth0 React SDK integration
+- [ ] MSW for API mocking
+
+#### Feature Pages (Based on Completed Phases)
+
+- [ ] **Dashboard** - Overview with metrics from all phases
+- [ ] **Authentication** (Phase 3) - Login/logout, user profile
+- [ ] **Schedule Import** (Phase 4) - CSV upload wizard with preview
+- [ ] **Media Embeds** (Phase 5) - oEmbed preview and management
+- [ ] **Open Data Explorer** (Phase 6) - Browse/search public content
+- [ ] **Workflow Templates** (Phase 7) - Manage educational workflows
+- [ ] **Real-time Alerts** (Phase 8) - WebSocket notifications dashboard
+
+### Implementation Notes
+
+- Using existing APIs from Phases 1-5 (tested and stable)
+- Planning UI for Phases 6-7 (recovered but untested)
+- Preparing WebSocket integration for Phase 8 (in progress)

@@ -57,8 +57,8 @@
   - [ ] 8.4.1 Extend `rate_limit.py` to throttle `/alerts` REST calls (20 req/min per IP) and WS `send` events (10 msg/sec).
   - [ ] 8.4.2 Add scope check `alerts:write` in auth dependency for REST endpoints.
   - [ ] 8.4.3 Instrument `alerts/monitoring.py` to export Prometheus counters (alerts_sent_total, alerts_failed_total) and histograms (broadcast_latency_ms).
-  - [ ] 8.4.4 **TEST**: (`pytest`, `fastapi.testclient`) hitting rate limit returns 429 with `Retry-After`.
-  - [ ] 8.4.5 **TEST**: (`pytest`, `prometheus_client`) scrape `/metrics` and assert counters increment after dispatch.
+  - [x] 8.4.4 **TEST**: (`pytest`, `fastapi.testclient`) hitting rate limit returns 429 with `Retry-After`.
+  - [x] 8.4.5 **TEST**: (`pytest`, `prometheus_client`) scrape `/metrics` and assert counters increment after dispatch.
 
 - [ ] **8.5 Automated Testing, Benchmarks & Documentation**
   _Risk & Mitigation_: Flaky external dependencies → rely on respx/websocket-mock for Slack & WS tests; add latency benchmarks.

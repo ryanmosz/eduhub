@@ -12,6 +12,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from .alerts.endpoints import router as alerts_router
 from .auth.oauth import router as oauth_router
 from .auth.test_console import router as auth_console_router
 from .oembed.endpoints import router as oembed_router
@@ -115,6 +116,7 @@ app.include_router(auth_console_router, prefix="/auth-console", tags=["Auth Cons
 app.include_router(oembed_router, prefix="/oembed", tags=["Rich Media"])
 app.include_router(open_data_router, prefix="/data", tags=["Open Data"])
 app.include_router(workflows_router, prefix="/workflows", tags=["Workflows"])
+app.include_router(alerts_router, prefix="/alerts", tags=["Real-time Alerts"])
 app.include_router(plone_content_router, prefix="/plone", tags=["Plone Content"])
 app.include_router(schedule_router, prefix="/schedule", tags=["Schedule Import"])
 
@@ -133,6 +135,7 @@ async def root():
             "rich_media": "/oembed/",
             "open_data": "/data/",
             "workflows": "/workflows/",
+            "alerts": "/alerts/",
             "plone_content": "/plone/",
             "schedule_import": "/schedule/",
         },
@@ -159,6 +162,7 @@ async def health_check():
             "oembed": "operational",
             "open_data": "operational",
             "workflows": "operational",
+            "alerts": "operational",
             "plone_integration": "operational",
             "schedule_import": "operational",
         },
