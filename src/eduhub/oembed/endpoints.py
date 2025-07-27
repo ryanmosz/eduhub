@@ -20,7 +20,7 @@ from .models import EmbedError, EmbedRequest, EmbedResponse
 from .security import get_security_manager
 
 # Create router instance
-router = APIRouter(prefix="/embed", tags=["Rich Media Embeds"])
+router = APIRouter(tags=["Rich Media Embeds"])
 
 # Allowed providers for security
 ALLOWED_PROVIDERS = {

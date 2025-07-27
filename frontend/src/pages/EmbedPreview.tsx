@@ -27,7 +27,7 @@ export function EmbedPreview() {
     setRawResponse(null);
 
     try {
-      const response = await fetch(`/embed?url=${encodeURIComponent(url)}`, {
+      const response = await fetch(`/oembed/?url=${encodeURIComponent(url)}`, {
         credentials: 'include',
       });
 
@@ -48,10 +48,8 @@ export function EmbedPreview() {
 
   const testUrls = [
     { label: 'YouTube Video', url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
-    { label: 'Twitter/X Post', url: 'https://twitter.com/github/status/1234567890' },
+    { label: 'Twitter/X Post', url: 'https://x.com/Ryan26295/status/1939485261571735743' },
     { label: 'Vimeo Video', url: 'https://vimeo.com/1234567' },
-    { label: 'SoundCloud Track', url: 'https://soundcloud.com/example/track' },
-    { label: 'SlideShare Presentation', url: 'https://www.slideshare.net/example/presentation' },
   ];
 
   return (

@@ -11,7 +11,7 @@ review Project plan, project plan addendum, and the phase X you know whatever we
   a-how/what we are demoing
   b-why its useful
   c-describes plone integration
-Done: 2, 3, 4
+Done: 2, 3, 4, 5
 Extra: Role Demo(admin)
 
 # Phase 2 - Python 3.11 + async upgrade
@@ -164,6 +164,66 @@ Extra: Role Demo(admin)
 - Bulk creation with transaction support
 - Conflict detection for room/time overlaps
 - Full audit trail in database
+
+---
+
+# Phase 5: Rich Media Embeds (oEmbed) Demo
+
+## Quick Setup (1 min)
+1. Login as admin@example.com
+2. Navigate to 🎬 Media Embeds page
+3. Have test URLs ready (or use quick test buttons)
+
+## The Demo (3-4 min)
+
+### Opening Statement
+> "We've integrated oEmbed to automatically transform media URLs into rich embeds within Plone content. No more copy-pasting embed codes - just paste a YouTube link and it renders."
+
+### Demo Steps
+
+1. **Show the Media Embeds Page**
+   - Point to quick test URLs (YouTube, Vimeo, Twitter)
+   - "Supports major media providers out of the box"
+
+2. **Test a YouTube URL**
+   - Click "YouTube Video" button
+   - Click "Preview"
+   - Show embedded video player appears instantly
+   - "This fetches embed data from YouTube's oEmbed API"
+
+3. **Show Raw Response**
+   - Point to right panel showing JSON response
+   - "We cache these responses for performance"
+   - "HTML is sanitized for security"
+
+4. **Explain Plone Integration**
+   - "When creating Plone content, URLs are automatically converted"
+   - "Editors paste a YouTube link, readers see embedded video"
+   - "Works with Documents, News Items, any rich text field"
+
+### Key Benefits
+- **No Manual Embed Codes** - Just paste the URL
+- **Secure** - HTML sanitized to prevent XSS attacks
+- **Cached** - Fast performance, reduces API calls
+- **Multiple Providers** - YouTube, Vimeo, Twitter, SoundCloud, SlideShare
+- **Automatic in Plone** - URLs in content transform on save
+
+### Why This Matters
+> "Faculty can share lecture videos by just pasting YouTube links. Students see embedded players, not raw URLs. IT doesn't worry about security because we sanitize everything."
+
+## Technical Details (if asked)
+- Uses oEmbed protocol (industry standard)
+- Caches responses in Redis for 24 hours
+- Sanitizes HTML with bleach library
+- Rate limited to prevent abuse (20 req/min)
+- Integrates with Plone's transform chain
+
+## Plone Integration Details
+- `create_content_with_embeds()` method in PloneClient
+- Automatically scans text for media URLs
+- Replaces URLs with embed HTML before saving
+- Preserves Plone's rich text formatting
+- Works with existing content workflow
 
 ---
 
