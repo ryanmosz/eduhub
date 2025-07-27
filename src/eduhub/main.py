@@ -14,6 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .alerts.endpoints import router as alerts_router
 from .auth.oauth import router as oauth_router
+from .auth.endpoints import router as auth_endpoints_router
 from .auth.test_console import router as auth_console_router
 from .courses.endpoints import router as courses_router
 from .oembed.endpoints import router as oembed_router
@@ -114,6 +115,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(oauth_router, tags=["Authentication"])
+app.include_router(auth_endpoints_router, tags=["Authentication"])
 app.include_router(auth_console_router, tags=["Auth Console"])
 app.include_router(courses_router, tags=["Courses"])
 app.include_router(oembed_router, prefix="/oembed", tags=["Rich Media"])
