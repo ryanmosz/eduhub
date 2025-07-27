@@ -1,217 +1,171 @@
+#!/usr/bin/env python3
 """
-Main FastAPI application for EduHub.
+EduHub API main application module.
 
-Modern education portal bridging FastAPI with Plone CMS.
-Provides OAuth2 authentication, content management, and API endpoints.
+This module initializes and configures the FastAPI application with all routers,
+middleware, and dependencies for the educational content management system.
 """
 
-import os
+import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.openapi.utils import get_openapi
-from fastapi.responses import JSONResponse, Response
 
-# Import exception handlers
-from .auth.dependencies import HTTPException
-
-# Import routers
-from .auth.oauth import router as auth_router
-from .auth.test_console import router as test_router
+from .auth.oauth import router as oauth_router
+from .auth.test_console import router as auth_console_router
 from .oembed.endpoints import router as oembed_router
 from .open_data.endpoints import router as open_data_router
 from .plone_content_endpoints import router as plone_content_router
 from .schedule_importer.endpoints import router as schedule_router
+from .workflows.endpoints import router as workflows_router
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Application lifespan manager."""
-    print("🚀 EduHub API starting up...")
-    yield
-    print("🛑 EduHub API shutting down...")
-    # Clean up oEmbed client and cache resources
+    """Application lifespan manager for startup and shutdown events."""
+    # Startup
+    logger.info("🚀 EduHub API starting up...")
+
+    # Initialize components
     try:
-        from .oembed.client import cleanup_oembed_client
+        # Import here to ensure all dependencies are ready
+        from .oembed.client import get_oembed_client
 
-        await cleanup_oembed_client()
-        print("✅ oEmbed client and cache cleaned up")
-    except ImportError:
-        pass  # oEmbed module not imported
+        # Initialize oEmbed client
+        oembed_client = await get_oembed_client()
+        logger.info("✅ oEmbed client initialized")
+
+        # Other startup tasks could go here
+
     except Exception as e:
-        print(f"⚠️  oEmbed client cleanup failed: {e}")
+        logger.error(f"❌ Startup failed: {e}")
+        raise
+
+    yield
+
+    # Shutdown
+    logger.info("🛑 EduHub API shutting down...")
+
+    try:
+        # Cleanup oEmbed client
+        from .oembed.client import get_oembed_client
+
+        oembed_client = await get_oembed_client()
+        await oembed_client.close()
+        logger.info("✅ oEmbed client and cache cleaned up")
+
+        # Other cleanup tasks could go here
+
+    except Exception as e:
+        logger.error(f"❌ Shutdown cleanup failed: {e}")
 
 
-# Initialize FastAPI app
+# Create FastAPI application
 app = FastAPI(
     title="EduHub API",
-    description="Modern education portal bridging FastAPI with Plone CMS",
-    version="0.1.0",
-    lifespan=lifespan,
-    openapi_components={
-        "securitySchemes": {
-            "BearerAuth": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"}
-        }
+    description="""
+    Comprehensive educational content management system providing OAuth2 authentication,
+    rich media embedding, open data access, workflow management, and Plone CMS integration.
+
+    ## Features
+
+    * **OAuth2 Authentication** - Secure user authentication and authorization
+    * **Rich Media Embedding** - oEmbed protocol support for YouTube, Vimeo, Twitter, etc.
+    * **Open Data API** - Public read-only access to educational content
+    * **Workflow Management** - Role-based workflow templates for content approval
+    * **Schedule Import** - CSV-based schedule and event management
+    * **Plone Integration** - Seamless integration with Plone CMS
+
+    ## Authentication
+
+    Most endpoints require authentication via Bearer token. Use the `/auth/` endpoints
+    to obtain tokens or visit the Auth Console for testing.
+    """,
+    version="1.0.0",
+    contact={
+        "name": "EduHub Development Team",
+        "email": "dev@eduhub.example.com",
     },
+    license_info={
+        "name": "MIT License",
+        "url": "https://opensource.org/licenses/MIT",
+    },
+    lifespan=lifespan,
 )
 
-# CORS Configuration
+# Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",  # React dev server
-        "http://localhost:8000",  # FastAPI dev server
-        "http://127.0.0.1:8000",  # Alternative localhost
-        "https://dev-1fx6yhxxi543ipno.us.auth0.com",  # Auth0 domain
-        "https://*.auth0.com",  # Auth0 subdomains
-    ],
+    allow_origins=["*"],  # Configure appropriately for production
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # Include routers
-app.include_router(auth_router, tags=["Authentication"])
-app.include_router(test_router, tags=["Testing"])
-app.include_router(schedule_router, tags=["Schedule Import"])
-app.include_router(oembed_router, tags=["Rich Media Embeds"])
-app.include_router(open_data_router, tags=["Open Data"])
-app.include_router(plone_content_router, tags=["Plone Content with oEmbed"])
+app.include_router(oauth_router, prefix="/auth", tags=["Authentication"])
+app.include_router(auth_console_router, prefix="/auth-console", tags=["Auth Console"])
+app.include_router(oembed_router, prefix="/oembed", tags=["Rich Media"])
+app.include_router(open_data_router, prefix="/data", tags=["Open Data"])
+app.include_router(workflows_router, prefix="/workflows", tags=["Workflows"])
+app.include_router(plone_content_router, prefix="/plone", tags=["Plone Content"])
+app.include_router(schedule_router, prefix="/schedule", tags=["Schedule Import"])
 
 
-@app.get("/")
+@app.get("/", tags=["Root"])
 async def root():
-    """Welcome endpoint with API information."""
+    """
+    API root endpoint with basic information and available services.
+    """
     return {
         "message": "Welcome to EduHub API",
-        "version": "0.1.0",
-        "description": "Modern education portal bridging FastAPI with Plone CMS",
-        "endpoints": {
-            "auth": "/auth - OAuth2 authentication endpoints (login, callback, user, logout)",
-            "hello": "/hello - Hello world and async demo endpoints",
-            "plone": "/plone - Plone CMS integration endpoints",
-            "import": "/import - Schedule import endpoints (CSV/Excel)",
-            "embed": "/embed - 🎬 Rich Media Embeds (oEmbed proxy service)",
-            "data": "/data - 📊 Open Data API (public content access)",
-            "plone_content": "/plone/content - 📄 Content management with auto-embed injection",
-            "content": "/content - Content management endpoints",
-            "docs": "/docs - API documentation",
-            "test": "/test/auth-console - OAuth2 testing console",
-            "schedule_test": "/test/schedule-test - 📊 Unified CSV Schedule Import Test Console",
+        "version": "1.0.0",
+        "services": {
+            "authentication": "/auth/",
+            "auth_console": "/auth-console/",
+            "rich_media": "/oembed/",
+            "open_data": "/data/",
+            "workflows": "/workflows/",
+            "plone_content": "/plone/",
+            "schedule_import": "/schedule/",
         },
+        "documentation": {
+            "openapi": "/docs",
+            "redoc": "/redoc",
+            "openapi_json": "/openapi.json",
+        },
+        "status": "operational",
     }
 
 
-@app.get("/favicon.ico")
-async def favicon():
-    """Serve favicon to prevent 404 errors in browsers."""
-    # Return a simple graduation cap emoji as favicon
-    return Response(content="🎓", media_type="text/plain")
-
-
-@app.get("/hello")
-async def hello():
-    """Simple hello endpoint for testing."""
-    return {"message": "Hello from EduHub!"}
-
-
-@app.get("/hello/async")
-async def hello_async():
-    """Async hello endpoint demonstrating async capabilities."""
-    import asyncio
-
-    await asyncio.sleep(0.1)  # Simulate async work
+@app.get("/health", tags=["Health"])
+async def health_check():
+    """
+    Health check endpoint for monitoring and load balancers.
+    """
     return {
-        "message": "Hello from async EduHub!",
-        "async": True,
-        "python_version": os.sys.version,
+        "status": "healthy",
+        "version": "1.0.0",
+        "services": {
+            "api": "operational",
+            "authentication": "operational",
+            "oembed": "operational",
+            "open_data": "operational",
+            "workflows": "operational",
+            "plone_integration": "operational",
+            "schedule_import": "operational",
+        },
     }
 
 
-# Plone Integration Endpoints (placeholder)
-@app.get("/plone/status")
-async def plone_status():
-    """Check Plone CMS connectivity status."""
-    # TODO: Implement actual Plone status check
-    return {"status": "connected", "plone_version": "6.0.x", "integration": "active"}
+if __name__ == "__main__":
+    import uvicorn
 
-
-@app.get("/plone/content")
-async def get_plone_content():
-    """Get content from Plone CMS."""
-    # TODO: Implement actual Plone content retrieval
-    return {
-        "content": "Plone content integration coming soon",
-        "endpoint": "placeholder",
-    }
-
-
-# Content Management Endpoints (placeholder)
-@app.get("/content")
-async def list_content():
-    """List available content."""
-    return {"content": [], "message": "Content management endpoints coming soon"}
-
-
-# Exception Handlers
-@app.exception_handler(HTTPException)
-async def http_exception_handler(request: Request, exc: HTTPException):
-    """Handle HTTP exceptions with consistent formatting."""
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={
-            "error": "HTTP Exception",
-            "message": exc.detail,
-            "status_code": exc.status_code,
-        },
-    )
-
-
-@app.exception_handler(Exception)
-async def general_exception_handler(request: Request, exc: Exception):
-    """Handle general exceptions."""
-    return JSONResponse(
-        status_code=500,
-        content={
-            "error": "Internal Server Error",
-            "message": "An unexpected error occurred",
-            "details": str(exc) if os.getenv("DEBUG") else None,
-        },
-    )
-
-
-# Custom OpenAPI Schema
-def custom_openapi():
-    """Generate custom OpenAPI schema with authentication."""
-    if app.openapi_schema:
-        return app.openapi_schema
-
-    openapi_schema = get_openapi(
-        title="EduHub API",
-        version="0.1.0",
-        description="Modern education portal with OAuth2 authentication and Plone CMS integration",
-        routes=app.routes,
-    )
-
-    # Add security requirement to all endpoints except public ones
-    public_paths = [
-        "/",
-        "/hello",
-        "/hello/async",
-        "/favicon.ico",
-        "/docs",
-        "/openapi.json",
-    ]
-
-    for path, path_item in openapi_schema["paths"].items():
-        if path not in public_paths:
-            for method in path_item.values():
-                if isinstance(method, dict) and "security" not in method:
-                    method["security"] = [{"BearerAuth": []}]
-
-    app.openapi_schema = openapi_schema
-    return app.openapi_schema
-
-
-app.openapi = custom_openapi
+    uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -1,0 +1,145 @@
+{
+  "id": "simple_review",
+  "name": "Simple Review Workflow",
+  "description": "A basic 3-state workflow designed for educational content that requires author creation, reviewer approval, and publication. Perfect for course materials, assignments, and educational resources that need quality control but don't require complex multi-stage review processes.",
+  "version": "1.0.0",
+  "category": "educational",
+  "states": [
+    {
+      "id": "draft",
+      "title": "Draft",
+      "description": "Content is being created or edited by the author. Authors have full editing rights and can submit for review when ready.",
+      "state_type": "draft",
+      "permissions": [
+        {
+          "role": "author",
+          "actions": ["view", "edit", "submit"]
+        },
+        {
+          "role": "administrator",
+          "actions": ["view", "edit", "delete", "manage_workflow"]
+        }
+      ],
+      "is_initial": true,
+      "is_final": false,
+      "ui_metadata": {
+        "color": "#94a3b8",
+        "icon": "edit",
+        "description_short": "Being written"
+      }
+    },
+    {
+      "id": "review",
+      "title": "Under Review",
+      "description": "Content is being reviewed by qualified reviewers. Authors cannot edit during review but can view progress. Reviewers can approve, reject, or request revisions.",
+      "state_type": "review",
+      "permissions": [
+        {
+          "role": "author",
+          "actions": ["view"]
+        },
+        {
+          "role": "editor",
+          "actions": ["view", "review", "approve", "reject"]
+        },
+        {
+          "role": "subject_expert",
+          "actions": ["view", "review", "approve", "reject"]
+        },
+        {
+          "role": "administrator",
+          "actions": ["view", "edit", "review", "approve", "reject", "manage_workflow"]
+        }
+      ],
+      "is_initial": false,
+      "is_final": false,
+      "ui_metadata": {
+        "color": "#fbbf24",
+        "icon": "clock",
+        "description_short": "Under review"
+      }
+    },
+    {
+      "id": "published",
+      "title": "Published",
+      "description": "Content is approved and publicly available. Only administrators can make changes or retract published content.",
+      "state_type": "published",
+      "permissions": [
+        {
+          "role": "author",
+          "actions": ["view"]
+        },
+        {
+          "role": "editor",
+          "actions": ["view"]
+        },
+        {
+          "role": "viewer",
+          "actions": ["view"]
+        },
+        {
+          "role": "administrator",
+          "actions": ["view", "edit", "retract", "manage_workflow"]
+        }
+      ],
+      "is_initial": false,
+      "is_final": true,
+      "ui_metadata": {
+        "color": "#10b981",
+        "icon": "check-circle",
+        "description_short": "Live"
+      }
+    }
+  ],
+  "transitions": [
+    {
+      "id": "submit_for_review",
+      "title": "Submit for Review",
+      "from_state": "draft",
+      "to_state": "review",
+      "required_role": "author",
+      "conditions": {
+        "require_comments": false,
+        "min_content_length": 50
+      }
+    },
+    {
+      "id": "approve_content",
+      "title": "Approve and Publish",
+      "from_state": "review",
+      "to_state": "published",
+      "required_role": "editor",
+      "conditions": {
+        "require_comments": true
+      }
+    },
+    {
+      "id": "reject_to_draft",
+      "title": "Reject - Return to Draft",
+      "from_state": "review",
+      "to_state": "draft",
+      "required_role": "editor",
+      "conditions": {
+        "require_comments": true,
+        "require_feedback": true
+      }
+    }
+  ],
+  "default_permissions": {
+    "administrator": ["view", "edit", "delete", "manage_workflow", "assign_roles"],
+    "viewer": ["view"]
+  },
+  "metadata": {
+    "complexity": "simple",
+    "recommended_for": [
+      "course_materials",
+      "assignments",
+      "educational_resources",
+      "simple_documents"
+    ],
+    "typical_duration": "2-5 days",
+    "min_participants": 2,
+    "max_participants": 10,
+    "tags": ["basic", "educational", "review"]
+  }
+}

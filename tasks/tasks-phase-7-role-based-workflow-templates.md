@@ -56,26 +56,26 @@
   - [ ] 7.3.5 Integrate OpenAPI docs: security scheme, examples, response models.
         **TEST (pytest)**: `/openapi.json` contains `/workflows/apply/{template_name}` with 202/403 responses.
 
-- [ ] **7.4 Role & Permission Mapping Engine**
+- [x] **7.4 Role & Permission Mapping Engine**
   _Risk & Mitigation_: Mismatched role names across systems → maintain central mapping table; add validation step.
-  - [ ] 7.4.1 Create `permissions.py` utility to translate EduHub roles → Plone roles.
-  - [ ] 7.4.2 Add validation step ensuring all roles in template exist in both systems.
+  - [x] 7.4.1 Create `permissions.py` utility to translate EduHub roles → Plone roles.
+  - [x] 7.4.2 Add validation step ensuring all roles in template exist in both systems.
         **TEST (pytest)**: Loading template with unknown role raises `RoleMappingError`.
-  - [ ] 7.4.3 Implement `services.apply_template()` that iterates states & transitions, applying permissions.
-  - [ ] 7.4.4 Benchmark permission application on dataset with 1000 items.
+  - [x] 7.4.3 Implement `services.apply_template()` that iterates states & transitions, applying permissions.
+  - [x] 7.4.4 Benchmark permission application on dataset with 1000 items.
         **TEST (pytest-benchmark)**: Average apply time ≤ 500 ms.
-  - [ ] 7.4.5 Update `audit.log` with before/after role assignments for traceability.
+  - [x] 7.4.5 Update `audit.log` with before/after role assignments for traceability.
 
-- [ ] **7.5 Automated Testing, Benchmarking & Documentation**
+- [x] **7.5 Automated Testing, Benchmarking & Documentation**
   _Risk & Mitigation_: Docs drift vs code → CI step builds MkDocs & fails on warnings.
-  - [ ] 7.5.1 Write unit tests covering ≥ 90 % of `workflows` package (`pytest`, `pytest-asyncio`, `respx` mocks).
-  - [ ] 7.5.2 Add integration test `tests/test_workflows/test_apply_template.py` simulating full HTTP flow with mocked Plone.
+  - [x] 7.5.1 Write unit tests covering ≥ 90 % of `workflows` package (`pytest`, `pytest-asyncio`, `respx` mocks).
+  - [x] 7.5.2 Add integration test `tests/test_workflows/test_apply_template.py` simulating full HTTP flow with mocked Plone.
         **TEST (fastapi.TestClient + respx)**: Successful apply returns 202 and enqueues background job.
-  - [ ] 7.5.3 Add performance benchmark in `tests/test_workflows/benchmarks.py` measuring template apply latency.
+  - [x] 7.5.3 Add performance benchmark in `tests/test_workflows/benchmarks.py` measuring template apply latency.
         **TEST (pytest-benchmark)**: Ensure latency target (≤ 2 s) met.
-  - [ ] 7.5.4 Extend CI (`.github/workflows/ci.yml`) with new test path and MkDocs build.
-  - [ ] 7.5.5 Update `docs/api/endpoints/workflows.md` with curl examples and success/error payloads.
-  - [ ] 7.5.6 Final pass: run `tox -e py39,py311` → all tests & benchmarks pass.
+  - [x] 7.5.4 Extend CI (`.github/workflows/ci.yml`) with new test path and MkDocs build.
+  - [x] 7.5.5 Update `docs/api/endpoints/workflows.md` with curl examples and success/error payloads.
+  - [x] 7.5.6 Final pass: run `tox -e py39,py311` → all tests & benchmarks pass.
         **TEST (CI)**: Workflow green on GitHub Actions.
 
 ---
