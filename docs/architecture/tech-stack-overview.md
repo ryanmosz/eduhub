@@ -62,7 +62,7 @@ graph TB
 
 ### Core Application Framework
 ```yaml
-Language: Python 3.13
+Language: Python 3.11
 Web Framework: FastAPI 0.115+
 ASGI Server: Uvicorn 0.32+
 Async Runtime: asyncio (native Python)
@@ -118,14 +118,26 @@ combined_context = {
 }
 ```
 
+### Frontend Technology Stack
+```yaml
+Framework: React 18 with TypeScript
+Build Tool: Vite 5.0+
+Routing: React Router v6
+State Management: React Query (TanStack Query)
+Styling: Tailwind CSS 3.0+
+UI Components: Custom components with Lucide icons
+HTTP Client: Native fetch with credentials
+Development Server: Vite dev server on port 8001
+```
+
 ### Development & Quality Tools
 ```yaml
 Testing: pytest with httpx for integration tests
 Type Checking: mypy for static analysis
-Code Formatting: black + isort for consistency
-Linting: ruff for fast Python linting
+Code Formatting: black + isort for Python, Prettier for TypeScript
+Linting: ruff for Python, ESLint for TypeScript
 Documentation: FastAPI auto-generated /docs
-Hot Reload: uvicorn --reload for development
+Hot Reload: uvicorn --reload (backend), Vite HMR (frontend)
 CI/CD: GitHub Actions with Docker builds
 ```
 
@@ -281,9 +293,9 @@ Logout Process:
 
 ### Local Development Setup
 ```bash
-# Environment setup
-python3.13 -m venv .venv
-source .venv/bin/activate.fish  # or .venv/bin/activate
+# Backend environment setup
+python3.11 -m venv .venv
+source .venv/bin/activate  # or .venv/bin/activate.fish
 
 # Install dependencies
 pip install -r requirements.txt
@@ -293,8 +305,13 @@ AUTH0_DOMAIN=dev-1fx6yhxxi543ipno.us.auth0.com
 AUTH0_CLIENT_ID=s05QngyZXEI3XNdirmJu0CscW1hNgaRD
 AUTH0_ALGORITHMS=["RS256"]
 
-# Start development server
-uvicorn src.eduhub.main:app --reload --host 127.0.0.1 --port 8000
+# Start backend server
+uvicorn src.eduhub.main:app --reload --host 0.0.0.0 --port 8000
+
+# Start frontend server (in separate terminal)
+cd frontend
+npm install
+npm run dev  # Runs on port 8001
 ```
 
 ### Testing Workflow
@@ -333,15 +350,19 @@ pre-commit run --all-files
 ### Current Deployment Approach
 ```yaml
 Development:
-  Platform: Local uvicorn server
-  Database: Not required (stateless)
+  Backend: Local uvicorn server (port 8000)
+  Frontend: Vite dev server (port 8001)
+  Database: PostgreSQL via Docker
+  Cache: Redis via Docker
   Auth: Auth0 development tenant
-  Plone: Existing HTTP accessible instance
+  Plone: Docker container (port 8080)
 
 Production Ready:
-  Platform: Any ASGI-compatible host
-  Options: Render, Heroku, DigitalOcean, AWS Lambda
-  Requirements: Python 3.11+, environment variables
+  Platform: Render.com (planned)
+  Backend: FastAPI on Render Web Service
+  Frontend: React build on Render Static Site
+  Database: Render PostgreSQL
+  Requirements: Python 3.11+, Node.js 18+
   Scaling: Horizontal (stateless design)
 ```
 
@@ -361,7 +382,7 @@ Optional Variables:
 ### Container Deployment (Future)
 ```dockerfile
 # Minimal production container
-FROM python:3.13-slim
+FROM python:3.11-slim
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 COPY src/ /app/src/
