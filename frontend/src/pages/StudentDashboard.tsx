@@ -262,14 +262,23 @@ export function StudentDashboard() {
             'critical': 'error'
           };
           
-          setAlerts(prev => [{
-            id: Date.now().toString(),
+          const newAlert: StudentAlert = {
+            id: alert.id || Date.now().toString(),
             type: typeMap[alert.priority] || alert.type || 'info',
             title: alert.title,
             message: alert.message,
             timestamp: 'just now',
             read: false
-          }, ...prev]);
+          };
+          
+          // Prevent duplicate alerts
+          setAlerts(prev => {
+            if (prev.some(a => a.id === newAlert.id)) {
+              console.log('Duplicate alert ignored:', newAlert.id);
+              return prev;
+            }
+            return [newAlert, ...prev];
+          });
         } catch (error) {
           console.error('Failed to parse alert:', error);
         }

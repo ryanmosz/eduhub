@@ -42,10 +42,15 @@ async def lifespan(app: FastAPI):
     try:
         # Import here to ensure all dependencies are ready
         from .oembed.client import get_oembed_client
+        from .alerts.services import dispatch_service
 
         # Initialize oEmbed client
         oembed_client = await get_oembed_client()
         logger.info("✅ oEmbed client initialized")
+
+        # Initialize alert dispatch service
+        await dispatch_service.initialize()
+        logger.info("✅ Alert dispatch service initialized")
 
         # Other startup tasks could go here
 
@@ -61,10 +66,15 @@ async def lifespan(app: FastAPI):
     try:
         # Cleanup oEmbed client
         from .oembed.client import get_oembed_client
+        from .alerts.services import dispatch_service
 
         oembed_client = await get_oembed_client()
         await oembed_client.close()
         logger.info("✅ oEmbed client and cache cleaned up")
+
+        # Cleanup alert dispatch service
+        await dispatch_service.shutdown()
+        logger.info("✅ Alert dispatch service cleaned up")
 
         # Other cleanup tasks could go here
 

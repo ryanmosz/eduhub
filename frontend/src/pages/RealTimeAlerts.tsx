@@ -119,7 +119,15 @@ export function RealTimeAlerts() {
               read: false,
               channel: 'web'
             };
-            setAlerts(prev => [newAlert, ...prev]);
+            
+            // Prevent duplicate alerts
+            setAlerts(prev => {
+              if (prev.some(a => a.id === newAlert.id)) {
+                console.log('Duplicate alert ignored:', newAlert.id);
+                return prev;
+              }
+              return [newAlert, ...prev];
+            });
           } catch (error) {
             console.error('Failed to parse WebSocket message:', error);
           }

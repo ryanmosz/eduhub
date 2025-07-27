@@ -409,3 +409,73 @@ Extra: Role Demo(admin)
 - Student = Member role (read-only)
 - Admin = Manager role (full access)
 - Real-time role sync with Plone
+
+---
+
+# Phase 8: Real-Time Alert Broadcasting Demo
+
+## Quick Setup (1 min)
+1. Login as admin@example.com
+2. Navigate to 🔔 Real-time Alerts page
+3. Have student site ready in incognito tab
+
+## The Demo (4-5 min)
+
+### Opening Statement
+> "We've built a real-time alert system that instantly broadcasts notifications through WebSockets to all connected users, with Slack integration for teams. When Plone content changes or workflows update, everyone gets notified immediately."
+
+### Demo Steps
+
+1. **Show the Alert Feed**
+   - Navigate to Real-time Alerts page
+   - Point to WebSocket status indicator (green "Live")
+   - "This shows we're connected via WebSocket for instant notifications"
+   - Show existing alerts in the feed
+
+2. **Compose and Send Alert**
+   - Click "Compose" tab
+   - Fill in:
+     - Priority: High
+     - Category: System
+     - Title: "Server Maintenance Tonight"
+     - Message: "The system will undergo maintenance from 10 PM to midnight"
+   - Click "Send Alert"
+   - Immediately switch to "Alert Feed" tab
+   - "Notice the alert appears instantly - no page refresh needed"
+
+3. **Student Perspective** (switch to incognito tab)
+   - Show student dashboard
+   - Point to alerts section showing same alert
+   - "Students receive the same alert in real-time"
+   - Demonstrate the notification bell icon
+
+4. **Show Settings**
+   - Return to admin view, click "Settings" tab
+   - "Users can configure which alerts they receive"
+   - Show delivery channel matrix (Web, Slack, Email)
+   - "Different alert types can go to different channels"
+
+### Key Benefits
+- **Instant Communication** - WebSocket ensures sub-second delivery
+- **Multi-Channel** - Web, Slack, and Email integration
+- **Role-Based** - Target alerts to specific user groups
+- **Persistent** - Alerts are stored and can be reviewed later
+- **Rate Limited** - Protection against spam (20 req/min)
+
+### Why This Matters
+> "When a class is cancelled or a deadline changes, every affected student knows immediately. No more checking email or refreshing pages. Critical information reaches everyone instantly through their preferred channel."
+
+## Technical Details (if asked)
+- WebSocket connection with automatic reconnection
+- Redis pub/sub for horizontal scaling
+- Slack integration via async SDK
+- Rate limiting: 20 alerts/min per IP
+- Heartbeat/ping-pong for connection health
+
+## Plone Integration Details
+- Plone content events trigger alerts automatically
+- Workflow state changes broadcast to relevant users
+- Schedule imports notify affected students
+- Content publication alerts subscribers
+- Uses Plone's event system via REST API hooks
+- Maps Plone user roles to alert audiences

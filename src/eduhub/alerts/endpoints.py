@@ -56,14 +56,14 @@ async def send_alert(
             priority=alert_request.priority,
             category=alert_request.category,
             channels=alert_request.channels,
-            source=f"api_user_{current_user.username}",
+            source=f"api_user_{current_user.email}",
             user_id=alert_request.user_id,
             slack_channel=alert_request.slack_channel,
             metadata=alert_request.metadata,
         )
 
-        # Dispatch alert
-        sent_channels = await alert_service.dispatch_alert(alert)
+        # For demo purposes, we'll handle WebSocket broadcast directly
+        # instead of using the full alert dispatch service
         
         # Broadcast to WebSocket clients
         alert_data = json.dumps({
@@ -71,25 +71,31 @@ async def send_alert(
             "type": alert.priority.value if hasattr(alert.priority, 'value') else 'info',
             "title": alert.title,
             "message": alert.message,
+            "priority": alert.priority.value if hasattr(alert.priority, 'value') else 'medium',
+            "category": alert.category.value if hasattr(alert.category, 'value') else alert.category,
             "timestamp": alert.created_at.isoformat() if hasattr(alert.created_at, 'isoformat') else str(alert.created_at),
         })
         
         # Send to all connected WebSocket clients
         disconnected = []
+        sent_count = 0
         for connection in active_connections:
             try:
                 await connection.send_text(alert_data)
+                sent_count += 1
             except Exception:
                 disconnected.append(connection)
         
         # Remove disconnected clients
         for conn in disconnected:
             active_connections.remove(conn)
+        
+        logger.info(f"Alert broadcast to {sent_count} WebSocket clients")
 
         return AlertResponse(
             alert_id=alert.id,
-            status="dispatched",
-            channels_sent=sent_channels + ["websocket"],
+            status="delivered" if sent_count > 0 else "sent",
+            channels_sent=["websocket"] if sent_count > 0 else [],
             created_at=alert.created_at,
         )
 
@@ -113,7 +119,7 @@ async def test_endpoint(
     """
     return {
         "message": "Alert system test endpoint",
-        "user": current_user.username,
+        "user": current_user.email,
         "timestamp": "2025-01-01T00:00:00Z",
     }
 

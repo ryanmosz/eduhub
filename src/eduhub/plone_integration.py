@@ -404,6 +404,35 @@ class PloneClient:
         endpoint = f"/{path.lstrip('/')}"
         response = await self._request("DELETE", endpoint)
         return response.status_code == 204
+    
+    async def trigger_content_alert(self, event_type: str, content_data: dict[str, Any]) -> None:
+        """Trigger an alert when Plone content changes."""
+        try:
+            from .alerts.services import dispatch_service
+            from .alerts.models import AlertRequest, AlertPriority, AlertChannel
+            
+            # Map Plone event types to alert messages
+            alert_messages = {
+                "created": f"New content created: {content_data.get('title', 'Untitled')}",
+                "modified": f"Content updated: {content_data.get('title', 'Untitled')}",
+                "published": f"Content published: {content_data.get('title', 'Untitled')}",
+                "workflow_changed": f"Workflow state changed for: {content_data.get('title', 'Untitled')}",
+                "deleted": f"Content deleted: {content_data.get('title', 'Untitled')}"
+            }
+            
+            if event_type in alert_messages:
+                alert_request = AlertRequest(
+                    title=f"Plone Content {event_type.title()}",
+                    message=alert_messages[event_type],
+                    priority=AlertPriority.MEDIUM if event_type != "deleted" else AlertPriority.HIGH,
+                    category="content",
+                    channels=[AlertChannel.WEBSOCKET],
+                )
+                
+                await dispatch_service.create_and_dispatch_alert(alert_request, source="plone")
+                logger.info(f"Alert triggered for Plone {event_type} event")
+        except Exception as e:
+            logger.error(f"Failed to trigger Plone alert: {e}")
 
     async def get_site_info(self) -> dict[str, Any]:
         """Get basic information about the Plone site."""
