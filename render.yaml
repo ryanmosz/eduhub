@@ -49,6 +49,7 @@ services:
     name: eduhub-redis
     plan: free  # Or 'starter' for production
     maxmemoryPolicy: allkeys-lru
+    ipAllowList: []  # Allow connections from Render services only
 
 databases:
   - name: eduhub-db
