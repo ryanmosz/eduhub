@@ -48,7 +48,7 @@ Learning Group Administrators rely on decades-old content management systems. Th
 
 ```bash
 # Clone and setup
-git clone https://github.com/USERNAME/eduhub.git
+git clone https://github.com/ryanmosz/eduhub.git
 cd eduhub
 python -m venv .venv
 source .venv/bin/activate
