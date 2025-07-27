@@ -1,0 +1,72 @@
+{
+  "id": "invalid_workflow_example",
+  "name": "Invalid Workflow Template",
+  "description": "This template contains multiple intentional errors to test validation",
+  "version": "not_semantic_version",
+  "category": "educational",
+  "states": [
+    {
+      "id": "d",
+      "title": "",
+      "description": "State with too short ID and empty title",
+      "state_type": "draft",
+      "permissions": [
+        {
+          "role": "nonexistent_role",
+          "actions": ["invalid_action", "view"]
+        }
+      ],
+      "is_initial": true,
+      "is_final": false
+    },
+    {
+      "id": "review",
+      "title": "Review State",
+      "description": "Review state",
+      "state_type": "review",
+      "permissions": [],
+      "is_initial": true,
+      "is_final": false
+    },
+    {
+      "id": "final_state",
+      "title": "Final State",
+      "description": "Final state with outgoing transition (invalid)",
+      "state_type": "published",
+      "permissions": [],
+      "is_initial": false,
+      "is_final": true
+    },
+    {
+      "id": "unreachable",
+      "title": "Unreachable State",
+      "description": "This state cannot be reached from initial state",
+      "state_type": "archived",
+      "permissions": [],
+      "is_initial": false,
+      "is_final": true
+    }
+  ],
+  "transitions": [
+    {
+      "id": "invalid_transition",
+      "title": "Invalid Transition",
+      "from_state": "nonexistent_state",
+      "to_state": "review",
+      "required_role": "author"
+    },
+    {
+      "id": "final_state_transition",
+      "title": "From Final State",
+      "from_state": "final_state",
+      "to_state": "review",
+      "required_role": "editor"
+    }
+  ],
+  "default_permissions": {
+    "invalid_role": ["view"]
+  },
+  "metadata": {
+    "complexity": "broken"
+  }
+}
