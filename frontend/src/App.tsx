@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider, useAuth } from '@/hooks/useAuth';
+import { getApiUrl } from '@/utils/api';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Dashboard } from '@/pages/Dashboard';
 import { StudentDashboard } from '@/pages/StudentDashboard';
@@ -130,7 +131,7 @@ function LoginPage() {
           params.append('prompt', 'login');
         }
         
-        window.location.href = `/auth/login?${params.toString()}`;
+        window.location.href = `${getApiUrl()}/auth/login?${params.toString()}`;
       }, 500);
     } catch (err) {
       console.error('Login error:', err);
@@ -203,7 +204,7 @@ function LoginPage() {
                     setError(null);
                     // Force Auth0 to show login prompt
                     setTimeout(() => {
-                      window.location.href = `/auth/login?prompt=login&return_to=${window.location.origin}/callback`;
+                      window.location.href = `${getApiUrl()}/auth/login?prompt=login&return_to=${window.location.origin}/callback`;
                     }, 500);
                   }}
                   className="w-full flex justify-center py-2 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
