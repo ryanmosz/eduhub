@@ -262,11 +262,117 @@ class PloneClient:
         response = await self._request("POST", endpoint, json_data=content_data)
         return await response.json()
 
+    async def create_content_with_embeds(
+        self,
+        parent_path: str,
+        portal_type: str,
+        title: str,
+        text: Optional[str] = None,
+        inject_embeds: bool = True,
+        **kwargs,
+    ) -> dict[str, Any]:
+        """
+        Create new content in Plone with automatic oEmbed injection.
+
+        Task 5.3.3: Update content create endpoints to call injection util when content_type=="Document".
+
+        Args:
+            parent_path: Path where content should be created
+            portal_type: Type of content to create (e.g., "Document")
+            title: Content title
+            text: Content body text (will be processed for oEmbed URLs)
+            inject_embeds: Whether to process text for media embeds
+            **kwargs: Additional content fields
+
+        Returns:
+            Created content data from Plone API
+        """
+        # Process text content for embeds if provided
+        if inject_embeds and text and portal_type == "Document":
+            try:
+                from .oembed.content_utils import inject_oembed
+
+                processed_text = await inject_oembed(text)
+                kwargs["text"] = {"data": processed_text, "content-type": "text/html"}
+            except Exception as e:
+                # Log error but continue with original text
+                import logging
+
+                logger = logging.getLogger(__name__)
+                logger.error(f"Error processing embeds for new content '{title}': {e}")
+                if text:
+                    kwargs["text"] = {"data": text, "content-type": "text/html"}
+        elif text:
+            kwargs["text"] = {"data": text, "content-type": "text/html"}
+
+        return await self.create_content(parent_path, portal_type, title, **kwargs)
+
     async def update_content(self, path: str, **kwargs) -> dict[str, Any]:
         """Update existing content in Plone."""
         endpoint = f"/{path.lstrip('/')}"
         response = await self._request("PATCH", endpoint, json_data=kwargs)
         return await response.json()
+
+    async def update_content_with_embeds(
+        self,
+        path: str,
+        text: Optional[str] = None,
+        inject_embeds: bool = True,
+        **kwargs,
+    ) -> dict[str, Any]:
+        """
+        Update existing content in Plone with automatic oEmbed injection.
+
+        Task 5.3.3: Update content update endpoints to call injection util when content_type=="Document".
+
+        Args:
+            path: Path to content to update
+            text: New content body text (will be processed for oEmbed URLs)
+            inject_embeds: Whether to process text for media embeds
+            **kwargs: Additional content fields to update
+
+        Returns:
+            Updated content data from Plone API
+        """
+        # Get current content to check type
+        try:
+            current_content = await self.get_content(path)
+            portal_type = current_content.get("@type", "")
+
+            # Process text content for embeds if it's a Document
+            if inject_embeds and text and portal_type == "Document":
+                try:
+                    from .oembed.content_utils import inject_oembed
+
+                    processed_text = await inject_oembed(text)
+                    kwargs["text"] = {
+                        "data": processed_text,
+                        "content-type": "text/html",
+                    }
+                except Exception as e:
+                    # Log error but continue with original text
+                    import logging
+
+                    logger = logging.getLogger(__name__)
+                    logger.error(
+                        f"Error processing embeds for content update at '{path}': {e}"
+                    )
+                    kwargs["text"] = {"data": text, "content-type": "text/html"}
+            elif text:
+                kwargs["text"] = {"data": text, "content-type": "text/html"}
+
+        except Exception as e:
+            # If we can't get current content, proceed without embed processing
+            import logging
+
+            logger = logging.getLogger(__name__)
+            logger.warning(
+                f"Could not get current content for embed processing at '{path}': {e}"
+            )
+            if text:
+                kwargs["text"] = {"data": text, "content-type": "text/html"}
+
+        return await self.update_content(path, **kwargs)
 
     async def delete_content(self, path: str) -> bool:
         """Delete content from Plone."""
@@ -449,6 +555,64 @@ def transform_plone_content(plone_data: dict[str, Any]) -> PloneContent:
             ]
         },
     )
+
+
+async def transform_plone_content_with_embeds(
+    plone_data: dict[str, Any],
+    inject_embeds: bool = True,
+    maxwidth: Optional[int] = None,
+    maxheight: Optional[int] = None,
+) -> PloneContent:
+    """
+    Transform raw Plone API response into standardized PloneContent model with oEmbed injection.
+
+    Task 5.3.1: Extend transform_plone_content() to replace raw URLs with <iframe> embed HTML.
+
+    Args:
+        plone_data: Raw Plone API response data
+        inject_embeds: Whether to inject oEmbed content for detected media URLs
+        maxwidth: Maximum width for embedded content
+        maxheight: Maximum height for embedded content
+
+    Returns:
+        PloneContent with embedded media URLs transformed to iframe HTML
+    """
+    # Start with basic transformation
+    content = transform_plone_content(plone_data)
+
+    # Inject oEmbed content if requested and text content exists
+    if inject_embeds and content.text:
+        try:
+            from .oembed.content_utils import inject_oembed
+
+            # Process the text content to inject embeds
+            processed_text = await inject_oembed(
+                content.text, maxwidth=maxwidth, maxheight=maxheight
+            )
+
+            # Update the content with processed text
+            content.text = processed_text
+
+            # Add metadata about embed processing
+            content.metadata["oembed_processed"] = True
+            content.metadata["oembed_timestamp"] = plone_data.get("modified", "")
+
+        except ImportError:
+            # oEmbed module not available, skip injection
+            content.metadata["oembed_processed"] = False
+            content.metadata["oembed_error"] = "oEmbed module not available"
+        except Exception as e:
+            # Log error but don't fail the transformation
+            content.metadata["oembed_processed"] = False
+            content.metadata["oembed_error"] = str(e)
+            import logging
+
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error injecting oEmbed content for {content.uid}: {e}")
+    else:
+        content.metadata["oembed_processed"] = False
+
+    return content
 
 
 # Singleton instance for application use

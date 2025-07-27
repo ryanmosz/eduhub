@@ -19,6 +19,8 @@ from .auth.dependencies import HTTPException
 # Import routers
 from .auth.oauth import router as auth_router
 from .auth.test_console import router as test_router
+from .oembed.endpoints import router as oembed_router
+from .plone_content_endpoints import router as plone_content_router
 from .schedule_importer.endpoints import router as schedule_router
 
 
@@ -28,6 +30,16 @@ async def lifespan(app: FastAPI):
     print("🚀 EduHub API starting up...")
     yield
     print("🛑 EduHub API shutting down...")
+    # Clean up oEmbed client and cache resources
+    try:
+        from .oembed.client import cleanup_oembed_client
+
+        await cleanup_oembed_client()
+        print("✅ oEmbed client and cache cleaned up")
+    except ImportError:
+        pass  # oEmbed module not imported
+    except Exception as e:
+        print(f"⚠️  oEmbed client cleanup failed: {e}")
 
 
 # Initialize FastAPI app
@@ -62,6 +74,8 @@ app.add_middleware(
 app.include_router(auth_router, tags=["Authentication"])
 app.include_router(test_router, tags=["Testing"])
 app.include_router(schedule_router, tags=["Schedule Import"])
+app.include_router(oembed_router, tags=["Rich Media Embeds"])
+app.include_router(plone_content_router, tags=["Plone Content with oEmbed"])
 
 
 @app.get("/")
@@ -76,6 +90,8 @@ async def root():
             "hello": "/hello - Hello world and async demo endpoints",
             "plone": "/plone - Plone CMS integration endpoints",
             "import": "/import - Schedule import endpoints (CSV/Excel)",
+            "embed": "/embed - 🎬 Rich Media Embeds (oEmbed proxy service)",
+            "plone_content": "/plone/content - 📄 Content management with auto-embed injection",
             "content": "/content - Content management endpoints",
             "docs": "/docs - API documentation",
             "test": "/test/auth-console - OAuth2 testing console",

@@ -1,0 +1,172 @@
+Description: Agent handoff protocol for efficient context transfer between AI agents
+Globs: agent-handoff-context.md, agent-handoff-instruction.md, agent-handoff-history.md, tasks/**/*.md
+
+# Agent Context Transfer Protocol
+
+## Purpose
+Rapidly transfer essential project context from a context-full outgoing agent to a fresh incoming agent, enabling immediate productivity while preserving development history.
+
+## 🔄 Historical Archiving System
+
+**Before updating handoff** - Archive current content to preserve development history:
+
+1. **Archive Current Handoff**:
+   ```bash
+   echo "\n---\n## Handoff $(date '+%Y-%m-%d %H:%M') - Phase X.Y Complete\n" >> agent-handoff-history.md
+   cat agent-handoff-context.md >> agent-handoff-history.md
+   ```
+
+2. **Create Fresh Handoff** (keep lean - only current essential information):
+   ```bash
+   > agent-handoff-context.md  # Clear current file for fresh content
+   ```
+
+3. **Update Agent Instructions**:
+   ```bash
+   # Update agent-handoff-instruction.md with specific context for incoming agent
+   ```
+
+## 🎯 Outgoing Agent Final Message Template
+
+```markdown
+# 🔄 **AGENT HANDOFF: Context Transfer Required**
+
+## 📊 **Current Status Snapshot**
+- **Phase**: [5.4 Error Handling & Security - COMPLETE]
+- **Last Task Completed**: [5.4.5 - Rate limiting tests]
+- **Next Task**: [5.5.1 - Unit test coverage ≥90%]
+- **Environment**: ✅ Working / ⚠️ [Specific issue]
+
+## 📋 **Essential Context Loading**
+
+**Review these files to understand current state:**
+
+1. **`tasks/tasks-overall-project-plan.md`** - **THE foundational project document** - overarching roadmap and strategy
+2. **`tasks/tasks-overall-project-plan-addendum.md`** - Strategic revisions and methodology decisions
+3. **`agent-handoff-instruction.md`** - Immediate instructions and context loading for incoming agent
+4. **`agent-handoff-context.md`** - Current project state and immediate next task (lean)
+5. **`tasks/tasks-[current-phase].md`** - Current phase task breakdown and progress
+
+## 📚 **Project Documentation Context**
+
+**Docs folder overview** - Critical project definition and architecture:
+
+**Architecture & Design:**
+- `docs/architecture/system-architecture.md` - Overall system design and component relationships
+- `docs/architecture/tech-stack-overview.md` - Technology choices and rationale
+- `docs/architecture/deployment-strategy.md` - Production deployment approach
+
+**Development & Process:**
+- `docs/development/testing-strategy.md` - Testing methodology and standards
+- `docs/getting-started/developer-onboarding.md` - Development environment setup
+
+**For your current task ([task-number] - [task-description]):**
+- **Focus on**: [Specific docs relevant to current task]
+- **Reference**: [Architecture docs for component understanding]
+- **Check**: [Any existing examples or standards]
+
+## 🚨 **Active Issues & Resolutions**
+
+### Issue: [Specific problem encountered]
+- **What we tried**: [Attempted solutions]
+- **What worked**: [Successful resolution] / **Still blocked**: [Ongoing issue]
+- **Files affected**: [List of files]
+- **Resolution commands**:
+```bash
+[Exact commands that fixed it or reproduce the issue]
+```
+
+## 🎯 **Immediate Start Instructions**
+
+**Environment setup:**
+```bash
+source venv/bin/activate.fish
+```
+
+**Verification commands:**
+```bash
+[Commands to verify environment works]
+```
+
+**START HERE**: [Specific task with exact commands]
+```bash
+[Exact commands to begin work]
+```
+
+## 🗂️ **Critical File Context**
+
+**Recently Modified** (understand these):
+- [List of recently changed files and why they matter]
+
+**Key Architecture** (reference for implementation):
+- [List of key files to understand for current work]
+
+**Ready for immediate [Phase X.Y] implementation!**
+```
+
+## 🚀 Incoming Agent Protocol
+
+**When taking over from another agent:**
+
+**STEP 1: Foundation Context**
+- Review `tasks/tasks-overall-project-plan.md` - **THE overarching project strategy and roadmap**
+- Review `tasks/tasks-overall-project-plan-addendum.md` - Strategic revisions and methodology
+
+**STEP 2: Immediate Instructions**
+- Review `agent-handoff-instruction.md` - Immediate context loading and start instructions
+
+**STEP 3: Current State Context**
+- Review `agent-handoff-context.md` - Current focused project state (lean)
+- Review `tasks/tasks-[current-phase].md` - Current phase task breakdown and progress
+
+**STEP 4: Project Architecture Context**
+- Browse `docs/` folder structure to understand what's available
+- Review recommended docs for your specific task (listed in agent-handoff-instruction.md)
+
+**STEP 5: Historical Context (If Needed)**
+- Review `agent-handoff-history.md` - Complete development history for deeper context
+
+**STEP 6: Issue Assessment & Start**
+- Check handoff message for any active issues or blockers
+- Run verification commands to confirm environment status
+- Execute "START HERE" commands to begin work
+
+## 📋 File Structure
+
+- **`agent-handoff-context.md`** - Current, lean handoff (current phase, next task, active issues)
+- **`agent-handoff-history.md`** - Complete development record for reference
+- **`agent-handoff-instruction.md`** - Specific instructions for incoming agent
+- **`tasks/tasks-overall-project-plan.md`** - Foundational project strategy
+- **`tasks/tasks-overall-project-plan-addendum.md`** - Strategic additions
+- **`docs/`** - Project definition and architecture
+
+## 🛠️ Handoff Quality Checklist
+
+**Outgoing Agent Must Provide**:
+- ✅ **Exact next task** with specific number/description
+- ✅ **File review list** - which files to understand and why
+- ✅ **Issue status** - what's broken, what's resolved, reproduction steps
+- ✅ **Verification commands** - prove environment works
+- ✅ **Start commands** - immediate next steps to begin work
+- ✅ **Historical archiving** - current handoff moved to history before updating
+
+**Incoming Agent Success Indicators**:
+- ✅ Understands current implementation state within 5 minutes
+- ✅ Knows exactly which task to work on next
+- ✅ Can run verification commands without errors
+- ✅ Has context for any ongoing issues or blockers
+- ✅ Can begin productive work immediately
+
+## 🎯 Usage Workflow
+
+1. **When "Start new chat" appears**: Execute archival protocol
+2. **Update files**: Archive → Fresh handoff → Next instructions
+3. **New agent gets**: Immediate context loading instructions
+4. **Result**: New agent productive within 5 minutes
+5. **Future handoffs**: Repeat archival process to keep handoffs lean
+
+**This creates a sustainable, scalable handoff system that stays lean while preserving complete development history!**
+description:
+globs:
+alwaysApply: false
+---
