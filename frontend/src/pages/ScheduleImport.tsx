@@ -34,7 +34,7 @@ export function ScheduleImport() {
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-    
+
     const droppedFile = e.dataTransfer.files[0];
     if (droppedFile && (droppedFile.type === 'text/csv' || droppedFile.name.endsWith('.csv'))) {
       setFile(droppedFile);
@@ -64,7 +64,7 @@ export function ScheduleImport() {
     if (!file) return;
 
     setIsUploading(true);
-    
+
     // Simulate upload - in real app, this would call the API
     setTimeout(() => {
       setImportResult({
@@ -125,7 +125,7 @@ export function ScheduleImport() {
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   disabled={isUploading}
                 />
-                
+
                 {file ? (
                   <div className="space-y-2">
                     <FileSpreadsheet className="mx-auto h-12 w-12 text-green-600" />

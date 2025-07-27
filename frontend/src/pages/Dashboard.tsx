@@ -1,9 +1,9 @@
 import { Card } from '@/components/ui/card';
-import { 
-  Calendar, 
-  FileVideo, 
-  Database, 
-  Workflow, 
+import {
+  Calendar,
+  FileVideo,
+  Database,
+  Workflow,
   Bell,
   CheckCircle2,
   Clock,

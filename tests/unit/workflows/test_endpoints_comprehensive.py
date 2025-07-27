@@ -41,7 +41,6 @@ class TestWorkflowTemplateEndpoints:
             "administrator": ["admin1"],
         }
 
-    
     def test_get_templates_success(self, async_client, mock_auth_user):
         """Test successful template listing."""
         with patch(
@@ -71,16 +70,13 @@ class TestWorkflowTemplateEndpoints:
             for field in required_fields:
                 assert field in template
 
-    
     def test_get_templates_with_filters(self, async_client, mock_auth_user):
         """Test template listing with category filters."""
         with patch(
             "src.eduhub.auth.dependencies.get_current_user", return_value=mock_auth_user
         ):
             # Test category filter
-            response = async_client.get(
-                "/workflows/templates?categories=educational"
-            )
+            response = async_client.get("/workflows/templates?categories=educational")
             assert response.status_code == 200
 
             data = response.json()
@@ -90,7 +86,6 @@ class TestWorkflowTemplateEndpoints:
             for template in data["templates"]:
                 assert template["category"] == "educational"
 
-    
     def test_get_template_by_id_success(self, async_client, mock_auth_user):
         """Test successful template retrieval by ID."""
         with patch(
@@ -117,7 +112,6 @@ class TestWorkflowTemplateEndpoints:
             assert "name" in state
             assert "permissions" in state
 
-    
     def test_get_template_not_found(self, async_client, mock_auth_user):
         """Test template not found error."""
         with patch(
@@ -130,7 +124,6 @@ class TestWorkflowTemplateEndpoints:
             assert "error" in data
             assert "not found" in data["error"].lower()
 
-    
     def test_templates_unauthorized(self, async_client):
         """Test unauthorized access to templates."""
         # No auth mock - should fail
@@ -175,7 +168,6 @@ class TestWorkflowApplicationEndpoints:
 
             yield mock_instance
 
-    
     def test_apply_template_success(
         self, async_client, mock_auth_user, mock_plone_service, valid_role_assignments
     ):
@@ -201,7 +193,6 @@ class TestWorkflowApplicationEndpoints:
             assert "application_result" in data
             assert "audit_log" in data
 
-    
     def test_apply_template_invalid_assignments(
         self, async_client, mock_auth_user, mock_plone_service
     ):
@@ -227,7 +218,6 @@ class TestWorkflowApplicationEndpoints:
             assert "error" in data
             assert "validation" in data["error"].lower()
 
-    
     def test_apply_template_missing_content_uid(
         self, async_client, mock_auth_user, valid_role_assignments
     ):
@@ -244,7 +234,6 @@ class TestWorkflowApplicationEndpoints:
 
             assert response.status_code == 422  # Validation error
 
-    
     def test_apply_template_plone_error(
         self, async_client, mock_auth_user, valid_role_assignments
     ):
@@ -274,7 +263,6 @@ class TestWorkflowApplicationEndpoints:
                 data = response.json()
                 assert "error" in data
 
-    
     def test_apply_template_force_override(
         self, async_client, mock_auth_user, mock_plone_service, valid_role_assignments
     ):
@@ -312,7 +300,6 @@ class TestWorkflowTransitionEndpoints:
     def mock_auth_user(self):
         return {"user_id": "test-user", "roles": ["editor"]}
 
-    
     def test_execute_transition_success(self, async_client, mock_auth_user):
         """Test successful workflow transition."""
         with patch(
@@ -338,9 +325,7 @@ class TestWorkflowTransitionEndpoints:
                     "comments": "Ready for review",
                 }
 
-                response = async_client.post(
-                    "/workflows/transition", json=request_data
-                )
+                response = async_client.post("/workflows/transition", json=request_data)
 
                 assert response.status_code == 200
                 data = response.json()
@@ -350,10 +335,7 @@ class TestWorkflowTransitionEndpoints:
                 assert data["to_state"] == "pending"
                 assert data["transition_id"] == "submit"
 
-    
-    def test_execute_transition_invalid_transition(
-        self, async_client, mock_auth_user
-    ):
+    def test_execute_transition_invalid_transition(self, async_client, mock_auth_user):
         """Test transition with invalid transition ID."""
         with patch(
             "src.eduhub.auth.dependencies.get_current_user", return_value=mock_auth_user
@@ -373,18 +355,13 @@ class TestWorkflowTransitionEndpoints:
                     "transition_id": "invalid_transition",
                 }
 
-                response = async_client.post(
-                    "/workflows/transition", json=request_data
-                )
+                response = async_client.post("/workflows/transition", json=request_data)
 
                 assert response.status_code == 400
                 data = response.json()
                 assert "error" in data
 
-    
-    def test_execute_transition_missing_fields(
-        self, async_client, mock_auth_user
-    ):
+    def test_execute_transition_missing_fields(self, async_client, mock_auth_user):
         """Test transition with missing required fields."""
         with patch(
             "src.eduhub.auth.dependencies.get_current_user", return_value=mock_auth_user
@@ -392,9 +369,7 @@ class TestWorkflowTransitionEndpoints:
             # Missing transition_id
             request_data = {"content_uid": "test-content"}
 
-            response = async_client.post(
-                "/workflows/transition", json=request_data
-            )
+            response = async_client.post("/workflows/transition", json=request_data)
 
             assert response.status_code == 422  # Validation error
 
@@ -411,7 +386,6 @@ class TestWorkflowStateEndpoints:
     def mock_auth_user(self):
         return {"user_id": "test-user", "roles": ["viewer"]}
 
-    
     def test_get_content_state_success(self, async_client, mock_auth_user):
         """Test successful content workflow state retrieval."""
         with patch(
@@ -441,9 +415,7 @@ class TestWorkflowStateEndpoints:
                     },
                 }
 
-                response = async_client.get(
-                    "/workflows/content/test-content/state"
-                )
+                response = async_client.get("/workflows/content/test-content/state")
 
                 assert response.status_code == 200
                 data = response.json()
@@ -454,7 +426,6 @@ class TestWorkflowStateEndpoints:
                 assert "available_transitions" in data
                 assert "template_metadata" in data
 
-    
     def test_get_content_state_not_found(self, async_client, mock_auth_user):
         """Test content state for non-existent content."""
         with patch(
@@ -470,9 +441,7 @@ class TestWorkflowStateEndpoints:
                     "Content not found"
                 )
 
-                response = async_client.get(
-                    "/workflows/content/nonexistent/state"
-                )
+                response = async_client.get("/workflows/content/nonexistent/state")
 
                 assert response.status_code == 404
                 data = response.json()
@@ -491,7 +460,6 @@ class TestWorkflowRemovalEndpoints:
     def mock_auth_user(self):
         return {"user_id": "test-user", "roles": ["workflow_manager"]}
 
-    
     def test_remove_template_success(self, async_client, mock_auth_user):
         """Test successful template removal."""
         with patch(
@@ -521,7 +489,6 @@ class TestWorkflowRemovalEndpoints:
                 assert data["content_uid"] == "test-content"
                 assert data["backup_restored"] is True
 
-    
     def test_remove_template_no_backup(self, async_client, mock_auth_user):
         """Test template removal without backup restoration."""
         with patch(
@@ -561,7 +528,6 @@ class TestHealthCheckEndpoint:
     def mock_auth_user(self):
         return {"user_id": "test-user", "roles": ["viewer"]}
 
-    
     def test_health_check_success(self, async_client, mock_auth_user):
         """Test successful health check."""
         with patch(
@@ -593,7 +559,6 @@ class TestInputValidationAndSecurity:
     def mock_auth_user(self):
         return {"user_id": "test-user", "roles": ["workflow_manager"]}
 
-    
     def test_sql_injection_protection(self, async_client, mock_auth_user):
         """Test protection against SQL injection attacks."""
         with patch(
@@ -602,14 +567,11 @@ class TestInputValidationAndSecurity:
             # Attempt SQL injection in content UID
             malicious_uid = "test'; DROP TABLE users; --"
 
-            response = async_client.get(
-                f"/workflows/content/{malicious_uid}/state"
-            )
+            response = async_client.get(f"/workflows/content/{malicious_uid}/state")
 
             # Should handle gracefully, not crash
             assert response.status_code in [400, 404, 500]
 
-    
     def test_xss_protection(self, async_client, mock_auth_user):
         """Test protection against XSS attacks."""
         with patch(
@@ -633,15 +595,12 @@ class TestInputValidationAndSecurity:
                     "comments": malicious_comment,
                 }
 
-                response = async_client.post(
-                    "/workflows/transition", json=request_data
-                )
+                response = async_client.post("/workflows/transition", json=request_data)
 
                 # Should process without executing script
                 # Response should be clean (exact behavior depends on sanitization)
                 assert response.status_code in [200, 400]
 
-    
     def test_oversized_request_protection(self, async_client, mock_auth_user):
         """Test protection against oversized requests."""
         with patch(
@@ -664,7 +623,6 @@ class TestInputValidationAndSecurity:
             # Might return 413 (Payload Too Large) or 400 (Bad Request)
             assert response.status_code in [200, 400, 413, 422]
 
-    
     def test_invalid_json_handling(self, async_client, mock_auth_user):
         """Test handling of invalid JSON requests."""
         with patch(
@@ -678,7 +636,6 @@ class TestInputValidationAndSecurity:
 
             assert response.status_code == 422  # Unprocessable Entity
 
-    
     def test_content_type_validation(self, async_client, mock_auth_user):
         """Test content type validation."""
         with patch(
@@ -705,7 +662,6 @@ class TestEdgeCasesAndBoundaryConditions:
     def mock_auth_user(self):
         return {"user_id": "test-user", "roles": ["workflow_manager"]}
 
-    
     def test_empty_role_assignments(self, async_client, mock_auth_user):
         """Test handling of empty role assignments."""
         with patch(
@@ -723,7 +679,6 @@ class TestEdgeCasesAndBoundaryConditions:
             data = response.json()
             assert "error" in data
 
-    
     def test_unicode_content_handling(self, async_client, mock_auth_user):
         """Test handling of Unicode content."""
         with patch(
@@ -747,13 +702,10 @@ class TestEdgeCasesAndBoundaryConditions:
                     "comments": unicode_comment,
                 }
 
-                response = async_client.post(
-                    "/workflows/transition", json=request_data
-                )
+                response = async_client.post("/workflows/transition", json=request_data)
 
                 assert response.status_code == 200
 
-    
     def test_very_long_content_uid(self, async_client, mock_auth_user):
         """Test handling of very long content UIDs."""
         with patch(
@@ -767,7 +719,6 @@ class TestEdgeCasesAndBoundaryConditions:
             # Should handle gracefully
             assert response.status_code in [400, 404, 422]
 
-    
     def test_concurrent_template_applications(self, async_client, mock_auth_user):
         """Test concurrent applications to same content."""
         with patch(

@@ -11,7 +11,7 @@ from functools import lru_cache
 from typing import Optional
 
 import httpx
-from fastapi import Depends, HTTPException, status, Request
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwk, jwt
 
@@ -178,7 +178,9 @@ def validate_jwt_token(token: str) -> dict:
 
 async def get_current_user(
     request: Request,
-    credentials: Optional[HTTPAuthorizationCredentials] = Depends(HTTPBearer(auto_error=False)),
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(
+        HTTPBearer(auto_error=False)
+    ),
 ) -> User:
     """
     FastAPI dependency to get current authenticated user from JWT token with Plone integration.
@@ -195,13 +197,13 @@ async def get_current_user(
     """
     # Try to get token from Authorization header first, then from cookies
     token = None
-    
+
     if credentials:
         token = credentials.credentials
     else:
         # Try to get token from cookies
         token = request.cookies.get("access_token") or request.cookies.get("id_token")
-    
+
     if not token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -308,13 +310,13 @@ async def get_admin_user(current_user: User = Depends(get_current_user)) -> User
 async def get_alerts_write_user(current_user: User = Depends(get_current_user)) -> User:
     """
     FastAPI dependency to ensure current user has alerts:write permission.
-    
+
     Args:
         current_user: Current authenticated user from get_current_user
-        
+
     Returns:
         User: User with alerts:write permission
-        
+
     Raises:
         HTTPException: If user lacks alerts:write permission
     """
@@ -328,7 +330,7 @@ async def get_alerts_write_user(current_user: User = Depends(get_current_user)) 
         or "admin" in user_permissions
         or "all" in user_permissions
     )
-    
+
     # Check user roles for admin-level access
     user_roles = [role.lower() for role in current_user.roles]
     has_admin_role = (
@@ -336,13 +338,13 @@ async def get_alerts_write_user(current_user: User = Depends(get_current_user)) 
         or "admin" in user_roles
         or "administrator" in user_roles
     )
-    
+
     if has_alerts_write or has_admin_role:
         return current_user
-    
+
     raise HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
-        detail="Insufficient permissions. 'alerts:write' scope required for this operation."
+        detail="Insufficient permissions. 'alerts:write' scope required for this operation.",
     )
 
 

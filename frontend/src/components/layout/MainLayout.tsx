@@ -1,11 +1,11 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
-import { 
-  Calendar, 
-  FileVideo, 
-  Database, 
-  Workflow, 
-  Bell, 
+import {
+  Calendar,
+  FileVideo,
+  Database,
+  Workflow,
+  Bell,
   Home,
   LogOut,
   User,
@@ -34,8 +34,8 @@ export function MainLayout() {
     <div className="min-h-screen bg-gray-50">
       {/* Mobile menu overlay */}
       {mobileMenuOpen && (
-        <div 
-          className="fixed inset-0 z-40 bg-black/20 lg:hidden" 
+        <div
+          className="fixed inset-0 z-40 bg-black/20 lg:hidden"
           onClick={() => setMobileMenuOpen(false)}
         />
       )}
@@ -62,7 +62,7 @@ export function MainLayout() {
             {navigation.map((item) => {
               const isActive = location.pathname === item.href;
               const Icon = item.icon;
-              
+
               return (
                 <Link
                   key={item.name}

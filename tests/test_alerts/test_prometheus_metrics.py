@@ -11,9 +11,9 @@ import pytest
 from prometheus_client import REGISTRY, Counter, Histogram
 
 from src.eduhub.alerts.monitoring import (
-    broadcast_latency_ms,
     alerts_failed_total,
     alerts_sent_total,
+    broadcast_latency_ms,
     export_metrics,
     get_metrics_summary,
     record_alert_failed,
