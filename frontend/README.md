@@ -1,69 +1,137 @@
-# React + TypeScript + Vite
+# EduHub Admin Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React-based admin panel for the EduHub educational content management system.
 
-Currently, two official plugins are available:
+## Overview
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+This is the Phase 9 implementation - a modern React SPA that provides a user-friendly interface for all the APIs developed in Phases 1-8 of the EduHub project.
 
-## Expanding the ESLint configuration
+## Features
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Implemented
+- ✅ **Authentication** (Phase 3) - Auth0 integration with JWT
+- ✅ **Dashboard** - Overview of all system metrics
+- ✅ **Schedule Import** (Phase 4) - CSV upload wizard with preview
+- 🚧 **Media Embeds** (Phase 5) - oEmbed preview interface (UI ready, needs API integration)
+- 🚧 **Open Data Explorer** (Phase 6) - Browse public content (placeholder)
+- 🚧 **Workflow Templates** (Phase 7) - Manage workflows (placeholder)
+- 🚧 **Real-time Alerts** (Phase 8) - WebSocket notifications (placeholder)
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Tech Stack
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+- **Framework**: React 19 with TypeScript
+- **Build Tool**: Vite 7
+- **Styling**: Tailwind CSS v4
+- **UI Components**: Custom components inspired by ShadCN UI
+- **Authentication**: Auth0 React SDK
+- **Routing**: React Router v7
+- **State Management**: React Query (TanStack Query)
+- **Icons**: Lucide React
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Getting Started
+
+### Local Development
+
+1. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+2. **Configure environment**:
+   ```bash
+   cp .env.example .env
+   # Edit .env with your Auth0 credentials if needed
+   ```
+
+3. **Start development server**:
+   ```bash
+   npm run dev
+   ```
+
+### Docker Development (Recommended)
+
+1. **Using Docker Compose** (includes backend):
+   ```bash
+   # From the root directory
+   docker-compose -f docker-compose.frontend.yml up
+   ```
+   
+   This will start:
+   - Frontend on http://localhost:5173
+   - Backend on http://localhost:8000
+   - Redis on localhost:6379
+
+2. **Frontend only**:
+   ```bash
+   cd frontend
+   docker build -t eduhub-frontend:dev .
+   docker run -p 5173:5173 -v $(pwd)/src:/app/src eduhub-frontend:dev
+   ```
+
+### Production Build
+
+1. **Build for production**:
+   ```bash
+   npm run build
+   ```
+
+2. **Docker production build**:
+   ```bash
+   npm run docker:build
+   npm run docker:run
+   ```
+   
+   The production image uses nginx and runs on port 80.
+
+## Project Structure
+
+```
+frontend/
+├── src/
+│   ├── components/
+│   │   ├── auth/         # Auth0 provider wrapper
+│   │   ├── layout/       # Main layout with navigation
+│   │   └── ui/           # Reusable UI components
+│   ├── pages/            # Route pages
+│   │   ├── Dashboard.tsx
+│   │   ├── ScheduleImport.tsx
+│   │   └── ... (other feature pages)
+│   ├── lib/              # Utilities
+│   └── App.tsx           # Main app with routing
+├── .env.example          # Environment template
+└── vite.config.ts        # Vite configuration
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Authentication Flow
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+1. User clicks "Sign in with Auth0"
+2. Redirected to Auth0 login page
+3. After successful login, redirected back to `/callback`
+4. Token stored in localStorage
+5. User redirected to dashboard
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## API Integration
+
+The frontend is designed to work with the FastAPI backend running on `http://localhost:8000`. Currently implemented:
+
+- **Auth endpoints**: `/auth/login`, `/auth/user`
+- **Schedule Import**: `/import/schedule`
+- **oEmbed**: `/embed/*`
+- **Open Data**: `/data/*` (Phase 6 - recovered)
+- **Workflows**: `/workflows/*` (Phase 7 - recovered)
+- **Alerts**: `/alerts/*` (Phase 8 - in development)
+
+## Next Steps
+
+1. Add MSW for API mocking
+2. Implement remaining feature pages
+3. Add real API integration for all endpoints
+4. Set up CI/CD with Vercel
+5. Add comprehensive testing
+
+## Development Notes
+
+- The app uses Tailwind CSS v4 with the new Vite plugin
+- Components follow a consistent pattern with TypeScript interfaces
+- Navigation automatically shows which features are from which phase
+- Responsive design with mobile-friendly sidebar

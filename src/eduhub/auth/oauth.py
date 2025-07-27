@@ -69,7 +69,7 @@ async def login(request: Request, return_to: Optional[str] = None):
         key="auth_state",
         value=state,
         httponly=True,
-        secure=True if BASE_URL.startswith("https") else False,
+        secure=False,  # Set to False for localhost development
         samesite="lax",
         max_age=600,  # 10 minutes
     )
@@ -80,7 +80,7 @@ async def login(request: Request, return_to: Optional[str] = None):
             key="return_to",
             value=return_to,
             httponly=True,
-            secure=True if BASE_URL.startswith("https") else False,
+            secure=False,  # Set to False for localhost development
             samesite="lax",
             max_age=600,
         )
@@ -323,6 +323,41 @@ async def clear_session(request: Request):
         "cookies_to_clear": ["access_token", "auth_state", "return_to"],
         "timestamp": int(time.time()),
     }
+
+
+@router.get("/status")
+async def auth_status(request: Request):
+    """
+    Check authentication status.
+    
+    Returns current authentication state and user info if authenticated.
+    """
+    access_token = request.cookies.get("access_token")
+    
+    if not access_token:
+        return {
+            "authenticated": False,
+            "user": None
+        }
+    
+    try:
+        # Validate token and get user info
+        user_info = validate_jwt_token(access_token)
+        return {
+            "authenticated": True,
+            "user": {
+                "sub": user_info.get("sub"),
+                "email": user_info.get("email"),
+                "name": user_info.get("name"),
+                "picture": user_info.get("picture"),
+            }
+        }
+    except Exception:
+        # Token is invalid or expired
+        return {
+            "authenticated": False,
+            "user": None
+        }
 
 
 def log_auth_event(event_type: str, event_data: dict):

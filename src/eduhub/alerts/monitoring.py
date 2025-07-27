@@ -9,7 +9,7 @@ import time
 from contextlib import asynccontextmanager
 from typing import Any, Dict, List, Optional
 
-from prometheus_client import Counter, Histogram, Info, generate_latest, CONTENT_TYPE_LATEST
+from prometheus_client import Counter, Gauge, Histogram, Info, generate_latest, CONTENT_TYPE_LATEST
 
 from .models import Alert, AlertChannel, AlertPriority, AlertCategory
 
@@ -33,8 +33,8 @@ broadcast_latency_ms = Histogram(
     buckets=[1, 5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000]
 )
 
-websocket_connections_active = Counter(
-    'websocket_connections_active_total',
+websocket_connections_active = Gauge(
+    'websocket_connections_active',
     'Current number of active WebSocket connections'
 )
 
@@ -126,7 +126,7 @@ def record_websocket_connection():
 
 def record_websocket_disconnection():
     """Record a WebSocket disconnection."""
-    websocket_connections_active.inc(-1)  # Decrement counter
+    websocket_connections_active.dec()  # Decrement gauge
 
 
 def record_websocket_message(message_type: str = "alert"):

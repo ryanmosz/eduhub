@@ -1,5 +1,5 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { useAuth0 } from '@auth0/auth0-react';
+import { useAuth } from '@/hooks/useAuth';
 import {
   Calendar,
   FileVideo,
@@ -27,7 +27,7 @@ const navigation = [
 
 export function MainLayout() {
   const location = useLocation();
-  const { user, logout } = useAuth0();
+  const { user } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -104,7 +104,12 @@ export function MainLayout() {
               variant="outline"
               size="sm"
               className="w-full"
-              onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
+              onClick={async () => {
+                const response = await fetch('/auth/logout', { method: 'POST', credentials: 'include' });
+                if (response.ok) {
+                  window.location.href = '/';
+                }
+              }}
             >
               <LogOut className="h-4 w-4 mr-2" />
               Logout

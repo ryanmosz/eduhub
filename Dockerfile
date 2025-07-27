@@ -25,7 +25,7 @@ WORKDIR /app
 FROM base as development
 
 # Install development dependencies
-COPY requirements-dev.txt .
+COPY requirements.txt requirements-dev.txt ./
 RUN pip install -r requirements-dev.txt
 
 # Copy application code
