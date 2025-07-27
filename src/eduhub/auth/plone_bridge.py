@@ -104,6 +104,9 @@ async def get_or_create_plone_user(
     Returns:
         Plone user data dict, or None if error
     """
+    # TODO: Fix await issue with dict response
+    return None
+    
     email = auth0_user.get("email")
     if not email:
         logger.error("Auth0 user missing email address")

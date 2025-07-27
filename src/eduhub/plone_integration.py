@@ -116,7 +116,9 @@ class PloneClient:
     async def _authenticate(self) -> None:
         """Authenticate with Plone using basic auth."""
         try:
-            auth_url = urljoin(self.config.base_url, "/@login")
+            # Ensure base_url ends with / for proper joining
+            base = self.config.base_url.rstrip("/") + "/"
+            auth_url = base + "@login"
             auth_data = {
                 "login": self.config.username,
                 "password": self.config.password,
@@ -126,7 +128,12 @@ class PloneClient:
             response = await self._client.post(auth_url, json=auth_data)
 
             if response.status_code == 200:
-                auth_result = await response.json()
+                # Handle both sync and async json() methods
+                json_result = response.json()
+                if asyncio.iscoroutine(json_result):
+                    auth_result = await json_result
+                else:
+                    auth_result = json_result
                 self._auth_token = auth_result.get("token")
 
                 if self._auth_token:
@@ -144,7 +151,11 @@ class PloneClient:
                 response_data = None
                 if response.content:
                     try:
-                        response_data = await response.json()
+                        json_result = response.json()
+                        if asyncio.iscoroutine(json_result):
+                            response_data = await json_result
+                        else:
+                            response_data = json_result
                     except Exception:
                         response_data = response.text
 
@@ -170,7 +181,9 @@ class PloneClient:
         if not self._client:
             await self.connect()
 
-        url = urljoin(self.config.base_url, endpoint)
+        # Ensure proper URL construction
+        base = self.config.base_url.rstrip("/") + "/"
+        url = base + endpoint.lstrip("/")
 
         try:
             logger.debug(f"Making {method} request to {url}")
@@ -244,7 +257,7 @@ class PloneClient:
         # Add any additional search parameters
         params.update(kwargs)
 
-        response = await self._request("GET", "/@search", params=params)
+        response = await self._request("GET", "@search", params=params)
         return await response.json()
 
     async def create_content(
@@ -382,7 +395,7 @@ class PloneClient:
 
     async def get_site_info(self) -> dict[str, Any]:
         """Get basic information about the Plone site."""
-        response = await self._request("GET", "/")
+        response = await self._request("GET", "")
         return await response.json()
 
     # User Management Methods for Auth0 Integration
@@ -399,7 +412,7 @@ class PloneClient:
         """
         try:
             # Search for user by email in Plone users endpoint
-            response = await self._request("GET", "/@users", params={"query": email})
+            response = await self._request("GET", "@users", params={"query": email})
             users_data = await response.json()
 
             # Look for exact email match in the results
@@ -424,7 +437,7 @@ class PloneClient:
             User data dict if found, None if not found
         """
         try:
-            response = await self._request("GET", f"/@users/{username}")
+            response = await self._request("GET", f"@users/{username}")
             return await response.json()
 
         except PloneAPIError as e:
@@ -507,7 +520,7 @@ class PloneClient:
         # Add any additional properties
         user_data.update(kwargs)
 
-        response = await self._request("POST", "/@users", json_data=user_data)
+        response = await self._request("POST", "@users", json_data=user_data)
         return await response.json()
 
     async def update_user(self, user_id: str, **kwargs) -> dict[str, Any]:
@@ -521,7 +534,7 @@ class PloneClient:
         Returns:
             Updated user data
         """
-        response = await self._request("PATCH", f"/@users/{user_id}", json_data=kwargs)
+        response = await self._request("PATCH", f"@users/{user_id}", json_data=kwargs)
         return await response.json()
 
 

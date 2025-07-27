@@ -10,7 +10,8 @@ import {
   LogOut,
   User,
   Menu,
-  X
+  X,
+  Zap
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -18,6 +19,7 @@ import { cn } from '@/lib/utils';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home, phase: 'Overview' },
+  { name: 'Performance', href: '/performance', icon: Zap, phase: 'Phase 2' },
   { name: 'Schedule Import', href: '/schedule', icon: Calendar, phase: 'Phase 4' },
   { name: 'Media Embeds', href: '/embeds', icon: FileVideo, phase: 'Phase 5' },
   { name: 'Open Data', href: '/data', icon: Database, phase: 'Phase 6' },

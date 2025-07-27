@@ -1,0 +1,10 @@
+{
+  "@type": "Site",
+  "id": "Plone",
+  "title": "EduHub Plone Site",
+  "description": "Backend CMS for EduHub",
+  "default_language": "en",
+  "portal_timezone": "UTC",
+  "setup_content": true,
+  "addons": ["plone.restapi", "plone.volto"]
+}

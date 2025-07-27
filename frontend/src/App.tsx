@@ -10,6 +10,7 @@ import { EmbedPreview } from '@/pages/EmbedPreview';
 import { OpenDataExplorer } from '@/pages/OpenDataExplorer';
 import { WorkflowTemplates } from '@/pages/WorkflowTemplates';
 import { RealTimeAlerts } from '@/pages/RealTimeAlerts';
+import { PerformanceDemo } from '@/pages/PerformanceDemo';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -65,6 +66,7 @@ function AuthenticatedApp() {
         <Route path="data" element={<OpenDataExplorer />} />
         <Route path="workflows" element={<WorkflowTemplates />} />
         <Route path="alerts" element={<RealTimeAlerts />} />
+        <Route path="performance" element={<PerformanceDemo />} />
       </Route>
       <Route path="/callback" element={<CallbackHandler />} />
     </Routes>

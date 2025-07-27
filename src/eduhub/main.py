@@ -18,6 +18,7 @@ from .auth.test_console import router as auth_console_router
 from .courses.endpoints import router as courses_router
 from .oembed.endpoints import router as oembed_router
 from .open_data.endpoints import router as open_data_router
+from .performance_demo import router as performance_router
 from .plone_content_endpoints import router as plone_content_router
 from .schedule_importer.endpoints import router as schedule_router
 from .workflows.endpoints import router as workflows_router
@@ -121,6 +122,7 @@ app.include_router(workflows_router, tags=["Workflows"])
 app.include_router(alerts_router, prefix="/alerts", tags=["Real-time Alerts"])
 app.include_router(plone_content_router, prefix="/plone", tags=["Plone Content"])
 app.include_router(schedule_router, prefix="/schedule", tags=["Schedule Import"])
+app.include_router(performance_router, tags=["Performance Demo"])
 
 
 @app.get("/", tags=["Root"])

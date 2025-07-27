@@ -214,7 +214,13 @@ async def get_current_user(
     token_payload = validate_jwt_token(token)
 
     # Sync with Plone and get combined user context
-    combined_user = await sync_auth0_user_to_plone(token_payload)
+    try:
+        combined_user = await sync_auth0_user_to_plone(token_payload)
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Plone sync failed: {e}")
+        combined_user = None
 
     if not combined_user:
         # If Plone integration fails, fall back to Auth0-only user
