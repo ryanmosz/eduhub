@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card } from '@/components/ui/Card';
+import { Card } from '@/components/ui/card';
 import { SimplePerformanceDemo } from './SimplePerformanceDemo';
 import { Zap, Clock, Users, AlertCircle, CheckCircle2, Activity } from 'lucide-react';
 

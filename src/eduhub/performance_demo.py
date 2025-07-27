@@ -7,7 +7,7 @@ handles concurrent requests that would crash legacy Plone.
 
 import asyncio
 import time
-from typing import Dict, List
+from typing import Any, Dict, List
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 
@@ -42,8 +42,8 @@ class PerformanceMetrics(BaseModel):
 
 class SystemComparison(BaseModel):
     """Comparison between our system and legacy Plone"""
-    our_system: Dict[str, any]
-    legacy_plone: Dict[str, any]
+    our_system: Dict[str, Any]
+    legacy_plone: Dict[str, Any]
     improvement_factor: float
 
 

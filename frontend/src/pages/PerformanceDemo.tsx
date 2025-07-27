@@ -2,7 +2,7 @@ import React from 'react';
 import { SimplePerformanceDemo } from '@/components/SimplePerformanceDemo';
 import { FullPerformanceDemo } from '@/components/FullPerformanceDemo';
 import { PloneIntegrationDemo } from '@/components/PloneIntegrationDemo';
-import { Card } from '@/components/ui/Card';
+import { Card } from '@/components/ui/card';
 import { Zap, Clock, Users, AlertCircle, CheckCircle2, Activity, Server, Layers } from 'lucide-react';
 
 export function PerformanceDemo() {

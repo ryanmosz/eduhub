@@ -7,7 +7,7 @@ echo "🚀 EduHub Deployment Script"
 echo "=========================="
 
 # Check if we're in the project root
-if [ ! -f "setup.py" ] || [ ! -d "frontend" ]; then
+if [ ! -f "pyproject.toml" ] || [ ! -d "frontend" ]; then
     echo "❌ Error: Please run this script from the project root directory"
     exit 1
 fi

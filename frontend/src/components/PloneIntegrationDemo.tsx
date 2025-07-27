@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card } from '@/components/ui/Card';
+import { Card } from '@/components/ui/card';
 import { Server, Zap, Shield, AlertCircle, CheckCircle2, RefreshCw } from 'lucide-react';
 
 export function PloneIntegrationDemo() {

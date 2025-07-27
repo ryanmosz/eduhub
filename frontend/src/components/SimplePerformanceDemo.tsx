@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card } from '@/components/ui/Card';
+import { Card } from '@/components/ui/card';
 import { Zap, CheckCircle2 } from 'lucide-react';
 
 export function SimplePerformanceDemo() {

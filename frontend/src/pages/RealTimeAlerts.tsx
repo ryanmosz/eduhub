@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Card } from '@/components/ui/Card';
-import { Bell, BellOff, CheckCircle2, AlertCircle, Info, MessageSquare, Clock, Settings, Send, Trash2 } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Card } from '@/components/ui/card';
+import { Bell, CheckCircle2, AlertCircle, Info, MessageSquare, Clock, Settings, Send, Trash2 } from 'lucide-react';
 import { getWebSocketUrl } from '@/utils/websocket';
 
 interface Alert {

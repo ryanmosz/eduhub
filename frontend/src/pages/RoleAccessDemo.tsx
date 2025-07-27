@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card } from '@/components/ui/Card';
+import { Card } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
 import { Shield, Users, Lock, CheckCircle2, AlertCircle, Key, UserCheck, Settings } from 'lucide-react';
 

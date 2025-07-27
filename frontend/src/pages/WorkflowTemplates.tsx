@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/Card';
+import { Card } from '@/components/ui/card';
 import { Workflow, CheckCircle2, Clock, AlertCircle, Users, FileText, TrendingUp, Bell, MessageSquare } from 'lucide-react';
 
 interface WorkflowTemplate {
@@ -315,7 +315,7 @@ export function WorkflowTemplates() {
                         {workflow.contentTitle}
                       </span>
                       {workflow.notes && (
-                        <MessageSquare className="h-4 w-4 text-gray-400" title="Has notes" />
+                        <MessageSquare className="h-4 w-4 text-gray-400" />
                       )}
                     </div>
                   </td>

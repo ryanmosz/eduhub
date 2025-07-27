@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/Card';
+import { Card } from '@/components/ui/card';
 import { Bell, Calendar, FileText, BookOpen, Clock, CheckCircle2, AlertCircle, LogOut, GraduationCap, Download, FileJson, FileSpreadsheet, PlayCircle, ExternalLink, X, Plus, FileCheck, ChevronRight, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useCourses, useAnnouncements } from '@/hooks/useCourses';

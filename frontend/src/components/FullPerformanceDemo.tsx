@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card } from '@/components/ui/Card';
+import { Card } from '@/components/ui/card';
 import { Zap, Clock, Users, AlertCircle, CheckCircle2, Activity, Server, ArrowRight } from 'lucide-react';
 
 export function FullPerformanceDemo() {
