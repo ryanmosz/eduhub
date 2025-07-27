@@ -111,8 +111,8 @@ app.add_middleware(
 )
 
 # Include routers
-app.include_router(oauth_router, prefix="/auth", tags=["Authentication"])
-app.include_router(auth_console_router, prefix="/auth-console", tags=["Auth Console"])
+app.include_router(oauth_router, tags=["Authentication"])
+app.include_router(auth_console_router, tags=["Auth Console"])
 app.include_router(oembed_router, prefix="/oembed", tags=["Rich Media"])
 app.include_router(open_data_router, tags=["Open Data"])
 app.include_router(workflows_router, tags=["Workflows"])
@@ -131,7 +131,7 @@ async def root():
         "version": "1.0.0",
         "services": {
             "authentication": "/auth/",
-            "auth_console": "/auth-console/",
+            "auth_console": "/test/",
             "rich_media": "/oembed/",
             "open_data": "/data/",
             "workflows": "/workflows/",
