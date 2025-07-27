@@ -1,5 +1,6 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { apiFetch } from '@/utils/api';
 import {
   Calendar,
   FileVideo,
@@ -109,7 +110,7 @@ export function MainLayout() {
             <button
               className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 hover:text-gray-900 transition-colors"
               onClick={async () => {
-                const response = await fetch('/auth/logout', { method: 'POST', credentials: 'include' });
+                const response = await apiFetch('/auth/logout', { method: 'POST' });
                 if (response.ok) {
                   window.location.href = '/';
                 }

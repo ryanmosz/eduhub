@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { apiFetch } from '../utils/api';
 
 interface User {
   sub: string;
@@ -26,12 +27,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     console.log('Checking auth status...');
     try {
       // Check auth status with backend
-      const response = await fetch('/auth/status', {
-        credentials: 'include',
-      });
-      
+      const response = await apiFetch('/auth/status');
+
       console.log('Auth response status:', response.status);
-      
+
       if (response.ok) {
         const data = await response.json();
         console.log('Auth data:', data);
