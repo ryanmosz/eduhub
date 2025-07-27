@@ -412,6 +412,12 @@ class TestGetItemEndpoint(TestOpenDataEndpoints):
 class TestRateLimiting:
     """Test rate limiting functionality."""
 
+    def setup_method(self):
+        """Clear rate limiter state before each test."""
+        from src.eduhub.open_data.rate_limit import get_rate_limiter
+        rate_limiter = get_rate_limiter()
+        rate_limiter.requests.clear()  # Clear all IP request tracking
+
     @pytest.fixture
     def client(self):
         """Create test client."""

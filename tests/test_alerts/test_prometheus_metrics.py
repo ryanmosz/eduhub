@@ -11,7 +11,7 @@ import pytest
 from prometheus_client import REGISTRY, Counter, Histogram
 
 from src.eduhub.alerts.monitoring import (
-    alert_broadcast_latency_milliseconds,
+    broadcast_latency_ms,
     alerts_failed_total,
     alerts_sent_total,
     export_metrics,
@@ -19,7 +19,7 @@ from src.eduhub.alerts.monitoring import (
     record_alert_failed,
     record_alert_sent,
     record_websocket_message,
-    websocket_messages_sent_total,
+    websocket_messages_sent,
 )
 
 
@@ -90,51 +90,51 @@ class TestPrometheusMetrics:
 
     def test_websocket_messages_counter_increments(self):
         """
-        Test that websocket_messages_sent_total counter increments.
+        Test that websocket_messages_sent counter increments.
 
         Task 8.4.5: Validates WebSocket message counter behavior.
         """
         # Get initial counter value
-        initial_value = websocket_messages_sent_total._value._value
+        initial_value = websocket_messages_sent._value._value
 
         # Record WebSocket message
         record_websocket_message("alert")
 
         # Check counter incremented
-        new_value = websocket_messages_sent_total._value._value
+        new_value = websocket_messages_sent._value._value
         assert (
             new_value == initial_value + 1
-        ), "websocket_messages_sent_total should increment by 1"
+        ), "websocket_messages_sent should increment by 1"
 
         # Record ping/pong messages
         record_websocket_message("ping")
         record_websocket_message("pong")
 
         # Check counter incremented
-        final_value = websocket_messages_sent_total._value._value
+        final_value = websocket_messages_sent._value._value
         assert (
             final_value == initial_value + 3
-        ), "websocket_messages_sent_total should increment by 3 total"
+        ), "websocket_messages_sent should increment by 3 total"
 
     def test_broadcast_latency_histogram_records(self):
         """
-        Test that alert_broadcast_latency_milliseconds histogram records timing data.
+        Test that broadcast_latency_ms histogram records timing data.
 
         Task 8.4.5: Validates histogram behavior for latency metrics.
         """
         # Get initial histogram count
-        initial_count = alert_broadcast_latency_milliseconds._sum._value
+        initial_count = broadcast_latency_ms._sum._value
 
         # Simulate recording broadcast latency
-        with alert_broadcast_latency_milliseconds.time():
+        with broadcast_latency_ms.time():
             time.sleep(0.01)  # 10ms delay
 
         # Check histogram was updated
-        new_count = alert_broadcast_latency_milliseconds._sum._value
+        new_count = broadcast_latency_ms._sum._value
         assert new_count > initial_count, "Histogram should record latency measurement"
 
         # Check count increased
-        sample_count = alert_broadcast_latency_milliseconds._count._value
+        sample_count = broadcast_latency_ms._count._value
         assert sample_count > 0, "Histogram should have sample count > 0"
 
     def test_metrics_export_contains_alert_metrics(self):
@@ -160,10 +160,10 @@ class TestPrometheusMetrics:
             b"alerts_failed_total" in metrics_output
         ), "Should contain alerts_failed_total metric"
         assert (
-            b"websocket_messages_sent_total" in metrics_output
-        ), "Should contain websocket_messages_sent_total metric"
+            b"websocket_messages_sent" in metrics_output
+        ), "Should contain websocket_messages_sent metric"
         assert (
-            b"alert_broadcast_latency_milliseconds" in metrics_output
+            b"broadcast_latency_ms" in metrics_output
         ), "Should contain latency histogram"
 
         # Verify labels are present
@@ -236,7 +236,7 @@ class TestPrometheusMetrics:
 
         # Get initial metric values
         initial_sent = alerts_sent_total._value._value
-        initial_websocket = websocket_messages_sent_total._value._value
+        initial_websocket = websocket_messages_sent._value._value
 
         # Mock WebSocket manager and Slack client to avoid real connections
         with (
@@ -259,7 +259,7 @@ class TestPrometheusMetrics:
 
         # Check that metrics incremented
         new_sent = alerts_sent_total._value._value
-        new_websocket = websocket_messages_sent_total._value._value
+        new_websocket = websocket_messages_sent._value._value
 
         assert (
             new_sent > initial_sent
@@ -307,7 +307,7 @@ class TestPrometheusMetrics:
         Task 8.4.5: Validates histogram configuration for broadcast latency.
         """
         # Check that histogram has reasonable buckets for alert latencies
-        histogram = alert_broadcast_latency_milliseconds
+        histogram = broadcast_latency_ms
 
         # Get bucket configuration (buckets should cover 1ms to 1000ms range)
         buckets = histogram._upper_bounds

@@ -305,6 +305,47 @@ async def get_admin_user(current_user: User = Depends(get_current_user)) -> User
     )
 
 
+async def get_alerts_write_user(current_user: User = Depends(get_current_user)) -> User:
+    """
+    FastAPI dependency to ensure current user has alerts:write permission.
+    
+    Args:
+        current_user: Current authenticated user from get_current_user
+        
+    Returns:
+        User: User with alerts:write permission
+        
+    Raises:
+        HTTPException: If user lacks alerts:write permission
+    """
+    # Check user permissions for alerts:write scope
+    user_permissions = [perm.lower() for perm in current_user.permissions]
+    has_alerts_write = (
+        "alerts:write" in user_permissions
+        or "alerts:*" in user_permissions
+        or "write:alerts" in user_permissions
+        or "*:write" in user_permissions
+        or "admin" in user_permissions
+        or "all" in user_permissions
+    )
+    
+    # Check user roles for admin-level access
+    user_roles = [role.lower() for role in current_user.roles]
+    has_admin_role = (
+        "manager" in user_roles
+        or "admin" in user_roles
+        or "administrator" in user_roles
+    )
+    
+    if has_alerts_write or has_admin_role:
+        return current_user
+    
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="Insufficient permissions. 'alerts:write' scope required for this operation."
+    )
+
+
 # Optional: dependency for when authentication is optional
 async def get_current_user_optional(
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),

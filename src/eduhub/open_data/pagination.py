@@ -95,8 +95,14 @@ def calculate_pagination_info(
     Returns:
         Dictionary with pagination metadata
     """
-    has_more = (current_offset + items_returned) < total_items
-    next_offset = current_offset + items_returned if has_more else None
+    # If we got fewer items than requested, there are no more items
+    if items_returned < limit:
+        has_more = False
+        next_offset = None
+    else:
+        # Check if there are more items beyond current page
+        has_more = (current_offset + limit) < total_items
+        next_offset = current_offset + limit if has_more else None
 
     return {
         "total": total_items,

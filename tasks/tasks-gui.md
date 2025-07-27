@@ -79,17 +79,17 @@ Each parent task includes a brief *Risk & Mitigation* line.
 
 #### Core Infrastructure
 
-- [ ] Frontend scaffold with Vite + React + TypeScript
-- [ ] Tailwind CSS v4 configuration
-- [ ] ShadCN UI component library setup
-- [ ] Auth0 React SDK integration
+- [x] Frontend scaffold with Vite + React + TypeScript
+- [x] Tailwind CSS v4 configuration
+- [x] ShadCN UI component library setup (manual)
+- [x] Auth0 React SDK integration
 - [ ] MSW for API mocking
 
 #### Feature Pages (Based on Completed Phases)
 
-- [ ] **Dashboard** - Overview with metrics from all phases
-- [ ] **Authentication** (Phase 3) - Login/logout, user profile
-- [ ] **Schedule Import** (Phase 4) - CSV upload wizard with preview
+- [x] **Dashboard** - Overview with metrics from all phases
+- [x] **Authentication** (Phase 3) - Login/logout, user profile
+- [x] **Schedule Import** (Phase 4) - CSV upload wizard with preview
 - [ ] **Media Embeds** (Phase 5) - oEmbed preview and management
 - [ ] **Open Data Explorer** (Phase 6) - Browse/search public content
 - [ ] **Workflow Templates** (Phase 7) - Manage educational workflows
