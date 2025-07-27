@@ -1,0 +1,1 @@
+"""Course management module for Plone integration."""

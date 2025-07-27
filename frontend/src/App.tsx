@@ -4,9 +4,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider, useAuth } from '@/hooks/useAuth';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Dashboard } from '@/pages/Dashboard';
+import { StudentDashboard } from '@/pages/StudentDashboard';
 import { ScheduleImport } from '@/pages/ScheduleImport';
 import { EmbedPreview } from '@/pages/EmbedPreview';
 import { OpenDataExplorer } from '@/pages/OpenDataExplorer';
+import { WorkflowTemplates } from '@/pages/WorkflowTemplates';
+import { RealTimeAlerts } from '@/pages/RealTimeAlerts';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -19,7 +22,7 @@ const queryClient = new QueryClient({
 });
 
 function AuthenticatedApp() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
 
   if (isLoading) {
     return (
@@ -36,6 +39,22 @@ function AuthenticatedApp() {
     return <LoginPage />;
   }
 
+  // Check if user is a student
+  const isStudent = user?.role === 'student';
+
+  if (isStudent) {
+    // Student routes - no MainLayout wrapper, just the dashboard
+    return (
+      <Routes>
+        <Route path="/" element={<Navigate to="/student-dashboard" replace />} />
+        <Route path="/student-dashboard" element={<StudentDashboard />} />
+        <Route path="/callback" element={<CallbackHandler />} />
+        <Route path="*" element={<Navigate to="/student-dashboard" replace />} />
+      </Routes>
+    );
+  }
+
+  // Admin/Developer routes with full MainLayout
   return (
     <Routes>
       <Route path="/" element={<MainLayout />}>
@@ -44,8 +63,8 @@ function AuthenticatedApp() {
         <Route path="schedule" element={<ScheduleImport />} />
         <Route path="embeds" element={<EmbedPreview />} />
         <Route path="data" element={<OpenDataExplorer />} />
-        <Route path="workflows" element={<div>Workflows (Phase 7) - Coming Soon</div>} />
-        <Route path="alerts" element={<div>Alerts (Phase 8) - Coming Soon</div>} />
+        <Route path="workflows" element={<WorkflowTemplates />} />
+        <Route path="alerts" element={<RealTimeAlerts />} />
       </Route>
       <Route path="/callback" element={<CallbackHandler />} />
     </Routes>
@@ -76,16 +95,36 @@ function CallbackHandler() {
 function LoginPage() {
   const [isRedirecting, setIsRedirecting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [lastUser, setLastUser] = React.useState<string | null>(null);
   
-  const handleLogin = async () => {
+  React.useEffect(() => {
+    // Check for last logged in user from localStorage
+    const savedUser = localStorage.getItem('lastAuthenticatedUser');
+    if (savedUser) {
+      setLastUser(savedUser);
+    }
+  }, []);
+  
+  const handleLogin = async (loginHint?: string) => {
     try {
       setIsRedirecting(true);
       setError(null);
       
       // Show loading state for a moment so user sees it
       setTimeout(() => {
-        // Redirect to backend auth endpoint with return URL
-        window.location.href = `/auth/login?return_to=${encodeURIComponent(window.location.origin + '/callback')}`;
+        // Always require password, but can pre-fill email with login_hint
+        const params = new URLSearchParams({
+          return_to: window.location.origin + '/callback'
+        });
+        
+        if (loginHint) {
+          // Pre-fill the email but still require password
+          params.append('login_hint', loginHint);
+          // Force showing login screen even if session exists
+          params.append('prompt', 'login');
+        }
+        
+        window.location.href = `/auth/login?${params.toString()}`;
       }, 500);
     } catch (err) {
       console.error('Login error:', err);
@@ -119,12 +158,60 @@ function LoginPage() {
               <p className="mt-2 text-sm text-gray-500">Please wait while we secure your login</p>
             </div>
           ) : (
-            <button
-              onClick={handleLogin}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              Sign in with Auth0
-            </button>
+            <div className="space-y-4">
+              {lastUser && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <p className="text-sm text-blue-700 font-medium mb-2">Continue as</p>
+                  <p className="text-sm text-gray-700 mb-3">
+                    {lastUser}
+                  </p>
+                  <button
+                    onClick={() => handleLogin(lastUser)}
+                    className="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  >
+                    Sign in as {lastUser}
+                  </button>
+                  <p className="text-xs text-gray-500 mt-2">
+                    You'll need to enter your password
+                  </p>
+                </div>
+              )}
+              
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-gray-50 text-gray-500">Or</span>
+                </div>
+              </div>
+              
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <p className="text-sm text-gray-700 font-medium mb-2">Different Account</p>
+                <p className="text-xs text-gray-600 mb-3">
+                  Force Auth0 to show the login screen with account selection
+                </p>
+                <button
+                  onClick={() => {
+                    setIsRedirecting(true);
+                    setError(null);
+                    // Force Auth0 to show login prompt
+                    setTimeout(() => {
+                      window.location.href = `/auth/login?prompt=login&return_to=${window.location.origin}/callback`;
+                    }, 500);
+                  }}
+                  className="w-full flex justify-center py-2 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                >
+                  Sign in as different user
+                </button>
+              </div>
+              
+              <div className="text-center">
+                <p className="text-xs text-gray-500">
+                  Test accounts: admin@example.com | dev@example.com | student@example.com
+                </p>
+              </div>
+            </div>
           )}
         </div>
       </div>

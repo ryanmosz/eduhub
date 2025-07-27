@@ -1,9 +1,17 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
+interface User {
+  sub: string;
+  email: string;
+  name?: string;
+  picture?: string;
+  role: 'admin' | 'developer' | 'student' | 'user';
+}
+
 interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
-  user: any | null;
+  user: User | null;
   checkAuth: () => Promise<void>;
 }
 
@@ -30,6 +38,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (data.authenticated) {
           setUser(data.user);
           setIsAuthenticated(true);
+          // Save last authenticated user
+          if (data.user?.email) {
+            localStorage.setItem('lastAuthenticatedUser', data.user.email);
+          }
         } else {
           setIsAuthenticated(false);
           setUser(null);

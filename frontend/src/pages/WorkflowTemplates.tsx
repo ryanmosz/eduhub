@@ -1,0 +1,399 @@
+import React, { useState, useEffect } from 'react';
+import { Card } from '@/components/ui/Card';
+import { Workflow, CheckCircle2, Clock, AlertCircle, Users, FileText, TrendingUp, Bell } from 'lucide-react';
+
+interface WorkflowTemplate {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  states: number;
+  avgCompletionTime: string;
+  usageCount: number;
+}
+
+interface ActiveWorkflow {
+  id: string;
+  templateName: string;
+  contentTitle: string;
+  currentState: string;
+  assignee: string;
+  startedAt: string;
+  status: 'active' | 'completed' | 'stalled' | 'pending-approval';
+  studentName?: string;
+  priority?: 'low' | 'medium' | 'high';
+}
+
+export function WorkflowTemplates() {
+  const [activeTab, setActiveTab] = useState<'templates' | 'active' | 'history'>('templates');
+  const [selectedTemplate, setSelectedTemplate] = useState<WorkflowTemplate | null>(null);
+  const [showApplyModal, setShowApplyModal] = useState(false);
+  
+  // Mock data - in production this would come from API
+  const templates: WorkflowTemplate[] = [
+    {
+      id: '1',
+      name: 'Course Approval Workflow',
+      description: 'Multi-step approval process for new course proposals',
+      category: 'Academic',
+      states: 5,
+      avgCompletionTime: '3-5 days',
+      usageCount: 156
+    },
+    {
+      id: '2',
+      name: 'Content Review Process',
+      description: 'Peer review workflow for educational content',
+      category: 'Content',
+      states: 4,
+      avgCompletionTime: '1-2 days',
+      usageCount: 89
+    },
+    {
+      id: '3',
+      name: 'Student Project Submission',
+      description: 'Workflow for student project submission and grading',
+      category: 'Academic',
+      states: 6,
+      avgCompletionTime: '5-7 days',
+      usageCount: 234
+    },
+    {
+      id: '4',
+      name: 'Resource Request',
+      description: 'Request and approval workflow for educational resources',
+      category: 'Administrative',
+      states: 3,
+      avgCompletionTime: '1-3 days',
+      usageCount: 67
+    }
+  ];
+
+  const activeWorkflows: ActiveWorkflow[] = [
+    {
+      id: 'w1',
+      templateName: 'Course Add/Drop Request',
+      contentTitle: 'Add Advanced Database Systems',
+      currentState: 'Pending Admin Approval',
+      assignee: 'Academic Advisor',
+      startedAt: '1 hour ago',
+      status: 'pending-approval',
+      studentName: 'student@example.com',
+      priority: 'high'
+    },
+    {
+      id: 'w2',
+      templateName: 'Course Approval Workflow',
+      contentTitle: 'Introduction to Machine Learning',
+      currentState: 'Department Review',
+      assignee: 'Dr. Smith',
+      startedAt: '2 days ago',
+      status: 'active'
+    },
+    {
+      id: 'w3',
+      templateName: 'Content Review Process',
+      contentTitle: 'Physics Lab Manual Update',
+      currentState: 'Peer Review',
+      assignee: 'Prof. Johnson',
+      startedAt: '1 day ago',
+      status: 'active'
+    },
+    {
+      id: 'w4',
+      templateName: 'Student Project Submission',
+      contentTitle: 'Senior Thesis - Biology',
+      currentState: 'Final Approval',
+      assignee: 'Committee',
+      startedAt: '5 days ago',
+      status: 'stalled'
+    }
+  ];
+
+  const handleApplyTemplate = (template: WorkflowTemplate) => {
+    setSelectedTemplate(template);
+    setShowApplyModal(true);
+  };
+
+  const renderTemplates = () => (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-semibold text-gray-900">Available Templates</h2>
+        <select className="px-3 py-2 border border-gray-300 rounded-md text-sm">
+          <option>All Categories</option>
+          <option>Academic</option>
+          <option>Content</option>
+          <option>Administrative</option>
+        </select>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {templates.map((template) => (
+          <Card key={template.id} className="hover:shadow-lg transition-shadow">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 bg-blue-50 rounded-lg">
+                  <Workflow className="h-6 w-6 text-blue-600" />
+                </div>
+                <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full">
+                  {template.category}
+                </span>
+              </div>
+              
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">{template.name}</h3>
+              <p className="text-sm text-gray-600 mb-4">{template.description}</p>
+              
+              <div className="space-y-2 mb-4">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-500">States:</span>
+                  <span className="font-medium">{template.states}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-500">Avg. Time:</span>
+                  <span className="font-medium">{template.avgCompletionTime}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-500">Used:</span>
+                  <span className="font-medium">{template.usageCount} times</span>
+                </div>
+              </div>
+              
+              <button
+                onClick={() => handleApplyTemplate(template)}
+                className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
+              >
+                Apply Template
+              </button>
+            </div>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderActiveWorkflows = () => (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-semibold text-gray-900">Active Workflows</h2>
+        <div className="flex gap-2">
+          <button className="px-3 py-1 text-sm bg-gray-100 rounded-md hover:bg-gray-200">
+            All Status
+          </button>
+          <button className="px-3 py-1 text-sm bg-gray-100 rounded-md hover:bg-gray-200">
+            My Workflows
+          </button>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Content
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Template
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Current State
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Assignee
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Started
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {activeWorkflows.map((workflow) => (
+                <tr key={workflow.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {workflow.contentTitle}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {workflow.templateName}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {workflow.currentState}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {workflow.assignee}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {workflow.startedAt}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center gap-2">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        workflow.status === 'active' ? 'bg-green-100 text-green-800' :
+                        workflow.status === 'completed' ? 'bg-blue-100 text-blue-800' :
+                        workflow.status === 'pending-approval' ? 'bg-purple-100 text-purple-800' :
+                        'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {workflow.status === 'active' && <CheckCircle2 className="h-3 w-3 mr-1" />}
+                        {workflow.status === 'stalled' && <AlertCircle className="h-3 w-3 mr-1" />}
+                        {workflow.status === 'pending-approval' && <Bell className="h-3 w-3 mr-1" />}
+                        {workflow.status.replace('-', ' ')}
+                      </span>
+                      {workflow.priority === 'high' && (
+                        <span className="text-xs text-red-600 font-medium">High Priority</span>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="p-4 border-2 border-purple-200 bg-purple-50">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-purple-700 font-medium">Pending Approvals</p>
+              <p className="text-2xl font-bold text-purple-900">1</p>
+              <p className="text-xs text-purple-600 mt-1">Student requests</p>
+            </div>
+            <Bell className="h-8 w-8 text-purple-600" />
+          </div>
+        </Card>
+        <Card className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600">Active Workflows</p>
+              <p className="text-2xl font-bold text-gray-900">15</p>
+            </div>
+            <TrendingUp className="h-8 w-8 text-green-500" />
+          </div>
+        </Card>
+        <Card className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600">Awaiting Action</p>
+              <p className="text-2xl font-bold text-gray-900">7</p>
+            </div>
+            <Clock className="h-8 w-8 text-yellow-500" />
+          </div>
+        </Card>
+        <Card className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600">Completed Today</p>
+              <p className="text-2xl font-bold text-gray-900">3</p>
+            </div>
+            <CheckCircle2 className="h-8 w-8 text-blue-500" />
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+
+  const renderHistory = () => (
+    <div className="space-y-6">
+      <Card className="p-8 text-center">
+        <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+        <h3 className="text-lg font-medium text-gray-900 mb-2">Workflow History</h3>
+        <p className="text-gray-600 mb-4">
+          View completed workflows and audit trails
+        </p>
+        <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+          Coming Soon
+        </button>
+      </Card>
+    </div>
+  );
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">Workflow Templates</h1>
+        <p className="mt-2 text-gray-600">
+          Manage approval workflows and track content through various stages.
+        </p>
+      </div>
+
+      <div className="border-b border-gray-200">
+        <nav className="-mb-px flex space-x-8">
+          <button
+            onClick={() => setActiveTab('templates')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'templates'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            Templates
+          </button>
+          <button
+            onClick={() => setActiveTab('active')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'active'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            Active Workflows
+          </button>
+          <button
+            onClick={() => setActiveTab('history')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'history'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            History
+          </button>
+        </nav>
+      </div>
+
+      <div className="py-6">
+        {activeTab === 'templates' && renderTemplates()}
+        {activeTab === 'active' && renderActiveWorkflows()}
+        {activeTab === 'history' && renderHistory()}
+      </div>
+
+      {/* Apply Template Modal */}
+      {showApplyModal && selectedTemplate && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full">
+            <h3 className="text-lg font-semibold mb-4">Apply {selectedTemplate.name}</h3>
+            <p className="text-gray-600 mb-4">
+              Select content to apply this workflow template to:
+            </p>
+            <select className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4">
+              <option>Select content...</option>
+              <option>Introduction to Python Programming</option>
+              <option>Advanced Chemistry Lab Manual</option>
+              <option>History Department Curriculum Update</option>
+            </select>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowApplyModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  alert('Workflow applied successfully!');
+                  setShowApplyModal(false);
+                }}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                Apply Workflow
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

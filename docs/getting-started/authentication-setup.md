@@ -79,6 +79,11 @@ http://localhost:8000
 - Password: `AdminPassword123!`
 - Connection: `Username-Password-Authentication`
 
+**User 3 (Student User):**
+- Email: `student@example.com`
+- Password: `StuPassword123!`
+- Connection: `Username-Password-Authentication`
+
 ## 🏗️ FastAPI Server Configuration
 
 ### Environment Variables

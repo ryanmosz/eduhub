@@ -23,7 +23,8 @@ from .rate_limiting import get_client_ip, rate_limit
 AUTH0_DOMAIN = os.getenv("AUTH0_DOMAIN", "dev-1fx6yhxxi543ipno.us.auth0.com")
 AUTH0_CLIENT_ID = os.getenv("AUTH0_CLIENT_ID", "s05QngyZXEI3XNdirmJu0CscW1hNgaRD")
 AUTH0_CLIENT_SECRET = os.getenv("AUTH0_CLIENT_SECRET", "")
-BASE_URL = os.getenv("BASE_URL", "http://localhost:8000")
+BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:8001")
 
 # Create the auth router
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -31,7 +32,7 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 @router.get("/login")
 @rate_limit(max_requests=5, window_seconds=60)  # 5 login attempts per minute
-async def login(request: Request, return_to: Optional[str] = None):
+async def login(request: Request, return_to: Optional[str] = None, prompt: Optional[str] = None, login_hint: Optional[str] = None):
     """
     Initiate Auth0 OAuth2 login flow.
 
@@ -54,10 +55,21 @@ async def login(request: Request, return_to: Optional[str] = None):
     params = {
         "response_type": "code",
         "client_id": AUTH0_CLIENT_ID,
-        "redirect_uri": f"{BASE_URL}/auth/callback",
+        "redirect_uri": f"{BACKEND_URL}/auth/callback",
         "scope": "openid profile email",
         "state": state,
     }
+    
+    # Add prompt parameter if provided (e.g., "login" to force login screen)
+    if prompt:
+        params["prompt"] = prompt
+    
+    # Add login_hint to pre-fill email address
+    if login_hint:
+        params["login_hint"] = login_hint
+        # If login_hint is provided, always force login screen to require password
+        if "prompt" not in params:
+            params["prompt"] = "login"
 
     auth_url = f"https://{AUTH0_DOMAIN}/authorize?" + urlencode(params)
 
@@ -163,8 +175,8 @@ async def callback(
             },
         )
 
-        # Get return_to URL from cookie
-        return_to = request.cookies.get("return_to", "/")
+        # Get return_to URL from cookie, default to frontend URL
+        return_to = request.cookies.get("return_to", f"{FRONTEND_URL}/")
 
         # Create redirect response
         response = RedirectResponse(url=return_to, status_code=status.HTTP_302_FOUND)
@@ -222,8 +234,8 @@ async def logout(request: Request):
     Returns:
         AuthResponse: Logout confirmation with session cleanup
     """
-    # Always redirect to auth console (already configured in Auth0)
-    return_to = f"{BASE_URL}/test/auth-console"
+    # Always redirect to frontend root (already configured in Auth0)
+    return_to = FRONTEND_URL  # This is http://localhost:8001
 
     # Note: We ignore any return_to in request body and always use auth console
     # since it's already configured in Auth0 allowed logout URLs
@@ -343,13 +355,25 @@ async def auth_status(request: Request):
     try:
         # Validate token and get user info
         user_info = validate_jwt_token(access_token)
+        # Determine role based on email
+        email = user_info.get("email", "")
+        role = "user"  # default role
+        
+        if email == "admin@example.com":
+            role = "admin"
+        elif email == "dev@example.com":
+            role = "developer"
+        elif email == "student@example.com":
+            role = "student"
+            
         return {
             "authenticated": True,
             "user": {
                 "sub": user_info.get("sub"),
-                "email": user_info.get("email"),
+                "email": email,
                 "name": user_info.get("name"),
                 "picture": user_info.get("picture"),
+                "role": role,
             }
         }
     except Exception:
@@ -404,7 +428,7 @@ async def exchange_code_for_tokens(authorization_code: str) -> dict:
         "grant_type": "authorization_code",
         "client_id": AUTH0_CLIENT_ID,
         "code": authorization_code,
-        "redirect_uri": f"{BASE_URL}/auth/callback",
+        "redirect_uri": f"{BACKEND_URL}/auth/callback",
     }
 
     # Add client_secret only if it's provided (not needed for SPA)

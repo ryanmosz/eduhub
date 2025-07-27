@@ -1,0 +1,14 @@
+/* This file ensures Tailwind includes all necessary classes */
+.dummy {
+  @apply bg-white p-6 rounded-lg shadow-sm border-gray-200;
+  @apply text-gray-900 text-gray-600 text-gray-500;
+  @apply bg-gray-50 bg-blue-50 bg-yellow-50;
+  @apply text-blue-600 text-yellow-600 text-green-600;
+  @apply h-6 w-6 h-5 w-5 h-4 w-4 h-3 w-3;
+  @apply gap-4 space-y-6 space-y-3 space-y-1;
+  @apply md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5;
+  @apply px-6 py-4 mt-1 mt-2;
+  @apply text-sm text-xs text-lg text-2xl text-3xl;
+  @apply font-medium font-semibold font-bold;
+  @apply shadow-lg;
+}

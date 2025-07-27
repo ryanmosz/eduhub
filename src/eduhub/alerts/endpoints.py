@@ -5,11 +5,13 @@ Provides REST API endpoints for alert management and WebSocket connections
 for real-time browser notifications.
 """
 
+import json
 import logging
+from datetime import datetime
 from typing import List
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status, WebSocket, WebSocketDisconnect
 from fastapi.security import HTTPBearer
 
 from ..auth.dependencies import get_alerts_write_user, get_current_user
@@ -27,6 +29,9 @@ security = HTTPBearer()
 
 # Service instance
 alert_service = AlertService()
+
+# WebSocket connections store (for demo)
+active_connections: List[WebSocket] = []
 
 
 @router.post("/send", response_model=AlertResponse)
@@ -59,11 +64,32 @@ async def send_alert(
 
         # Dispatch alert
         sent_channels = await alert_service.dispatch_alert(alert)
+        
+        # Broadcast to WebSocket clients
+        alert_data = json.dumps({
+            "id": str(alert.id),
+            "type": alert.priority.value if hasattr(alert.priority, 'value') else 'info',
+            "title": alert.title,
+            "message": alert.message,
+            "timestamp": alert.created_at.isoformat() if hasattr(alert.created_at, 'isoformat') else str(alert.created_at),
+        })
+        
+        # Send to all connected WebSocket clients
+        disconnected = []
+        for connection in active_connections:
+            try:
+                await connection.send_text(alert_data)
+            except Exception:
+                disconnected.append(connection)
+        
+        # Remove disconnected clients
+        for conn in disconnected:
+            active_connections.remove(conn)
 
         return AlertResponse(
             alert_id=alert.id,
             status="dispatched",
-            channels_sent=sent_channels,
+            channels_sent=sent_channels + ["websocket"],
             created_at=alert.created_at,
         )
 
@@ -110,3 +136,44 @@ async def health_check() -> dict:
     Returns system status. No authentication or rate limiting required.
     """
     return {"status": "healthy", "service": "alerts", "version": "1.0.0"}
+
+
+@router.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    """
+    WebSocket endpoint for real-time alert notifications.
+    
+    Clients connect here to receive real-time alerts.
+    """
+    await websocket.accept()
+    active_connections.append(websocket)
+    logger.info(f"WebSocket client connected. Total connections: {len(active_connections)}")
+    
+    try:
+        # Send initial connection confirmation
+        await websocket.send_text(json.dumps({
+            "type": "connected",
+            "message": "Connected to alert system",
+            "timestamp": str(datetime.now())
+        }))
+        
+        # Keep connection alive and wait for messages
+        while True:
+            # Wait for any message from client (heartbeat)
+            data = await websocket.receive_text()
+            
+            # Send pong response for heartbeat
+            if data == "ping":
+                await websocket.send_text(json.dumps({
+                    "type": "pong",
+                    "timestamp": str(datetime.now())
+                }))
+            
+    except WebSocketDisconnect:
+        active_connections.remove(websocket)
+        logger.info(f"WebSocket client disconnected. Total connections: {len(active_connections)}")
+    except Exception as e:
+        logger.error(f"WebSocket error: {e}")
+        if websocket in active_connections:
+            active_connections.remove(websocket)
+        await websocket.close()

@@ -100,10 +100,8 @@ export function MainLayout() {
                 </p>
               </div>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full"
+            <button
+              className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 hover:text-gray-900 transition-colors"
               onClick={async () => {
                 const response = await fetch('/auth/logout', { method: 'POST', credentials: 'include' });
                 if (response.ok) {
@@ -111,9 +109,9 @@ export function MainLayout() {
                 }
               }}
             >
-              <LogOut className="h-4 w-4 mr-2" />
+              <LogOut className="h-4 w-4" />
               Logout
-            </Button>
+            </button>
           </div>
         </div>
       </div>
