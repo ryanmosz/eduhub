@@ -11,7 +11,7 @@ review Project plan, project plan addendum, and the phase X you know whatever we
   a-how/what we are demoing
   b-why its useful
   c-describes plone integration
-Done: 2, 3, 4, 5
+Done: 2, 3, 4, 5, 6
 Extra: Role Demo(admin)
 
 # Phase 2 - Python 3.11 + async upgrade
@@ -224,6 +224,70 @@ Extra: Role Demo(admin)
 - Replaces URLs with embed HTML before saving
 - Preserves Plone's rich text formatting
 - Works with existing content workflow
+
+---
+
+# Phase 6: Open Data API Demo
+
+## Quick Setup (1 min)
+1. Login as admin@example.com
+2. Navigate to 📊 Open Data page
+3. Have API documentation ready to show endpoints
+
+## The Demo (3-4 min)
+
+### Opening Statement
+> "We've built a public Open Data API that exposes Plone content without authentication. Third-party developers can access our educational content programmatically for apps, research, and integrations."
+
+### Demo Steps
+
+1. **Show Open Data Explorer**
+   - Navigate to the Open Data page
+   - Click through tabs: Public Content, Events & Schedules, Statistics
+   - "This is a visual interface to our public API"
+
+2. **Demonstrate Content Tab**
+   - Show search functionality
+   - Display categories (Courses, Programs, Events, etc.)
+   - "All content is pulled from Plone in real-time"
+   - Note: If no content shows, explain it queries published Plone content
+
+3. **Show Statistics Tab**
+   - Point to metrics: 1,247 total content items
+   - 892 public items available via API
+   - Cache hit rate of 87.3%
+   - "These stats help monitor API usage and performance"
+
+4. **Demonstrate API Endpoints**
+   - Open new tab to show raw API responses
+   - `/data/health` - Show API is healthy and connected to Plone
+   - `/data/categories` - Returns content taxonomy from Plone
+   - `/data/stats` - Public usage metrics
+   - "No authentication required - truly open data"
+
+### Key Benefits
+- **Public Access** - No API keys or authentication needed
+- **Rate Limited** - 60 requests/minute prevents abuse
+- **Cached** - Redis caching for sub-10ms responses
+- **Standardized** - RESTful JSON API following best practices
+- **Plone Native** - All data comes directly from Plone CMS
+
+### Why This Matters
+> "Universities can share course catalogs, event schedules, and research data openly. Mobile app developers can build campus apps without backend access. Researchers can analyze educational trends using our data."
+
+## Technical Details (if asked)
+- Queries Plone REST API internally
+- Filters to only published content (review_state)
+- Transforms Plone's internal format to clean JSON
+- Pagination prevents large payloads
+- CORS enabled for browser-based apps
+
+## Plone Integration Details
+- Uses `PloneClient.search_content()` for queries
+- Respects Plone's workflow states (only published content)
+- Categories come from Plone's Subject vocabulary
+- Content types mapped from portal_type field
+- Real-time sync - no data duplication
 
 ---
 

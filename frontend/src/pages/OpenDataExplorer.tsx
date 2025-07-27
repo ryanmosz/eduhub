@@ -37,16 +37,21 @@ export function OpenDataExplorer() {
     setError(null);
     
     try {
+      let url: string;
       const params = new URLSearchParams({
         page: page.toString(),
         size: pageSize.toString(),
       });
       
-      if (search) {
-        params.append('search', search);
+      if (search && search.trim() !== '') {
+        // Use search endpoint for searches
+        url = `/data/search?q=${encodeURIComponent(search)}&${params}`;
+      } else {
+        // Use content endpoint for listing all content
+        url = `/data/content?${params}`;
       }
       
-      const response = await fetch(`/data/content?${params}`, {
+      const response = await fetch(url, {
         credentials: 'include',
       });
       
@@ -79,6 +84,29 @@ export function OpenDataExplorer() {
     }
   };
 
+  const fetchEvents = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await fetch('/data/events?page=1&size=10', {
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch events');
+      }
+      
+      const data = await response.json();
+      setContent(data.items || []);
+      setPagination(data.pagination || null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load events');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const fetchStats = async () => {
     setLoading(true);
     setError(null);
@@ -105,6 +133,8 @@ export function OpenDataExplorer() {
     if (activeTab === 'content') {
       fetchContent(currentPage, searchQuery);
       fetchCategories();
+    } else if (activeTab === 'events') {
+      fetchEvents();
     } else if (activeTab === 'stats') {
       fetchStats();
     }
@@ -142,7 +172,14 @@ export function OpenDataExplorer() {
             <input
               type="text"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                // If search is cleared, fetch all content
+                if (e.target.value === '') {
+                  setCurrentPage(1);
+                  fetchContent(1, '');
+                }
+              }}
               placeholder="Search content..."
               className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -152,6 +189,19 @@ export function OpenDataExplorer() {
             >
               Search
             </button>
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchQuery('');
+                  setCurrentPage(1);
+                  fetchContent(1, '');
+                }}
+                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+              >
+                Clear
+              </button>
+            )}
           </form>
 
           {categories.length > 0 && (
@@ -219,6 +269,51 @@ export function OpenDataExplorer() {
                 Next
               </button>
             </div>
+          )}
+        </div>
+      );
+    }
+
+    if (activeTab === 'events') {
+      return (
+        <div className="space-y-4">
+          {content.length === 0 ? (
+            <Card>
+              <p className="text-gray-500">No events found</p>
+            </Card>
+          ) : (
+            content.map((item: any) => (
+              <Card key={item.uid} className="hover:shadow-md transition">
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <h3 className="text-lg font-medium text-gray-900">{item.title}</h3>
+                    {item.description && (
+                      <p className="mt-1 text-sm text-gray-600">{item.description}</p>
+                    )}
+                    <div className="mt-2 space-y-1">
+                      {item.start && (
+                        <p className="text-sm text-gray-500">
+                          <span className="font-medium">Start:</span> {new Date(item.start).toLocaleString()}
+                        </p>
+                      )}
+                      {item.end && (
+                        <p className="text-sm text-gray-500">
+                          <span className="font-medium">End:</span> {new Date(item.end).toLocaleString()}
+                        </p>
+                      )}
+                      {item.location && (
+                        <p className="text-sm text-gray-500">
+                          <span className="font-medium">Location:</span> {item.location}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
+                    Event
+                  </span>
+                </div>
+              </Card>
+            ))
           )}
         </div>
       );
@@ -311,17 +406,6 @@ export function OpenDataExplorer() {
       <div className="py-6">
         {renderContent()}
       </div>
-
-      {activeTab === 'events' && (
-        <Card className="bg-yellow-50 border-yellow-200">
-          <div className="text-yellow-800">
-            <h3 className="font-medium">Events & Schedules Coming Soon</h3>
-            <p className="mt-1 text-sm">
-              This feature is currently under development. Check back soon!
-            </p>
-          </div>
-        </Card>
-      )}
     </div>
   );
 }

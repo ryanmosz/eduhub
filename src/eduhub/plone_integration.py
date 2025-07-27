@@ -227,7 +227,10 @@ class PloneClient:
         """Get content from Plone by path."""
         endpoint = f"/{path.lstrip('/')}" if path else ""
         response = await self._request("GET", endpoint)
-        return await response.json()
+        json_result = response.json()
+        if asyncio.iscoroutine(json_result):
+            return await json_result
+        return json_result
 
     async def search_content(
         self,
@@ -258,7 +261,10 @@ class PloneClient:
         params.update(kwargs)
 
         response = await self._request("GET", "@search", params=params)
-        return await response.json()
+        json_result = response.json()
+        if asyncio.iscoroutine(json_result):
+            return await json_result
+        return json_result
 
     async def create_content(
         self, parent_path: str, portal_type: str, title: str, **kwargs
@@ -327,7 +333,10 @@ class PloneClient:
         """Update existing content in Plone."""
         endpoint = f"/{path.lstrip('/')}"
         response = await self._request("PATCH", endpoint, json_data=kwargs)
-        return await response.json()
+        json_result = response.json()
+        if asyncio.iscoroutine(json_result):
+            return await json_result
+        return json_result
 
     async def update_content_with_embeds(
         self,
@@ -399,7 +408,10 @@ class PloneClient:
     async def get_site_info(self) -> dict[str, Any]:
         """Get basic information about the Plone site."""
         response = await self._request("GET", "")
-        return await response.json()
+        json_result = response.json()
+        if asyncio.iscoroutine(json_result):
+            return await json_result
+        return json_result
 
     # User Management Methods for Auth0 Integration
 
@@ -416,7 +428,11 @@ class PloneClient:
         try:
             # Search for user by email in Plone users endpoint
             response = await self._request("GET", "@users", params={"query": email})
-            users_data = await response.json()
+            json_result = response.json()
+            if asyncio.iscoroutine(json_result):
+                users_data = await json_result
+            else:
+                users_data = json_result
 
             # Look for exact email match in the results
             for user in users_data.get("items", []):
@@ -441,7 +457,10 @@ class PloneClient:
         """
         try:
             response = await self._request("GET", f"@users/{username}")
-            return await response.json()
+            json_result = response.json()
+            if asyncio.iscoroutine(json_result):
+                return await json_result
+            return json_result
 
         except PloneAPIError as e:
             if e.status_code == 404:
@@ -524,7 +543,10 @@ class PloneClient:
         user_data.update(kwargs)
 
         response = await self._request("POST", "@users", json_data=user_data)
-        return await response.json()
+        json_result = response.json()
+        if asyncio.iscoroutine(json_result):
+            return await json_result
+        return json_result
 
     async def update_user(self, user_id: str, **kwargs) -> dict[str, Any]:
         """
@@ -538,7 +560,10 @@ class PloneClient:
             Updated user data
         """
         response = await self._request("PATCH", f"@users/{user_id}", json_data=kwargs)
-        return await response.json()
+        json_result = response.json()
+        if asyncio.iscoroutine(json_result):
+            return await json_result
+        return json_result
 
 
 def transform_plone_content(plone_data: dict[str, Any]) -> PloneContent:
