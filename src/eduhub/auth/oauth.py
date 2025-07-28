@@ -190,6 +190,7 @@ async def callback(
 
         # For cross-domain auth, pass token in URL fragment
         # This is a quick fix for the demo
+        # Use id_token which contains user info and can be validated
         redirect_url = f"{return_to}#token={id_token}"
 
         # Create redirect response
@@ -348,20 +349,21 @@ async def auth_status(request: Request):
     """
     # Try Authorization header first (for cross-domain)
     auth_header = request.headers.get("authorization")
-    access_token = None
+    token = None
 
     if auth_header and auth_header.startswith("Bearer "):
-        access_token = auth_header.split(" ")[1]
+        token = auth_header.split(" ")[1]
     else:
         # Fall back to cookie for same-domain
-        access_token = request.cookies.get("access_token")
+        token = request.cookies.get("access_token") or request.cookies.get("id_token")
 
-    if not access_token:
+    if not token:
         return {"authenticated": False, "user": None}
 
     try:
         # Validate token and get user info
-        user_info = validate_jwt_token(access_token)
+        # This works with both access_token and id_token
+        user_info = validate_jwt_token(token)
         # Determine role based on email
         email = user_info.get("email", "")
         role = "user"  # default role
