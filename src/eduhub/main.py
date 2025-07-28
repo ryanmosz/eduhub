@@ -118,6 +118,10 @@ app = FastAPI(
 
 # Configure CORS
 cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",")
+# TEMPORARY: Allow all origins for demo
+# TODO: Remove this after updating CORS_ORIGINS env var on Render
+if os.getenv("ALLOW_ALL_ORIGINS", "false").lower() == "true":
+    cors_origins = ["*"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
