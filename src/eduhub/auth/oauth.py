@@ -77,12 +77,13 @@ async def login(request: Request, return_to: Optional[str] = None, prompt: Optio
     response = RedirectResponse(url=auth_url, status_code=status.HTTP_302_FOUND)
 
     # Store state in httpOnly cookie for security
+    is_production = not BACKEND_URL.startswith("http://localhost")
     response.set_cookie(
         key="auth_state",
         value=state,
         httponly=True,
-        secure=False,  # Set to False for localhost development
-        samesite="lax",
+        secure=is_production,  # Secure in production, not in localhost
+        samesite="lax" if not is_production else "none",  # none for cross-domain in production
         max_age=600,  # 10 minutes
     )
 
@@ -92,8 +93,8 @@ async def login(request: Request, return_to: Optional[str] = None, prompt: Optio
             key="return_to",
             value=return_to,
             httponly=True,
-            secure=False,  # Set to False for localhost development
-            samesite="lax",
+            secure=is_production,  # Secure in production, not in localhost
+            samesite="lax" if not is_production else "none",  # none for cross-domain in production
             max_age=600,
         )
 
@@ -183,12 +184,13 @@ async def callback(
 
         # Store the JWT token in a secure cookie for API access
         # In production, you'd want a shorter expiry and possibly HttpOnly=True
+        is_production = not BACKEND_URL.startswith("http://localhost")
         response.set_cookie(
             key="access_token",
             value=id_token,  # Using id_token as it contains user info
             httponly=False,  # Allow JavaScript access for testing
-            secure=False,  # Set to False for localhost HTTP development
-            samesite="lax",
+            secure=is_production,  # Secure in production, not in localhost
+            samesite="lax" if not is_production else "none",  # none for cross-domain in production
             max_age=3600,  # 1 hour
             path="/",  # Make cookie available to all paths
         )
