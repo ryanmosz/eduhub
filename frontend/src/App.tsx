@@ -80,15 +80,25 @@ function AuthenticatedApp() {
 
 function CallbackHandler() {
   const { checkAuth } = useAuth();
-  
+
   React.useEffect(() => {
+    // Check for token in URL fragment (quick fix for cross-domain auth)
+    const hash = window.location.hash;
+    if (hash && hash.includes('token=')) {
+      const token = hash.split('token=')[1];
+      if (token) {
+        // Store token in localStorage for demo
+        localStorage.setItem('auth_token', token);
+      }
+    }
+
     // After backend sets the cookie and redirects here, check auth status
     checkAuth().then(() => {
       // Redirect to home after auth check
       window.location.href = '/';
     });
   }, []);
-  
+
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
@@ -103,7 +113,7 @@ function LoginPage() {
   const [isRedirecting, setIsRedirecting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [lastUser, setLastUser] = React.useState<string | null>(null);
-  
+
   React.useEffect(() => {
     // Check for last logged in user from localStorage
     const savedUser = localStorage.getItem('lastAuthenticatedUser');
@@ -111,26 +121,26 @@ function LoginPage() {
       setLastUser(savedUser);
     }
   }, []);
-  
+
   const handleLogin = async (loginHint?: string) => {
     try {
       setIsRedirecting(true);
       setError(null);
-      
+
       // Show loading state for a moment so user sees it
       setTimeout(() => {
         // Always require password, but can pre-fill email with login_hint
         const params = new URLSearchParams({
           return_to: window.location.origin + '/callback'
         });
-        
+
         if (loginHint) {
           // Pre-fill the email but still require password
           params.append('login_hint', loginHint);
           // Force showing login screen even if session exists
           params.append('prompt', 'login');
         }
-        
+
         window.location.href = `${getApiUrl()}/auth/login?${params.toString()}`;
       }, 500);
     } catch (err) {
@@ -183,7 +193,7 @@ function LoginPage() {
                   </p>
                 </div>
               )}
-              
+
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-gray-300"></div>
@@ -192,7 +202,7 @@ function LoginPage() {
                   <span className="px-2 bg-gray-50 text-gray-500">Or</span>
                 </div>
               </div>
-              
+
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                 <p className="text-sm text-gray-700 font-medium mb-2">Different Account</p>
                 <p className="text-xs text-gray-600 mb-3">
@@ -212,7 +222,7 @@ function LoginPage() {
                   Sign in as different user
                 </button>
               </div>
-              
+
               <div className="text-center">
                 <p className="text-xs text-gray-500">
                   Test accounts: admin@example.com | dev@example.com | student@example.com

@@ -110,6 +110,8 @@ export function MainLayout() {
             <button
               className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 hover:text-gray-900 transition-colors"
               onClick={async () => {
+                // Clear local token
+                localStorage.removeItem('auth_token');
                 const response = await apiFetch('/auth/logout', { method: 'POST' });
                 if (response.ok) {
                   window.location.href = '/';

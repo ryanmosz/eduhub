@@ -26,8 +26,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const checkAuth = async () => {
     console.log('Checking auth status...');
     try {
+      // Get token from localStorage
+      const token = localStorage.getItem('auth_token');
+
       // Check auth status with backend
-      const response = await apiFetch('/auth/status');
+      const response = await apiFetch('/auth/status', {
+        headers: token ? {
+          'Authorization': `Bearer ${token}`
+        } : {}
+      });
 
       console.log('Auth response status:', response.status);
 

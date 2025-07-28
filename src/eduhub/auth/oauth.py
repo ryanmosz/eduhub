@@ -32,7 +32,12 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 @router.get("/login")
 @rate_limit(max_requests=5, window_seconds=60)  # 5 login attempts per minute
-async def login(request: Request, return_to: Optional[str] = None, prompt: Optional[str] = None, login_hint: Optional[str] = None):
+async def login(
+    request: Request,
+    return_to: Optional[str] = None,
+    prompt: Optional[str] = None,
+    login_hint: Optional[str] = None,
+):
     """
     Initiate Auth0 OAuth2 login flow.
 
@@ -59,11 +64,11 @@ async def login(request: Request, return_to: Optional[str] = None, prompt: Optio
         "scope": "openid profile email",
         "state": state,
     }
-    
+
     # Add prompt parameter if provided (e.g., "login" to force login screen)
     if prompt:
         params["prompt"] = prompt
-    
+
     # Add login_hint to pre-fill email address
     if login_hint:
         params["login_hint"] = login_hint
@@ -83,7 +88,9 @@ async def login(request: Request, return_to: Optional[str] = None, prompt: Optio
         value=state,
         httponly=True,
         secure=is_production,  # Secure in production, not in localhost
-        samesite="lax" if not is_production else "none",  # none for cross-domain in production
+        samesite=(
+            "lax" if not is_production else "none"
+        ),  # none for cross-domain in production
         max_age=600,  # 10 minutes
     )
 
@@ -94,7 +101,9 @@ async def login(request: Request, return_to: Optional[str] = None, prompt: Optio
             value=return_to,
             httponly=True,
             secure=is_production,  # Secure in production, not in localhost
-            samesite="lax" if not is_production else "none",  # none for cross-domain in production
+            samesite=(
+                "lax" if not is_production else "none"
+            ),  # none for cross-domain in production
             max_age=600,
         )
 
@@ -179,21 +188,12 @@ async def callback(
         # Get return_to URL from cookie, default to frontend URL
         return_to = request.cookies.get("return_to", f"{FRONTEND_URL}/")
 
-        # Create redirect response
-        response = RedirectResponse(url=return_to, status_code=status.HTTP_302_FOUND)
+        # For cross-domain auth, pass token in URL fragment
+        # This is a quick fix for the demo
+        redirect_url = f"{return_to}#token={id_token}"
 
-        # Store the JWT token in a secure cookie for API access
-        # In production, you'd want a shorter expiry and possibly HttpOnly=True
-        is_production = not BACKEND_URL.startswith("http://localhost")
-        response.set_cookie(
-            key="access_token",
-            value=id_token,  # Using id_token as it contains user info
-            httponly=False,  # Allow JavaScript access for testing
-            secure=is_production,  # Secure in production, not in localhost
-            samesite="lax" if not is_production else "none",  # none for cross-domain in production
-            max_age=3600,  # 1 hour
-            path="/",  # Make cookie available to all paths
-        )
+        # Create redirect response
+        response = RedirectResponse(url=redirect_url, status_code=status.HTTP_302_FOUND)
 
         return response
 
@@ -343,31 +343,36 @@ async def clear_session(request: Request):
 async def auth_status(request: Request):
     """
     Check authentication status.
-    
+
     Returns current authentication state and user info if authenticated.
     """
-    access_token = request.cookies.get("access_token")
-    
+    # Try Authorization header first (for cross-domain)
+    auth_header = request.headers.get("authorization")
+    access_token = None
+
+    if auth_header and auth_header.startswith("Bearer "):
+        access_token = auth_header.split(" ")[1]
+    else:
+        # Fall back to cookie for same-domain
+        access_token = request.cookies.get("access_token")
+
     if not access_token:
-        return {
-            "authenticated": False,
-            "user": None
-        }
-    
+        return {"authenticated": False, "user": None}
+
     try:
         # Validate token and get user info
         user_info = validate_jwt_token(access_token)
         # Determine role based on email
         email = user_info.get("email", "")
         role = "user"  # default role
-        
+
         if email == "admin@example.com":
             role = "admin"
         elif email == "dev@example.com":
             role = "developer"
         elif email == "student@example.com":
             role = "student"
-            
+
         return {
             "authenticated": True,
             "user": {
@@ -376,14 +381,11 @@ async def auth_status(request: Request):
                 "name": user_info.get("name"),
                 "picture": user_info.get("picture"),
                 "role": role,
-            }
+            },
         }
     except Exception:
         # Token is invalid or expired
-        return {
-            "authenticated": False,
-            "user": None
-        }
+        return {"authenticated": False, "user": None}
 
 
 def log_auth_event(event_type: str, event_data: dict):
