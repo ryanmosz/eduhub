@@ -17,8 +17,8 @@ export const apiEndpoint = (path: string) => {
 
 // Fetch wrapper with default credentials
 export const apiFetch = (path: string, options: RequestInit = {}) => {
+  // Don't use credentials with cross-origin requests when using Bearer tokens
   return fetch(apiEndpoint(path), {
-    credentials: 'include',
     ...options,
   });
 };
